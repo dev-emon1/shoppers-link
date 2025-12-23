@@ -1,0 +1,7 @@
+[
+  { "id": 1, "name": "Color", "slug": "color" },
+  { "id": 2, "name": "Size", "slug": "size" },
+  { "id": 3, "name": "Material", "slug": "material" },
+  { "id": 4, "name": "Storage Capacity", "slug": "storage-capacity" },
+  { "id": 5, "name": "RAM", "slug": "ram" }
+]

@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Scroll Hidden Utility ===== */
+.scroll-hidden {
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== CKEditor Styling ===== */
+
+/* Toolbar Section */
+.ck.ck-toolbar {
+  background-color: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 8px 12px !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 4px;
+  overflow-x: auto !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 20;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+/* Toolbar Scrollbar (Horizontal) */
+.ck.ck-toolbar::-webkit-scrollbar {
+  height: 6px;
+}
+.ck.ck-toolbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 6px;
+}
+
+/* Toolbar Buttons */
+.ck-toolbar__items button {
+  border-radius: 6px !important;
+  transition: all 0.2s ease;
+  flex-shrink: 0 !important;
+}
+.ck-toolbar__items button:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* Editable Area */
+.ck-editor-wrapper .ck-editor__editable {
+  min-height: 420px !important;
+  font-size: 15px;
+  line-height: 1.7;
+  background-color: #fff !important;
+  border-radius: 0.5rem !important;
+  padding: 1rem !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease;
+}
+.ck-editor-wrapper .ck-editor__editable:focus {
+  border-color: #3b82f6 !important; /* Tailwind main blue */
+}
+
+/* Ensure editor fills container width */
+.ck.ck-editor__main {
+  width: 100% !important;
+  border-top: none !important;
+}
+
+/* Paragraphs inside editor */
+.ck-content p {
+  color: #1f2937 !important;
+  font-size: 15px !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Mobile view optimization */
+@media (max-width: 768px) {
+  .ck.ck-toolbar {
+    overflow-x: scroll !important;
+    gap: 2px !important;
+    padding: 6px !important;
+  }
+
+  .ck-editor-wrapper .ck-editor__editable {
+    min-height: 300px !important;
+    font-size: 14px !important;
+  }
+}

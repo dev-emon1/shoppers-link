@@ -1,0 +1,27 @@
+[
+  { "id": 101, "attribute_id": 1, "value": "Red" },
+  { "id": 102, "attribute_id": 1, "value": "Blue" },
+  { "id": 103, "attribute_id": 1, "value": "Green" },
+  { "id": 104, "attribute_id": 1, "value": "Black" },
+  { "id": 105, "attribute_id": 1, "value": "White" },
+
+  { "id": 201, "attribute_id": 2, "value": "Small" },
+  { "id": 202, "attribute_id": 2, "value": "Medium" },
+  { "id": 203, "attribute_id": 2, "value": "Large" },
+  { "id": 204, "attribute_id": 2, "value": "XL" },
+
+  { "id": 301, "attribute_id": 3, "value": "Cotton" },
+  { "id": 302, "attribute_id": 3, "value": "Leather" },
+  { "id": 303, "attribute_id": 3, "value": "Polyester" },
+  { "id": 304, "attribute_id": 3, "value": "Metal" },
+
+  { "id": 401, "attribute_id": 4, "value": "64GB" },
+  { "id": 402, "attribute_id": 4, "value": "128GB" },
+  { "id": 403, "attribute_id": 4, "value": "256GB" },
+  { "id": 404, "attribute_id": 4, "value": "512GB" },
+
+  { "id": 501, "attribute_id": 5, "value": "4GB" },
+  { "id": 502, "attribute_id": 5, "value": "6GB" },
+  { "id": 503, "attribute_id": 5, "value": "8GB" },
+  { "id": 504, "attribute_id": 5, "value": "12GB" }
+]

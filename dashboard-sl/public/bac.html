@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>মাল্টিভেন্ডর প্রোডাক্ট যোগ</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ইন্টার ফন্ট ব্যবহার করা হয়েছে */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-style {
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .input-style:focus {
+            border-color: #4f46e5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">মাল্টিভেন্ডর প্রোডাক্ট যোগ করুন</h1>
+
+        <!-- PRODUCT FORM START -->
+        <div id="productForm">
+
+            <!-- ১. প্রাথমিক তথ্য -->
+            <div class="card p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4 text-indigo-700">১. প্রাথমিক তথ্য</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="productName" class="block text-sm font-medium text-gray-700 mb-1">প্রোডাক্টের
+                            নাম</label>
+                        <input type="text" id="productName" placeholder="শাড়ি, টি-শার্ট ইত্যাদি" class="input-style">
+                    </div>
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-1">ক্যাটাগরি</label>
+                        <select id="category" class="input-style">
+                            <option value="">ক্যাটাগরি নির্বাচন করুন</option>
+                            <option value="electronics">ইলেকট্রনিক্স</option>
+                            <option value="fashion">ফ্যাশন</option>
+                            <option value="home">হোম অ্যাপ্লায়েন্স</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">বিবরণ</label>
+                    <textarea id="description" rows="4" placeholder="প্রোডাক্ট সম্পর্কে বিস্তারিত লিখুন"
+                        class="input-style"></textarea>
+                </div>
+            </div>
+
+            <!-- ২. ভ্যারিয়েন্ট ম্যানেজমেন্ট -->
+            <div class="card p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4 text-indigo-700">২. ভ্যারিয়েন্ট ম্যানেজমেন্ট</h2>
+
+                <!-- Variant Type Inputs -->
+                <div id="variantTypesContainer" class="space-y-6">
+                    <!-- Dynamic Variant Inputs will be added here -->
+                    <p id="noVariantMessage" class="text-gray-500 text-center py-4">
+                        কোনো ভ্যারিয়েন্ট যোগ করা হয়নি। নিচে "ধরণ যোগ করুন" বাটনে ক্লিক করুন।
+                    </p>
+                </div>
+
+                <button onclick="addVariantType()"
+                    class="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    ধরণ যোগ করুন (যেমন: রঙ, সাইজ)
+                </button>
+
+                <button onclick="generateCombinations()"
+                    class="mt-6 ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                        </path>
+                    </svg>
+                    কম্বিনেশন তৈরি করুন
+                </button>
+            </div>
+
+            <!-- ৩. ভ্যারিয়েন্ট বিবরণ (ডাইনামিক টেবিল) -->
+            <div id="variantDetailsContainer" class="card p-6 mb-8 hidden">
+                <h2 class="text-xl font-semibold mb-4 text-indigo-700">৩. ভ্যারিয়েন্ট বিবরণ: স্টক, মূল্য ও ছবি</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    কম্বিনেশন</th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                                    SKU/মডেল</th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                                    মূল্য (৳)</th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                                    স্টক পরিমাণ</th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
+                                    ছবি (Variant Image)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="variantCombinationsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Variant rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- সেভ বাটন -->
+            <div class="text-center md:text-right mt-8">
+                <button type="submit" onclick="saveProduct()"
+                    class="px-8 py-3 text-lg font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 transition duration-300 shadow-xl">
+                    প্রোডাক্ট সেভ করুন
+                </button>
+            </div>
+
+        </div>
+        <!-- PRODUCT FORM END -->
+
+    </div>
+
+    <script>
+        let variantTypeCount = 0;
+        const variantTypesContainer = document.getElementById('variantTypesContainer');
+        const noVariantMessage = document.getElementById('noVariantMessage');
+        const combinationsTableBody = document.getElementById('variantCombinationsTableBody');
+        const variantDetailsContainer = document.getElementById('variantDetailsContainer');
+
+        /**
+         * নতুন ভ্যারিয়েন্টের ধরণ (যেমন: রঙ, সাইজ) যোগ করে
+         */
+        function addVariantType() {
+            variantTypeCount++;
+            noVariantMessage.classList.add('hidden');
+            const typeId = `type-${variantTypeCount}`;
+
+            const variantTypeHtml = `
+            <div id="${typeId}" class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div class="flex items-center justify-between mb-3">
+                    <input type="text" placeholder="ভ্যারিয়েন্টের ধরণ (যেমন: রঙ)" class="input-style w-1/3 variant-type-name" data-type-id="${typeId}">
+                    <button onclick="removeVariantType('${typeId}')" class="text-red-500 hover:text-red-700 text-sm font-medium transition duration-150">
+                        <svg class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        মুছে ফেলুন
+                    </button>
+                </div>
+                
+                <label class="block text-sm font-medium text-gray-700 mb-2 mt-4">ভ্যারিয়েন্ট মান (কমা দিয়ে আলাদা করুন)</label>
+                <div class="flex flex-wrap items-center gap-2" id="values-container-${typeId}">
+                    <input type="text" placeholder="মান লিখুন (যেমন: লাল, নীল, S, M, L)" 
+                           class="input-style flex-grow variant-values-input" data-type-id="${typeId}" 
+                           oninput="updateVariantValues(this)">
+                </div>
+                <div class="mt-2">
+                    <span class="text-xs text-gray-500">উদাহরণ: লাল, সবুজ, হলুদ</span>
+                </div>
+            </div>
+        `;
+            variantTypesContainer.insertAdjacentHTML('beforeend', variantTypeHtml);
+        }
+
+        /**
+         * ইনপুট বক্স থেকে ভ্যারিয়েন্ট মান (Values) সংগ্রহ করে (অতিরিক্ত UI কাজের জন্য জায়গা)
+         * @param {HTMLInputElement} inputElement - The text input element
+         */
+        function updateVariantValues(inputElement) {
+            const typeId = inputElement.getAttribute('data-type-id');
+            const valuesContainer = document.getElementById(`values-container-${typeId}`);
+            // এখন শুধু UI input নেওয়া হচ্ছে; দরকার হলে এখানে টোকেনাইজেশন বা ট্যাগ তৈরি করা যাবে।
+        }
+
+        /**
+         * ভ্যারিয়েন্টের ধরণ মুছে ফেলে
+         * @param {string} typeId - ID of the variant type div to remove
+         */
+        function removeVariantType(typeId) {
+            const element = document.getElementById(typeId);
+            if (element) {
+                element.remove();
+            }
+            // যদি আর কোনো ভ্যারিয়েন্ট নাম ইনপুট না থাকে, নোটিশ দেখাও
+            if (document.querySelectorAll('.variant-type-name').length === 0) {
+                noVariantMessage.classList.remove('hidden');
+                // Hide the details table if all variant types are removed
+                variantDetailsContainer.classList.add('hidden');
+                combinationsTableBody.innerHTML = '';
+            }
+        }
+
+        /**
+         * সকল ভ্যারিয়েন্ট কম্বিনেশন তৈরি করে এবং স্টক/মূল্য/ছবির জন্য টেবিল তৈরি করে
+         */
+        function generateCombinations() {
+            const variantTypes = document.querySelectorAll('.variant-type-name');
+            const variantData = [];
+
+            // ১. ভ্যারিয়েন্ট ডেটা সংগ্রহ
+            variantTypes.forEach(typeInput => {
+                const typeId = typeInput.getAttribute('data-type-id');
+                const typeName = typeInput.value.trim();
+                const valuesInput = document.querySelector(`.variant-values-input[data-type-id="${typeId}"]`);
+                const valuesString = valuesInput ? valuesInput.value.trim() : '';
+
+                if (typeName && valuesString) {
+                    const values = valuesString.split(',').map(v => v.trim()).filter(v => v.length > 0);
+                    if (values.length > 0) {
+                        variantData.push({
+                            name: typeName,
+                            values: values
+                        });
+                    }
+                }
+            });
+
+            if (variantData.length === 0) {
+                alert("কম্বিনেশন তৈরি করার জন্য কমপক্ষে একটি ভ্যারিয়েন্ট ধরণ এবং মান যোগ করুন।");
+                variantDetailsContainer.classList.add('hidden');
+                return;
+            }
+
+            // ২. কার্টেসিয়ান প্রোডাক্ট (সকল কম্বিনেশন) তৈরি
+            const allCombinations = getCartesianProduct(variantData.map(d => d.values));
+
+            // ৩. টেবিল তৈরি
+            combinationsTableBody.innerHTML = '';
+
+            if (!allCombinations || allCombinations.length === 0) {
+                combinationsTableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">কোনো বৈধ কম্বিনেশন তৈরি হয়নি। ভ্যারিয়েন্ট মান ঠিকমতো প্রবেশ করাননি।</td></tr>';
+                variantDetailsContainer.classList.remove('hidden');
+                return;
+            }
+
+            allCombinations.forEach((combinationArray, index) => {
+                const combinationName = combinationArray.join(' / '); // Example: লাল / L
+                const uniqueId = `combo-${index}`;
+
+                const rowHtml = `
+                <tr id="${uniqueId}">
+                    <td class="px-3 py-3 whitespace-nowrap font-medium text-gray-900 text-sm">${combinationName}</td>
+                    <td class="px-3 py-3 whitespace-nowrap">
+                        <input type="text" placeholder="SKU" class="input-style text-sm p-2" data-key="sku" value="PROD-${index + 1}">
+                    </td>
+                    <td class="px-3 py-3 whitespace-nowrap">
+                        <input type="number" placeholder="৳" min="0" class="input-style text-sm p-2 w-full" data-key="price">
+                    </td>
+                    <td class="px-3 py-3 whitespace-nowrap">
+                        <input type="number" placeholder="পরিমাণ" min="0" class="input-style text-sm p-2 w-full" data-key="stock">
+                    </td>
+                    <td class="px-3 py-3 whitespace-nowrap">
+                        <label class="cursor-pointer bg-indigo-50 hover:bg-indigo-100 text-indigo-700 py-1.5 px-3 rounded-lg text-xs font-medium inline-block w-full text-center transition">
+                            ছবি আপলোড
+                            <input type="file" class="hidden" accept="image/*" onchange="previewVariantImage(event, '${uniqueId}')">
+                        </label>
+                        <div id="image-preview-${uniqueId}" class="mt-2 text-xs text-gray-500 truncate" style="max-width: 120px;">
+                            কোনো ছবি আপলোড হয়নি।
+                        </div>
+                    </td>
+                </tr>
+            `;
+                combinationsTableBody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+
+            variantDetailsContainer.classList.remove('hidden');
+        }
+
+        /**
+         * কার্টেসিয়ান প্রোডাক্ট তৈরি করার জন্য সাহায্যকারী ফাংশন।
+         * @param {Array<Array<string>>} arrays - Array of arrays of variant values
+         * @returns {Array<Array<string>>} All possible combinations
+         */
+        function getCartesianProduct(arrays) {
+            if (!arrays || arrays.length === 0) {
+                return [];
+            }
+            return arrays.reduce((acc, curr) => {
+                const res = [];
+                acc.forEach(a => {
+                    curr.forEach(c => {
+                        res.push([...a, c]);
+                    });
+                });
+                return res;
+            }, [[]]);
+        }
+
+        /**
+         * ভ্যারিয়েন্ট অনুযায়ী ইমেজ আপলোড প্রিভিউ দেখায় (ফ্রন্টএন্ডের জন্য)
+         * @param {Event} event - File input change event
+         * @param {string} comboId - Unique ID of the combination row
+         */
+        function previewVariantImage(event, comboId) {
+            const file = event.target.files[0];
+            const previewDiv = document.getElementById(`image-preview-${comboId}`);
+
+            if (file) {
+                // ফাইল নাম দেখানো হচ্ছে; বাস্তব অ্যাপে এখানে সার্ভারে আপলোড করে URL নেওয়া হবে
+                previewDiv.innerHTML = `<span class="text-green-600 font-semibold">${file.name}</span> আপলোড করা হয়েছে।`;
+            } else {
+                previewDiv.textContent = 'কোনো ছবি আপলোড হয়নি।';
+            }
+        }
+
+        /**
+         * সেভ বাটন ক্লিক হলে সকল তথ্য সংগ্রহ করে
+         */
+        function saveProduct() {
+            const productName = document.getElementById('productName').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const category = document.getElementById('category').value;
+
+            if (!productName || !category) {
+                alert("অনুগ্রহ করে প্রোডাক্টের নাম ও ক্যাটাগরি পূরণ করুন।");
+                return;
+            }
+
+            // ১. ভ্যারিয়েন্ট ধরণ সংগ্রহ
+            const variantTypes = Array.from(document.querySelectorAll('.variant-type-name')).map(input => {
+                const typeId = input.getAttribute('data-type-id');
+                const valuesInput = document.querySelector(`.variant-values-input[data-type-id="${typeId}"]`);
+                return {
+                    name: input.value.trim(),
+                    values: valuesInput ? valuesInput.value.trim().split(',').map(v => v.trim()).filter(v => v.length > 0) : []
+                };
+            }).filter(d => d.name && d.values.length > 0);
+
+            // ২. ভ্যারিয়েন্ট কম্বিনেশনের ডেটা সংগ্রহ
+            const variants = [];
+            const rows = combinationsTableBody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const combinationName = row.cells[0].textContent.trim();
+                const sku = (row.querySelector('input[data-key="sku"]') || {}).value?.trim() || '';
+                const price = (row.querySelector('input[data-key="price"]') || {}).value?.trim() || '';
+                const stock = (row.querySelector('input[data-key="stock"]') || {}).value?.trim() || '';
+                const previewElem = document.getElementById(`image-preview-${row.id}`);
+                const imageText = previewElem ? previewElem.textContent : '';
+                // যদি filename পাওয়া যায়, আমরা সেটাকে imagePath হিসেবে রাখি (ডেমো)
+                const hasUploaded = imageText && imageText.includes('আপলোড করা হয়েছে');
+                const imagePath = hasUploaded ? imageText.trim().split(' আপলোড করা হয়েছে')[0] : null;
+
+                variants.push({
+                    combination: combinationName,
+                    sku: sku,
+                    price: parseFloat(price) || 0,
+                    stock: parseInt(stock) || 0,
+                    imagePath: imagePath // ডেমো: ফাইলনাম / রিয়েল অ্যাপে এখানে সেভড URL যাবে
+                });
+            });
+
+            // সকল ডেটা একটি ফাইনাল অবজেক্টে
+            const finalProductData = {
+                productName,
+                category,
+                description,
+                variantTypes,
+                variants,
+                createdAt: new Date().toISOString()
+                // In a real app, you would send this 'finalProductData' to your server
+            };
+
+            // কনসোলে ডেটা দেখান (শুধুমাত্র ডেমোর জন্য)
+            console.log("Final Product Data:", finalProductData);
+
+            // ব্যবহারকারীকে সফলতার মেসেজ দেখান
+            alert(`✅ প্রোডাক্ট: "${productName}" (কম্বিনেশন সংখ্যা: ${variants.length}) সেভ করার জন্য প্রস্তুত। ডেটা কনসোলে দেখুন।`);
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.querySelectorAll('.variant-type-name').length === 0) {
+                noVariantMessage.classList.remove('hidden');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

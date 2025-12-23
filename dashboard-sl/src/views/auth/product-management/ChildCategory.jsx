@@ -1,0 +1,279 @@
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import PageHeader from "../../../components/common/PageHeader";
+import Table from "../../../components/table/Table";
+import TableActions from "../../../components/table/TableActions";
+import SlidePanel from "../../../components/common/SlidePanel";
+import ImageUploader from "../../../components/common/ImageUploader";
+import Pagination from "../../../components/Pagination";
+import axios from "axios";
+import FilterBar from "../../../components/common/FilterBar";
+
+const Subcategory_API_URL = "http://127.0.0.1:8000/api/subCategories";
+const ChildCategory_API_URL = "http://127.0.0.1:8000/api/childCategories";
+const IMAGE_URL = "http://127.0.0.1:8000/storage/";
+
+const ChildCategory = () => {
+  // ===== States =====
+  const [childCats, setChildCats] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [show, setShow] = useState(false);
+  const [editingChild, setEditingChild] = useState(null);
+
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [childCategoryName, setChildCategoryName] = useState("");
+  const [childCategoryDetails, setChildCategoryDetails] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  // console.log(childCats);
+
+  // ===== Fetch Subcategories =====
+  const fetchSubcategories = useCallback(async () => {
+    try {
+      const res = await axios.get(Subcategory_API_URL);
+      setSubcategories(res.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch subcategories:", err);
+    }
+  }, []);
+
+  // ===== Fetch Child Categories =====
+  const fetchChildCategories = useCallback(
+    async (pageNumber = page, perPageNumber = perPage, search = searchTerm) => {
+      try {
+        setLoading(true);
+        const res = await axios.get(ChildCategory_API_URL, {
+          params: { page: pageNumber, per_page: perPageNumber, search },
+        });
+
+        setChildCats(res.data.data || []);
+        setTotalPages(res.data.meta?.last_page || 1);
+        setPage(res.data.meta?.current_page || 1);
+      } catch (err) {
+        console.error("Failed to fetch child categories:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, perPage, searchTerm]
+  );
+
+  useEffect(() => {
+    fetchSubcategories();
+    fetchChildCategories();
+  }, [fetchSubcategories, fetchChildCategories]);
+
+  // ===== Add / Update Child Category =====
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedSubcategory) return alert("⚠️ Please select a subcategory!");
+    if (!childCategoryName.trim())
+      return alert("⚠️ Child category name is required!");
+
+    try {
+      const formData = new FormData();
+      formData.append("sub_category_id", selectedSubcategory);
+      formData.append("name", childCategoryName.trim());
+      formData.append("description", childCategoryDetails || "");
+      if (imageFile) formData.append("image", imageFile);
+      // for (let [key, value] of formData.entries()) {
+      //   console.log("FormData:", key, value);
+      // }
+      let res;
+      if (editingChild) {
+        res = await axios.post(
+          `${ChildCategory_API_URL}/${editingChild.id}?_method=PUT`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+      } else {
+        res = await axios.post(ChildCategory_API_URL, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+
+      const { success, data, message } = res.data;
+      if (success) {
+        alert(message || "Child category saved successfully!");
+        setShow(false);
+        setEditingChild(null);
+        setSelectedSubcategory("");
+        setChildCategoryName("");
+        setChildCategoryDetails("");
+        setImageFile(null);
+        setImagePreview(null);
+        fetchChildCategories();
+      } else {
+        alert(message || "Something went wrong!");
+      }
+    } catch (err) {
+      console.error("Error saving child category:", err.response?.data || err);
+      const errors = err.response?.data?.errors;
+      if (errors) {
+        alert(Object.values(errors)[0][0]);
+      } else {
+        alert(err.response?.data?.message || "Server error!");
+      }
+    }
+  };
+
+  // ===== Edit Child Category =====
+  const handleEdit = (child) => {
+    setEditingChild(child);
+    setSelectedSubcategory(child.sub_category_id);
+    setChildCategoryName(child.name);
+    setChildCategoryDetails(child.description || "");
+    setImagePreview(child.image?.startsWith("http") ? child.image : `${IMAGE_URL}${child.image}`);
+    setShow(true);
+  };
+  // ==== Handlers ====
+  const handleFileSelect = useCallback((file) => {
+    setImageFile(file);
+    setImagePreview(file ? URL.createObjectURL(file) : null);
+  }, []);
+  const handleSearch = useCallback((e) => {
+    setSearchTerm(e.target.value);
+    setPage(1);
+  }, []);
+  const handlePerPageChange = useCallback((e) => {
+    setPerPage(Number(e.target.value));
+    setPage(1);
+  }, []);
+  // ===== Table Columns =====
+  const columns = [
+    { key: "no", label: "No", render: (item, i) => (page - 1) * perPage + i + 1 },
+    {
+      key: "image",
+      label: "Image",
+      render: (item) => (
+        <img
+          src={
+            item.image
+              ? item.image.startsWith("http")
+                ? item.image
+                : `${IMAGE_URL}${item.category.image}`
+              : `${IMAGE_URL}${item.sub_category.category.image}`
+          }
+          alt={item.name}
+          className="w-10 h-10 rounded object-cover border border-border"
+        />
+      ),
+    },
+    { key: "category", label: "Category", render: (item) => item.sub_category.category.name },
+    { key: "subcategory", label: "Subcategory", render: (item) => item.sub_category.name },
+    { key: "name", label: "Child Category", sortable: true },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (item) => <TableActions onEdit={() => handleEdit(item)} />,
+    },
+  ];
+  // ===== Pagination + Search =====
+  const { currentData, totalPages } = useMemo(() => {
+    const filtered = childCats.filter((cat) =>
+      cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const total = Math.ceil(filtered.length / perPage);
+    const start = (page - 1) * perPage;
+    return { currentData: filtered.slice(start, start + perPage), totalPages: total };
+  }, [childCats, searchTerm, perPage, page]);
+  return (
+    <div className="px-4">
+      <PageHeader
+        title="Child Categories"
+        searchTerm={searchTerm}
+        onSearch={handleSearch}
+        perPage={perPage}
+        onPerPageChange={handlePerPageChange}
+        onAddClick={() => {
+          setEditingChild(null);
+          setShow(true);
+          setSelectedSubcategory("");
+          setChildCategoryName("");
+          setChildCategoryDetails("");
+          setImageFile(null);
+          setImagePreview(null);
+        }}
+      />
+      {/* ===== Filter Bar ===== */}
+      <div className="mb-4 bg-white p-3 rounded-md shadow-sm">
+        <FilterBar
+          perPage={perPage}
+          onPerPageChange={handlePerPageChange}
+        />
+      </div>
+      <div className="flex flex-wrap w-full">
+        <div className="w-full lg:w-7/12">
+          <div className="bg-white p-4 rounded-md shadow-md overflow-x-auto">
+            <Table
+              columns={columns}
+              data={currentData}
+              page={page}
+              perPage={perPage}
+              enableCheckbox={true}
+              showFooter={true}
+              loading={loading}
+            />
+            <div className="flex justify-end mt-4">
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage} />
+            </div>
+          </div>
+        </div>
+
+        <SlidePanel show={show} title={editingChild ? "Edit Child Category" : "Add Child Category"} onClose={() => setShow(false)}>
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col w-full gap-1 mb-5">
+              <label className="text-sm font-medium">Select Subcategory <span className="text-red">*</span></label>
+              <select className="px-2 py-2 border rounded-md" value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)}>
+                <option value="">-- Choose Subcategory --</option>
+                {subcategories.map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.name} ({sub.category.name})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col w-full gap-1 mb-5">
+              <label className="text-sm font-medium">Child Category Name <span className="text-red">*</span></label>
+              <input type="text" className="px-2 py-2 border rounded-md" value={childCategoryName} onChange={(e) => setChildCategoryName(e.target.value)} />
+            </div>
+
+            <div className="flex flex-col w-full gap-1 mb-5">
+              <label className="text-sm font-medium">Description (optional)</label>
+              <textarea className="px-2 py-2 border rounded-md" value={childCategoryDetails} onChange={(e) => setChildCategoryDetails(e.target.value)} rows={3} />
+            </div>
+
+            <div className="flex flex-col w-full gap-1 mb-5">
+              <label className="text-sm font-medium">Image (optional)</label>
+              <ImageUploader onFileSelect={handleFileSelect} multiple={false} />
+              {imagePreview && (
+                <div className="mt-3 flex justify-center">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-32 h-32 object-cover rounded border border-gray-300"
+                  />
+                </div>
+              )}
+            </div>
+
+            <button type="submit" className="w-full bg-main text-white py-2 rounded-md">
+              {editingChild ? "Update Child Category" : "Add Child Category"}
+            </button>
+          </form>
+        </SlidePanel>
+      </div>
+    </div>
+  );
+};
+
+export default ChildCategory;

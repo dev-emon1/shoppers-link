@@ -1,0 +1,66 @@
+# -----------------------------
+# Node & Environment
+# -----------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# -----------------------------
+# Build Outputs
+# -----------------------------
+dist/
+build/
+.next/
+out/
+.cache/
+coverage/
+*.log
+
+# -----------------------------
+# IDE & Editor Specific
+# -----------------------------
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# -----------------------------
+# OS Specific
+# -----------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------
+# Dependency Caches
+# -----------------------------
+.pnpm-store/
+.bun/
+.eslintcache
+stylelintcache
+
+# -----------------------------
+# React-specific (dashboard-sl)
+# -----------------------------
+dashboard-sl/build/
+dashboard-sl/node_modules/
+dashboard-sl/.env*
+
+# -----------------------------
+# Next.js-specific (frontend-sl)
+# -----------------------------
+frontend-sl/.next/
+frontend-sl/out/
+frontend-sl/node_modules/
+frontend-sl/.env*
+frontend-sl/.vercel/

@@ -1,0 +1,22 @@
+[
+  {
+    "id": 101,
+    "category_id": 1,
+    "name": "Mobile Phones",
+    "slug": "mobile-phones"
+  },
+  { "id": 102, "category_id": 1, "name": "Laptops", "slug": "laptops" },
+  {
+    "id": 201,
+    "category_id": 2,
+    "name": "Men's Clothing",
+    "slug": "mens-clothing"
+  },
+  {
+    "id": 202,
+    "category_id": 2,
+    "name": "Women's Clothing",
+    "slug": "womens-clothing"
+  },
+  { "id": 301, "category_id": 3, "name": "Furniture", "slug": "furniture" }
+]

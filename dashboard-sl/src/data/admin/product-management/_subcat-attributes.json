@@ -1,0 +1,19 @@
+[
+  { "sub_category_id": 101, "attribute_id": 1 },
+  { "sub_category_id": 101, "attribute_id": 4 },
+  { "sub_category_id": 101, "attribute_id": 5 },
+
+  { "sub_category_id": 102, "attribute_id": 1 },
+  { "sub_category_id": 102, "attribute_id": 4 },
+  { "sub_category_id": 102, "attribute_id": 5 },
+
+  { "sub_category_id": 201, "attribute_id": 1 },
+  { "sub_category_id": 201, "attribute_id": 2 },
+  { "sub_category_id": 201, "attribute_id": 3 },
+
+  { "sub_category_id": 202, "attribute_id": 1 },
+  { "sub_category_id": 202, "attribute_id": 2 },
+  { "sub_category_id": 202, "attribute_id": 3 },
+
+  { "sub_category_id": 301, "attribute_id": 3 }
+]

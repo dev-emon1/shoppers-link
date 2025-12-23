@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------
+   CSS Variables (Theme Base)
+------------------------------------------------------------ */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* ------------------------------------------------------------
+   Global Reset & Base Styles
+------------------------------------------------------------ */
+html {
+  overflow-y: scroll; /* Always show vertical scrollbar */
+  scrollbar-gutter: stable; /* Prevent layout shift on scroll */
+}
+
+* {
+  box-sizing: border-box; /* Predictable box model */
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  text-decoration: none; /* Remove default link underline */
+}
+
+/* Ensure toast notifications always stay on top */
+div[data-sonner-toaster],
+.react-hot-toast {
+  z-index: 999999 !important;
+}
+
+/* ============================================================
+   GLOBAL ANIMATIONS
+============================================================ */
+
+/* Simple fade-in animation (used for content appearance) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* Smooth centered appearance (dropdowns, tooltips) */
+@keyframes smoothAppear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-smoothAppear {
+  animation: smoothAppear 0.25s ease-out;
+}
+
+/* Subtle slide-up fade (menus, content loading) */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeSlideUp {
+  animation: fadeSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Pulsing glow animation (highlights, attention elements) */
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 6px rgba(168, 85, 247, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(168, 85, 247, 0.8);
+  }
+}
+
+/* Override Tailwind animate-pulse with custom glow */
+.animate-pulse {
+  animation: glowPulse 2.2s ease-in-out infinite;
+}
+
+/* Fade-in & fade-out (used for transitions/modals) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.animate-fadeOut {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+/* ------------------------------------------------------------
+   Form Focus & Disabled States
+------------------------------------------------------------ */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgb(239 68 68); /* Red focus border */
+  box-shadow: 0 0 0 1px rgb(239 68 68 / 40%); /* Subtle focus ring */
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------
+   Scrollbar Utilities
+------------------------------------------------------------ */
+/* Hide horizontal scrollbar (e.g., thumbnail strips) */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* ============================================================
+   SWIPER CUSTOMIZATION
+============================================================ */
+
+/* Pagination position */
+.swiper-pagination {
+  bottom: 18px !important;
+}
+
+/* Pagination dots */
+.swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: #d1d5db;
+  opacity: 1;
+  margin: 0 4px !important;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+/* Active pagination dot */
+.swiper-pagination-bullet-active {
+  background: #e07d42 !important; /* Brand primary color */
+  transform: scale(1.25);
+  box-shadow: 0 0 6px rgba(224, 125, 66, 0.6);
+}
+
+/* Hover state for pagination dots */
+.swiper-pagination-bullet:hover {
+  background: #cf6a2a;
+}
+
+/* Navigation arrows (hidden on mobile) */
+.swiper-button-prev,
+.swiper-button-next {
+  color: #e07d42 !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+/* Enable arrows on desktop */
+@media (min-width: 1024px) {
+  .swiper-button-prev,
+  .swiper-button-next {
+    display: flex !important;
+    opacity: 0.7;
+    pointer-events: auto;
+  }
+
+  .swiper-button-prev:hover,
+  .swiper-button-next:hover {
+    color: #cf6a2a;
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   FEATURED PRODUCTS – CUSTOM SWIPER RULES
+============================================================ */
+
+.featured-products-swiper {
+  position: relative;
+  overflow: hidden;
+}
+
+.featured-products-swiper .swiper-wrapper {
+  padding: 0 10px;
+}
+
+/* Hide default Swiper arrows completely */
+.featured-products-swiper .swiper-button-prev,
+.featured-products-swiper .swiper-button-next {
+  display: none !important;
+}
+
+/* ============================================================
+   HEADER OFFSET (Fixed Header Support)
+============================================================ */
+
+/* Prevent hero/banner overlap under fixed header */
+body {
+  padding-top: 120px; /* Adjust if header height changes */
+  background-color: var(--background);
+  color: var(--foreground);
+  scroll-behavior: smooth;
+}
+
+/* ============================================================
+   MEDIA & UTILITY HELPERS
+============================================================ */
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.25s ease-out forwards;
+}
