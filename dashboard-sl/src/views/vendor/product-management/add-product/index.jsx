@@ -62,7 +62,7 @@ const AddProduct = () => {
   }, []);
 
   const colorAttributeId = useMemo(
-    () => attributes.find((a) => a.name?.toLowerCase() === "color")?.id,
+    () => attributes?.find((a) => a.name?.toLowerCase() === "color")?.id,
     [attributes]
   );
 
@@ -84,9 +84,12 @@ const AddProduct = () => {
   const data = watch();
 
   // This tells the Yup schema if we are in Category 8
-  const validationContext = useMemo(() => ({
-    isDigital: categoryId == 8
-  }), [categoryId]);
+  const validationContext = useMemo(
+    () => ({
+      isDigital: categoryId == 8,
+    }),
+    [categoryId]
+  );
 
   // Update the resolver context whenever category changes
   useEffect(() => {
@@ -96,13 +99,13 @@ const AddProduct = () => {
   // 5. Handle Stock for Digital Products (Category 8)
   useEffect(() => {
     if (categoryId == 8 && variants?.length > 0) {
-      // Only update if at least one variant has a stock other than 0 
+      // Only update if at least one variant has a stock other than 0
       // to prevent unnecessary re-renders
-      const needsUpdate = variants.some(v => v.stock !== 0);
+      const needsUpdate = variants.some((v) => v.stock !== 0);
       if (needsUpdate) {
-        const updatedVariants = variants.map(v => ({
+        const updatedVariants = variants.map((v) => ({
           ...v,
-          stock: 0
+          stock: 0,
         }));
         setValue("variants", updatedVariants, { shouldValidate: true });
       }
@@ -355,24 +358,27 @@ const AddProduct = () => {
               <div key={s.id} className="flex-1 relative">
                 {i < steps.length - 1 && (
                   <div
-                    className={`absolute top-3 left-1/2 w-full h-[2px] ${i + 1 < step ? "bg-green" : "bg-gray-300"
-                      }`}
+                    className={`absolute top-3 left-1/2 w-full h-[2px] ${
+                      i + 1 < step ? "bg-green" : "bg-gray-300"
+                    }`}
                   />
                 )}
                 <div className="flex flex-col items-center">
                   <div
-                    className={`w-7 h-7 flex items-center justify-center rounded-full text-white text-sm font-semibold transition-all ${s.id === step
-                      ? "bg-main z-10"
-                      : s.id < step
+                    className={`w-7 h-7 flex items-center justify-center rounded-full text-white text-sm font-semibold transition-all ${
+                      s.id === step
+                        ? "bg-main z-10"
+                        : s.id < step
                         ? "bg-green z-10"
                         : "bg-gray-300 z-10"
-                      }`}
+                    }`}
                   >
                     {s.id}
                   </div>
                   <p
-                    className={`text-[11px] mt-1 font-medium ${s.id === step ? "text-main" : "text-gray-500"
-                      }`}
+                    className={`text-[11px] mt-1 font-medium ${
+                      s.id === step ? "text-main" : "text-gray-500"
+                    }`}
                   >
                     {s.title}
                   </p>
@@ -399,10 +405,11 @@ const AddProduct = () => {
                 type="button"
                 onClick={handleBack}
                 disabled={step === 1}
-                className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${step === 1
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  }`}
+                className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${
+                  step === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                }`}
               >
                 ← Back
               </button>
