@@ -312,6 +312,8 @@ export default function WriteReviewModal({ order, vendorOrder, onClose }) {
             groupedProducts.map((group) => {
               const product = group.product;
               const productId = product?.id || product?.unid;
+              // console.log(product);
+
 
               return (
                 <div
