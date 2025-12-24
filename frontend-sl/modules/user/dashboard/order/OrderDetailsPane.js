@@ -91,7 +91,7 @@ function extractTimeline(order, entity = order) {
 }
 
 export default function OrderDetailsPane({ order }) {
-  console.log(order);
+  // console.log(order);
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);

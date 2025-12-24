@@ -75,6 +75,7 @@ export default function OrderCard({ order }) {
   const isPartiallyCancelled =
     !isCancelled && vendorStatuses.some((s) => s === "cancelled");
   const hasDelivered = activeStatuses.some((s) => s === "delivered");
+
   const isPartiallyDelivered =
     !isCancelled &&
     hasDelivered &&
@@ -99,6 +100,7 @@ export default function OrderCard({ order }) {
       order.vendor_orders[0]?.items?.length ??
       0) === 1;
   const showReviewInCard = hasDelivered && isSingleItemSingleVendor;
+  // console.log(hasDelivered);
   const createdAt = new Date(order.created_at ?? Date.now()).toLocaleString();
   const timelineMap = useMemo(() => extractTimeline(order, order), [order]);
   const allSameStatus = new Set(vendorStatuses).size <= 1;
@@ -163,7 +165,7 @@ export default function OrderCard({ order }) {
           <div className="flex justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold">Order {order.unid}</h3>
+                <h3 className="text-sm font-semibold">Order ID: <span className="text-main">{order.unid}</span></h3>
                 <StatusBadge
                   status={isCancelled ? "cancelled" : overallStatus}
                 />

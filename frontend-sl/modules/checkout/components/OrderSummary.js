@@ -163,7 +163,7 @@ export default function OrderSummary({ totals }) {
               )}
               <div className="flex-1">
                 <p className="font-medium text-[13px] line-clamp-2">
-                  {item.name}
+                  {item.name} <span>{item.sku}</span>
                 </p>
                 {item.variant && (
                   <p className="text-[11px] text-textSecondary">

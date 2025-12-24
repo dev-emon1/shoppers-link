@@ -204,7 +204,7 @@ export default function ShopProfile({ data }) {
                 <div className="flex flex-col gap-6 md:flex-row">
                     <div className="md:w-1/6">{imageSlot('Logo', 'logo', edited.logo)}</div>
                     <div className="flex-1 space-y-4">
-                        {editableField('Shop Name', 'shop_name')}
+                        {editableField('Partner Name', 'shop_name')}
                         {editableField('Owner Name', 'owner_name')}
                         {editableField('Contact Number', 'contact_number')}
                     </div>
@@ -217,7 +217,7 @@ export default function ShopProfile({ data }) {
                 </div>
 
                 {/* Description */}
-                {editableField('Shop Description', 'description', 'textarea')}
+                {editableField('Description', 'description', 'textarea')}
 
                 {/* Address */}
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

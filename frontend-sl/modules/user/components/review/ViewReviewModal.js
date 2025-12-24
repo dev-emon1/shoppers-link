@@ -24,7 +24,7 @@ export default function ViewReviewModal({ order, vendorOrder, onClose }) {
   const effectiveVendorOrder = vendorOrder ?? order?.vendor_orders?.[0];
   const items = effectiveVendorOrder?.items ?? [];
   const review = effectiveVendorOrder.items.review ?? {}; // Assume review data in vendor_order.review
-  console.log("data", effectiveVendorOrder.items.review);
+  console.log("data", effectiveVendorOrder);
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }).map((_, i) => {
@@ -86,7 +86,7 @@ export default function ViewReviewModal({ order, vendorOrder, onClose }) {
                 {/* Product Info */}
                 <div className="flex gap-4 items-center">
                   <img
-                    src={makeImageUrl(it.product?.primary_image)}
+                    src={makeImageUrl(it.image?.image_path)}
                     alt={it.product?.name}
                     className="w-16 h-16 rounded object-cover border"
                   />

@@ -24,6 +24,7 @@ const CartItemCard = ({ item, vendorId, onRemove, onQuantityChange }) => {
     const cleaned = imageSrc.replace(/^\/+/, "");
     imageSrc = `${DEFAULT_MEDIA_BASE.replace(/\/$/, "")}/storage/${cleaned}`;
   }
+  console.log(item);
 
   // Final fallback
   if (!imageSrc) imageSrc = "/images/placeholder.png";
@@ -73,15 +74,15 @@ const CartItemCard = ({ item, vendorId, onRemove, onQuantityChange }) => {
             width={64}
             height={64}
             className="object-contain rounded-md"
-            // If you're using external domains and haven't configured them, you can
-            // temporarily add unoptimized prop for dev: unoptimized
-            // unoptimized
+          // If you're using external domains and haven't configured them, you can
+          // temporarily add unoptimized prop for dev: unoptimized
+          // unoptimized
           />
         </div>
 
         <div className="w-full min-w-0">
           <h4 className="font-semibold text-sm text-textPrimary truncate">
-            {item.name}
+            {item.name} <span>{item.sku}</span>
           </h4>
           <p className="text-xs text-gray-500 mt-[2px]">
             ৳{priceNumber.toFixed(2)}
@@ -99,11 +100,10 @@ const CartItemCard = ({ item, vendorId, onRemove, onQuantityChange }) => {
           <button
             disabled={currentQty <= 1}
             onClick={handleDecrease}
-            className={`px-2 sm:px-3 py-[2px] text-sm ${
-              currentQty <= 1
-                ? "opacity-40 cursor-not-allowed"
-                : "hover:bg-gray-100"
-            }`}
+            className={`px-2 sm:px-3 py-[2px] text-sm ${currentQty <= 1
+              ? "opacity-40 cursor-not-allowed"
+              : "hover:bg-gray-100"
+              }`}
             aria-label="Decrease quantity"
           >
             −
@@ -116,11 +116,10 @@ const CartItemCard = ({ item, vendorId, onRemove, onQuantityChange }) => {
           <button
             disabled={currentQty >= stock}
             onClick={handleIncrease}
-            className={`px-2 sm:px-3 py-[2px] text-sm ${
-              currentQty >= stock
-                ? "opacity-40 cursor-not-allowed"
-                : "hover:bg-gray-100"
-            }`}
+            className={`px-2 sm:px-3 py-[2px] text-sm ${currentQty >= stock
+              ? "opacity-40 cursor-not-allowed"
+              : "hover:bg-gray-100"
+              }`}
             aria-label="Increase quantity"
           >
             +
