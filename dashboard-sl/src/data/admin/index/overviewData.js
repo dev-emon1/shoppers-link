@@ -55,7 +55,7 @@ export const statusCardsData = [
     percentage: "2.5%",
     isIncrease: true,
     time: "Last Week",
-    roles: ["admin"],
+    roles: ["admin", "vendor"],
   },
   {
     id: 6,
