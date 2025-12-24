@@ -10,7 +10,7 @@ export default function OrdersPageComponent() {
   const { list, loading, error, fetchOrders, meta } = useOrders();
 
   useEffect(() => {
-    fetchOrders({ page: 1, per_page: 10 }).catch(() => {});
+    fetchOrders({ page: 1, per_page: 10 }).catch(() => { });
   }, [fetchOrders]);
 
   return (
@@ -59,7 +59,7 @@ export default function OrdersPageComponent() {
       {/* Simple pagination */}
       {meta &&
         (meta.current_page ?? meta.currentPage) <
-          (meta.last_page ?? meta.lastPage) && (
+        (meta.last_page ?? meta.lastPage) && (
           <div className="mt-6 flex justify-center">
             <button
               className="px-4 py-2 border rounded-md"

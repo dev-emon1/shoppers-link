@@ -39,9 +39,14 @@ export default function OrderCard({ order }) {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [viewReviewOpen, setViewReviewOpen] = useState(false); // New state for view modal
   const primaryItem = order?.vendor_orders?.[0]?.items?.[0];
+
+  // const thumbnail = primaryItem
+  //   ? makeImageUrl(primaryItem?.product?.primary_image)
+  //   : "/placeholder-image.jpg"; // Fallback to default placeholder if no primary item
   const thumbnail = primaryItem
-    ? makeImageUrl(primaryItem?.product?.primary_image)
+    ? makeImageUrl(primaryItem?.image?.image_path)
     : "/placeholder-image.jpg"; // Fallback to default placeholder if no primary item
+  // console.log(primaryItem);
   const vendorCount = order?.vendor_orders?.length ?? 0;
   const multiVendor = vendorCount > 1;
   const vendorStatuses = (order.vendor_orders ?? []).map((v) =>
@@ -54,13 +59,13 @@ export default function OrderCard({ order }) {
   const overallIndex = isAllCancelled
     ? -1
     : activeStatuses.length > 0
-    ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0)) // Safe filter, but since default 0, won't be empty
-    : 0;
+      ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0)) // Safe filter, but since default 0, won't be empty
+      : 0;
   const overallStatus = isAllCancelled
     ? "cancelled"
     : activeStatuses.length > 0
-    ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
-    : "pending";
+      ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
+      : "pending";
   const progressPercent =
     overallIndex < 0
       ? 0
@@ -134,7 +139,7 @@ export default function OrderCard({ order }) {
   const handleViewDetails = () => {
     try {
       sessionStorage.setItem("selectedOrder", JSON.stringify(order));
-    } catch {}
+    } catch { }
     router.push(
       `/user/dashboard/orders/${encodeURIComponent(order.unid ?? order.id)}`
     );
@@ -143,11 +148,10 @@ export default function OrderCard({ order }) {
   const hasReviewed = order.vendor_orders?.[0]?.review?.submitted ?? false;
   return (
     <article
-      className={`rounded-xl shadow-sm p-4 border transition ${
-        isCancelled
-          ? "bg-gray-50 text-gray-400 opacity-80"
-          : "bg-bgSurface text-textPrimary"
-      }`}
+      className={`rounded-xl shadow-sm p-4 border transition ${isCancelled
+        ? "bg-gray-50 text-gray-400 opacity-80"
+        : "bg-bgSurface text-textPrimary"
+        }`}
     >
       <div className="flex gap-3">
         <img
@@ -199,9 +203,8 @@ export default function OrderCard({ order }) {
                     return (
                       <div key={step.key} className="flex-1 text-center">
                         <div
-                          className={`text-xs font-medium transition-colors ${
-                            isActive ? "text-textPrimary" : "text-textSecondary"
-                          }`}
+                          className={`text-xs font-medium transition-colors ${isActive ? "text-textPrimary" : "text-textSecondary"
+                            }`}
                         >
                           {step.label}
                         </div>
@@ -211,8 +214,8 @@ export default function OrderCard({ order }) {
                             {timestamp
                               ? new Date(timestamp).toLocaleString()
                               : idx === 0
-                              ? createdAt
-                              : "-"}
+                                ? createdAt
+                                : "-"}
                           </div>
                         )}
                       </div>

@@ -10,7 +10,7 @@ export default function AuthWrapper({ mode }) {
   const isLogin = mode === "login";
 
   return (
-    <div className="min-h-[calc(100vh-150px)] bg-gradient-to-br from-main/20 via-main/50 to-indigo-100 flex items-center justify-center p-4 py-16">
+    <div className="min-h-[calc(100vh-150px)]  flex items-center justify-center p-4 py-16">
       <div className="w-full max-w-md bg-white border rounded-2xl shadow-xl p-8">
         {/* HEADER */}
         <div className="text-center mb-6">

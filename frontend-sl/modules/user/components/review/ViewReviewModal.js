@@ -23,7 +23,8 @@ function detectSentiment(text, rating = 0) {
 export default function ViewReviewModal({ order, vendorOrder, onClose }) {
   const effectiveVendorOrder = vendorOrder ?? order?.vendor_orders?.[0];
   const items = effectiveVendorOrder?.items ?? [];
-  const review = effectiveVendorOrder?.review ?? {}; // Assume review data in vendor_order.review
+  const review = effectiveVendorOrder.items.review ?? {}; // Assume review data in vendor_order.review
+  console.log("data", effectiveVendorOrder.items.review);
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }).map((_, i) => {

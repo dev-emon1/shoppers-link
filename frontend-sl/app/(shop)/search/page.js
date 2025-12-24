@@ -2,7 +2,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import CategorySidebar from "@/modules/category/components/CategorySidebar";
 import { searchProducts } from "@/modules/search/services/searchService";
 import SearchProductGrid from "@/modules/search/components/SearchProductGrid";
 
@@ -121,7 +120,7 @@ export default function SearchPage() {
     <div className="container py-8">
       <div className="flex gap-8">
         <div className="w-72">
-          <CategorySidebar
+          {/* <CategorySidebar
             category={{ name: category || "Search results" }}
             showFilters={true}
             filters={{
@@ -131,7 +130,7 @@ export default function SearchPage() {
             }}
             selected={filters}
             onFilterChange={handleFilterChange}
-          />
+          /> */}
         </div>
 
         <div className="flex-1">

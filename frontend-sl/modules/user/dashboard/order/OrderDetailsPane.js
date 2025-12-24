@@ -37,20 +37,18 @@ function Step({ active, completed, label, time, icon }) {
   return (
     <div className="flex flex-col items-center text-center relative">
       <div
-        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${
-          completed
-            ? "bg-green text-white"
-            : active
+        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${completed
+          ? "bg-green text-white"
+          : active
             ? "bg-main text-white"
             : "bg-gray-200 text-gray-400"
-        }`}
+          }`}
       >
         {icon}
       </div>
       <div
-        className={`mt-3 text-sm font-medium transition-colors ${
-          completed || active ? "text-textPrimary" : "text-textSecondary"
-        }`}
+        className={`mt-3 text-sm font-medium transition-colors ${completed || active ? "text-textPrimary" : "text-textSecondary"
+          }`}
       >
         {label}
       </div>
@@ -93,7 +91,7 @@ function extractTimeline(order, entity = order) {
 }
 
 export default function OrderDetailsPane({ order }) {
-  // console.log(order);
+  console.log(order);
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);
@@ -121,14 +119,14 @@ export default function OrderDetailsPane({ order }) {
   const overallIndex = isAllCancelled
     ? -1
     : activeStatuses.length > 0
-    ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0))
-    : 0;
+      ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0))
+      : 0;
 
   const overallStatus = isAllCancelled
     ? "cancelled"
     : activeStatuses.length > 0
-    ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
-    : "pending";
+      ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
+      : "pending";
 
   const isCancelled = overallStatus === "cancelled";
   const isDelivered = overallStatus === "delivered";
@@ -252,15 +250,14 @@ export default function OrderDetailsPane({ order }) {
   };
   return (
     <div
-      className={`p-4 md:p-6 bg-bgSurface rounded-lg border ${
-        isCancelled ? "opacity-70 grayscale" : ""
-      }`}
+      className={`p-4 md:p-6 bg-bgSurface rounded-lg border ${isCancelled ? "opacity-70 grayscale" : ""
+        }`}
     >
       {/* Header */}
       <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
         <div className="flex-1">
           <h2 className="text-lg md:text-xl font-semibold text-textPrimary">
-            Order {order.unid}
+            Order ID: <span className="text-main">{order.unid}</span>
           </h2>
           <p className="text-sm text-textSecondary mt-1">
             Placed on {new Date(order.created_at).toLocaleString()}
@@ -323,9 +320,8 @@ export default function OrderDetailsPane({ order }) {
               return (
                 <div
                   key={`line-${idx}`}
-                  className={`absolute h-1 ${
-                    lineCompleted ? "bg-green" : "bg-gray-200"
-                  }`}
+                  className={`absolute h-1 ${lineCompleted ? "bg-green" : "bg-gray-200"
+                    }`}
                   style={{
                     left: `${(idx / (PROGRESS_STEPS.length - 1)) * 100}%`,
                     width: `${100 / (PROGRESS_STEPS.length - 1)}%`,
@@ -362,39 +358,39 @@ export default function OrderDetailsPane({ order }) {
         order.tracking_number ||
         order.tracking_url ||
         order.estimated_delivery) && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-2">Shipment Details</h4>
-          <div className="text-sm text-blue-800 space-y-1">
-            {order.courier_name && <div>Courier: {order.courier_name}</div>}
-            {order.tracking_number && (
-              <div>Tracking #: {order.tracking_number}</div>
-            )}
-            {order.estimated_delivery && (
-              <div>
-                Estimated Delivery:{" "}
-                {new Date(order.estimated_delivery).toLocaleDateString()}
-              </div>
-            )}
-            {order.tracking_url && (
-              <a
-                href={order.tracking_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-main hover:underline"
-              >
-                <PackageSearch size={14} /> Track Shipment
-              </a>
-            )}
-            {order.vendor_orders?.length > 1 && (
-              <p className="text-xs mt-2">
-                Note: Check vendor sections for individual tracking if multiple
-                couriers are used.{" "}
-                {/* Future: Integrate multi-courier tracking aggregation here */}
-              </p>
-            )}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-2">Shipment Details</h4>
+            <div className="text-sm text-blue-800 space-y-1">
+              {order.courier_name && <div>Courier: {order.courier_name}</div>}
+              {order.tracking_number && (
+                <div>Tracking #: {order.tracking_number}</div>
+              )}
+              {order.estimated_delivery && (
+                <div>
+                  Estimated Delivery:{" "}
+                  {new Date(order.estimated_delivery).toLocaleDateString()}
+                </div>
+              )}
+              {order.tracking_url && (
+                <a
+                  href={order.tracking_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-main hover:underline"
+                >
+                  <PackageSearch size={14} /> Track Shipment
+                </a>
+              )}
+              {order.vendor_orders?.length > 1 && (
+                <p className="text-xs mt-2">
+                  Note: Check vendor sections for individual tracking if multiple
+                  couriers are used.{" "}
+                  {/* Future: Integrate multi-courier tracking aggregation here */}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       {/* Vendor orders list */}
       <div className="mt-6 space-y-4">
         {(order.vendor_orders ?? []).map((v) => {
@@ -413,16 +409,15 @@ export default function OrderDetailsPane({ order }) {
 
           // New: Check if this vendor has a submitted review
           // const hasReviewed = v.review?.submitted ?? false;
-          const hasReviewed = (v.items ?? []).some((item) => !!item.review);
+          const hasReviewed = (v.items ?? []).some(item => !!item.review);
 
           // console.log(hasReviewed);
 
           return (
             <div
               key={v.unid}
-              className={`p-4 bg-white rounded-lg border flex flex-col md:flex-row md:justify-between gap-4 ${
-                vStatus === "cancelled" ? "opacity-70 grayscale" : ""
-              }`}
+              className={`p-4 bg-white rounded-lg border flex flex-col md:flex-row md:justify-between gap-4 ${vStatus === "cancelled" ? "opacity-70 grayscale" : ""
+                }`}
             >
               <div className="flex gap-4 items-start">
                 {/* Vendor Logo with Default Icon Fallback */}
@@ -439,16 +434,15 @@ export default function OrderDetailsPane({ order }) {
                 ) : null}
 
                 <div
-                  className={`w-20 h-20 flex items-center justify-center bg-gray-100 rounded-lg border shadow-sm ${
-                    hasVendorImage ? "hidden" : "flex"
-                  }`}
+                  className={`w-20 h-20 flex items-center justify-center bg-gray-100 rounded-lg border shadow-sm ${hasVendorImage ? "hidden" : "flex"
+                    }`}
                 >
                   <Store size={36} className="text-gray-400" />
                 </div>
 
                 <div>
                   <div className="text-sm font-semibold">
-                    {vendorName} (V#{v.id})
+                    {vendorName}
                   </div>
                   <div className="text-xs text-textSecondary mt-1">
                     Items: {v.item_count}
@@ -463,7 +457,7 @@ export default function OrderDetailsPane({ order }) {
                         className="text-xs text-textSecondary flex items-center gap-2"
                       >
                         <img
-                          src={makeImageUrl(it.product?.primary_image)}
+                          src={makeImageUrl(it.image?.image_path)}
                           alt={it.product?.name}
                           className="w-8 h-8 object-cover rounded"
                         />
@@ -482,8 +476,8 @@ export default function OrderDetailsPane({ order }) {
                   <div className="text-xs text-textSecondary mt-2">
                     {vTimeline[vStatus] || v.updated_at || v.created_at
                       ? new Date(
-                          vTimeline[vStatus] || v.updated_at || v.created_at
-                        ).toLocaleString()
+                        vTimeline[vStatus] || v.updated_at || v.created_at
+                      ).toLocaleString()
                       : ""}
                   </div>
                 </div>
@@ -573,9 +567,9 @@ export default function OrderDetailsPane({ order }) {
       </div>
       {/* Footer Actions */}
       <div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="text-sm text-textSecondary">
+        {/* <div className="text-sm text-textSecondary">
           Order ID: {order.id ?? "-"}
-        </div>
+        </div> */}
         <div className="flex flex-wrap items-center gap-3 justify-end">
           <button
             onClick={generateInvoice}

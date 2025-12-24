@@ -113,6 +113,7 @@ export default function CategoryPage({ params }) {
   ====================================================== */
   if (isProductPage) {
     const product = baseProducts.find((p) => p.slug === productSlug);
+    console.log(product);
 
     if (!product) {
       return (
