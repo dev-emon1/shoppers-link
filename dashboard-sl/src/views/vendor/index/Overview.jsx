@@ -8,6 +8,7 @@ import PieCharts from "../../../components/charts/PieCharts";
 import { useAuth } from "../../../utils/AuthContext";
 import API from "../../../utils/api";
 import { activities, statusCardsData as initialCards } from "../../../data/admin/index/overviewData";
+import OrderDetailsModal from "../order-management/OrderDetailsModal";
 
 const Overview = () => {
   const { user } = useAuth();
@@ -18,7 +19,7 @@ const Overview = () => {
     const fetchOverview = async () => {
       try {
         const response = await API.get("/overView");
-        console.log(response.data.data.top_selling_products);
+        // console.log(response.data.data.top_selling_products);
 
         if (response.data.success) {
           setData(response.data.data);
@@ -97,23 +98,23 @@ const Overview = () => {
 
       {/* 2. Charts & Activity Section */}
       <div className="flex flex-col lg:flex-row justify-between gap-4 mt-8">
-        <div className="w-full lg:max-w-3xl p-4 bg-white shadow-md rounded-2xl">
+        <div className="w-full  p-4 bg-white shadow-md rounded-2xl">
           <h3 className="font-semibold mb-4 text-gray-700">Sales Analytics</h3>
-          <Chart />
+          <Chart chartData={data?.monthly_stats} />
         </div>
-        <div className="w-full lg:w-1/3 bg-white shadow-md rounded-2xl p-4 flex items-center justify-center">
+        {/* <div className="w-full lg:w-1/3 bg-white shadow-md rounded-2xl p-4 flex items-center justify-center">
           <div className="text-center">
             <h3 className="font-semibold mb-2">Order Distribution</h3>
             <PieCharts />
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* 3. Top Products Table (Dynamic from data.top_products if available, else static placeholder) */}
       <div className="w-full bg-white mt-8 rounded-md p-4 shadow-md">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-lg text-black">Top Selling Products</h3>
-          <Link to="/products" className="text-sm font-semibold text-main hover:underline">View All</Link>
+          <Link to="/vendor/orders/order-list" className="text-sm font-semibold text-main hover:underline">View All</Link>
         </div>
         <div className="relative overflow-x-auto">
           <table className="w-full text-sm text-left uppercase">
@@ -123,7 +124,7 @@ const Overview = () => {
                 <th className="py-3 px-4">Name</th>
                 <th className="py-3 px-4 text-center">Price</th>
                 <th className="py-3 px-4 text-center">Stock</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                {/* <th className="py-3 px-4 text-right">Actions</th> */}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -163,14 +164,14 @@ const Overview = () => {
                           {prod.stock_quantity} in stock
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right">
+                      {/* <td className="py-3 px-4 text-right">
                         <Link
                           to={`/products/${prod.id}`}
                           className="text-xs font-bold text-main bg-mainSoft px-3 py-1.5 rounded hover:bg-main hover:text-white transition-all"
                         >
                           View
                         </Link>
-                      </td>
+                      </td> */}
                     </tr>
                   );
                 })
@@ -191,7 +192,7 @@ const Overview = () => {
         <div className="w-full bg-white rounded-md p-4 shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold text-lg text-black">Recent Orders</h3>
-            <Link to="/orders" className="text-sm font-semibold text-main hover:underline">View All</Link>
+            <Link to="/vendor/orders/order-list" className="text-sm font-semibold text-main hover:underline">View All</Link>
           </div>
           <div className="relative overflow-x-auto">
             <table className="w-full text-sm text-left uppercase">
@@ -200,7 +201,7 @@ const Overview = () => {
                   <th className="py-3 px-4">Order ID</th>
                   <th className="py-3 px-4">Price</th>
                   <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Active</th>
+                  {/* <th className="py-3 px-4 text-right">Active</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -213,9 +214,6 @@ const Overview = () => {
                         }`}>
                         {order.status}
                       </span>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <Link to={`/orders/${order.id}`} className="text-main hover:underline">View</Link>
                     </td>
                   </tr>
                 ))}
