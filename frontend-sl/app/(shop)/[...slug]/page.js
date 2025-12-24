@@ -11,6 +11,7 @@ import ProductsList from "@/modules/product/components/product-listing/ProductsL
 import ProductsLayout from "@/modules/product/components/product-listing/ProductsLayout";
 import ListingHeader from "@/components/shared/ListingHeader/ListingHeader";
 import ListingSidebar from "@/components/shared/ListingSidebar/ListingSidebar";
+import Loader from "@/components/ui/Loader";
 
 /* Product */
 import ProductDetails from "@/modules/product/components/product-details";
@@ -19,7 +20,7 @@ import RelatedProducts from "@/modules/product/components/RelatedProducts";
 /* Hooks */
 import { useCategoryFinders } from "@/modules/category/hooks/useCategoryFinders";
 import useProductsForChild from "@/modules/category/hooks/useProductsForChild";
-import Loader from "@/components/ui/Loader";
+import useSortedProducts from "@/modules/product/hooks/useSortedProducts";
 
 export default function CategoryPage({ params }) {
   /* ---------------- UI State ---------------- */
@@ -100,6 +101,11 @@ export default function CategoryPage({ params }) {
     () => (isChildPage ? applyFilters(baseProducts, selected) : []),
     [isChildPage, baseProducts, selected, applyFilters]
   );
+
+  /* -----------------------------
+   Sorting (after filtering)
+----------------------------- */
+  const sortedProducts = useSortedProducts(filtered, sort);
 
   /* ---------------- Helpers ---------------- */
   const getSubCategories = (category) =>
@@ -260,11 +266,11 @@ export default function CategoryPage({ params }) {
           </div>
         ) : view === "grid" ? (
           <ProductGrid
-            products={filtered}
+            products={sortedProducts}
             baseHref={`/${catSlug}/${subSlug}/${childSlug}`}
           />
         ) : (
-          <ProductsList products={filtered} />
+          <ProductsList products={sortedProducts} />
         )}
       </ProductsLayout>
     );

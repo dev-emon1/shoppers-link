@@ -17,6 +17,14 @@ export const fetchFeaturedProductsApi = async () => {
 };
 
 /**
+ * Banners API
+ */
+export const fetchPromoBannersApi = async () => {
+  const res = await api.get("/active/banners");
+  return Array.isArray(res?.data?.data) ? res.data.data : [];
+};
+
+/**
  * New Arrivals Products API
  */
 export const fetchNewArrivalsApi = async () => {
