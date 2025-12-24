@@ -10,6 +10,7 @@ import useFeaturedProducts from "@/modules/home/hooks/useFeaturedProducts";
 import useNewArrivals from "@/modules/home/hooks/useNewArrivals";
 import useTopSellingProducts from "@/modules/home/hooks/useTopSellingProducts";
 import useTopRatingProducts from "@/modules/home/hooks/useTopRatingProducts";
+import useSortedProducts from "@/modules/product/hooks/useSortedProducts";
 
 /* -----------------------------
    Layout & Shared UI
@@ -73,6 +74,11 @@ export default function ProductsPage() {
   ----------------------------- */
   const { products = [], loading, error } = hookResult.hook();
 
+  /* -----------------------------
+   Frontend sorting (scalable)
+----------------------------- */
+  const sortedProducts = useSortedProducts(products, sort);
+
   return (
     <ProductsLayout
       sidebar={
@@ -110,9 +116,9 @@ export default function ProductsPage() {
       ) : products.length === 0 ? (
         <EmptyState title="No products found" />
       ) : view === "grid" ? (
-        <ProductGrid products={products} />
+        <ProductGrid products={sortedProducts} />
       ) : (
-        <ProductsList products={products} />
+        <ProductsList products={sortedProducts} />
       )}
     </ProductsLayout>
   );
