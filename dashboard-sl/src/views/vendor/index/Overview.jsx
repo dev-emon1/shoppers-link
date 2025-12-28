@@ -19,7 +19,7 @@ const Overview = () => {
     const fetchOverview = async () => {
       try {
         const response = await API.get("/overView");
-        // console.log(response.data.data.top_selling_products);
+        // console.log(response.data.data);
 
         if (response.data.success) {
           setData(response.data.data);
@@ -45,6 +45,7 @@ const Overview = () => {
       "Pending Orders": data.total_pending_orders,
       "Total Products": data.total_products,
       "Refund Request": data.total_refunds || 0, // Ensure this exists in your API data too
+      "Low Inventory": data.low_stock_count,
     };
 
     return initialCards
@@ -90,7 +91,7 @@ const Overview = () => {
                 </span>
                 {item.time}
               </p>
-              <Link to="/vendor/orders/order-list" className="font-semibold text-xs cursor-pointer hover:underline">View more</Link>
+              <Link to={item.url} className="font-semibold text-xs cursor-pointer hover:underline">View more</Link>
             </div>
           </div>
         ))}

@@ -8,7 +8,7 @@ import ProductReturnPolicy from "./ProductReturnPolicy";
 import ProductSocialShare from "./ProductSocialShare";
 import ColorSwatch from "../../utils/colorSwatch";
 import { Heart, Star } from "lucide-react";
-import { TbBasket } from "react-icons/tb";
+import { TbBasket, TbPhoneCall } from "react-icons/tb";
 import { useDispatch } from "react-redux";
 import useCart from "@/modules/cart/hooks/useCart";
 import useWishlist from "@/modules/wishlist/hooks/useWishlist";
@@ -32,6 +32,8 @@ export default function ProductSummary({
 
   const { add } = useCart();
   const { wishlist = [], toggle } = useWishlist();
+  const categoryId = product.category.id;
+  // console.log(product.vendor.contact_number);
 
   const variants = useMemo(
     () =>
@@ -185,36 +187,37 @@ export default function ProductSummary({
         </p>
       )}
       {/* Rating */}
-      <div className="flex items-center gap-2 text-sm text-gray-800">
-        <div className="flex items-center gap-1">
-          {[...Array(5)].map((_, i) => {
-            const starValue = i + 1;
+      {categoryId !== 8 && (
+        <div className="flex items-center gap-2 text-sm text-gray-800">
+          <div className="flex items-center gap-1">
+            {[...Array(5)].map((_, i) => {
+              const starValue = i + 1;
 
-            return (
-              <Star
-                key={i}
-                size={16}
-                // If rating is 3.5:
-                // Stars 1, 2, 3 will be yellow.
-                // Star 4 will be gray (unless you implement a partial fill component)
-                className={`${starValue <= Math.round(rating)
-                  ? "text-yellow fill-yellow"
-                  : "text-gray-300 fill-transparent"
-                  }`}
-              />
-            );
-          })}
+              return (
+                <Star
+                  key={i}
+                  size={16}
+                  // If rating is 3.5:
+                  // Stars 1, 2, 3 will be yellow.
+                  // Star 4 will be gray (unless you implement a partial fill component)
+                  className={`${starValue <= Math.round(rating)
+                    ? "text-yellow fill-yellow"
+                    : "text-gray-300 fill-transparent"
+                    }`}
+                />
+              );
+            })}
 
-          <span className="text-sm font-medium ml-1">
-            {rating > 0 ? rating.toFixed(1) : "0.0"}
-          </span>
+            <span className="text-sm font-medium ml-1">
+              {rating > 0 ? rating.toFixed(1) : "0.0"}
+            </span>
 
-          <span className="text-xs text-muted-foreground ml-1">
-            ({reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'})
-          </span>
+            <span className="text-xs text-muted-foreground ml-1">
+              ({reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'})
+            </span>
+          </div>
         </div>
-      </div>
-
+      )}
       {/* Price */}
       <ProductPriceBlock product={product} selectedVariant={selectedVariant} />
 
@@ -258,70 +261,87 @@ export default function ProductSummary({
       )}
 
       {/* Quantity + Stock */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <label className="text-sm">Quantity</label>
-          <div className="flex items-center border rounded">
-            <button
-              onClick={() => setQty((q) => Math.max(1, q - 1))}
-              className="px-3 py-1 text-lg"
-              aria-label="Decrease quantity"
-              type="button"
-            >
-              -
-            </button>
-            <div className="px-4">{qty}</div>
-            <button
-              onClick={() =>
-                setQty((q) => (stock != null ? Math.min(stock, q + 1) : q + 1))
-              }
-              className="px-3 py-1 text-lg"
-              aria-label="Increase quantity"
-              type="button"
-            >
-              +
-            </button>
-          </div>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {stock !== null ? `${stock} in stock` : "Stock info not available"}
-        </div>
-      </div>
 
-      {/* Actions */}
-      <div className="flex flex-col gap-3 mt-3">
-        <button
-          onClick={handleAddToCart}
-          className={`flex-1 bg-main text-white px-4 py-3 flex items-center justify-center gap-2 hover:bg-main/90 transition ${isAdding ? "opacity-60 cursor-wait" : ""
-            }`}
-          type="button"
-          disabled={isAdding}
-        >
-          <TbBasket size={18} />
-          {isAdding ? "Adding..." : "Add to Cart"}
-        </button>
-        <button
-          className="flex-1 bg-transparent text-main px-4 py-3 flex items-center justify-center gap-2 hover:bg-gray-300/90 transition border border-main"
-          type="button"
-          title="Add to Wishlist"
-          onClick={handleWishlist}
-          aria-pressed={activeWishlist}
-        >
-          <Heart
-            size={18}
-            fill={activeWishlist ? "currentColor" : "none"}
-            className={activeWishlist ? "text-red-500" : ""}
-          />
-          {activeWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-        </button>
-        <ProductShippingInfo shipping={product.shipping} />
-      </div>
+      {categoryId !== 8 && (
+        <>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm">Quantity</label>
+              <div className="flex items-center border rounded">
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  className="px-3 py-1 text-lg"
+                  aria-label="Decrease quantity"
+                  type="button"
+                >
+                  -
+                </button>
+                <div className="px-4">{qty}</div>
+                <button
+                  onClick={() =>
+                    setQty((q) => (stock != null ? Math.min(stock, q + 1) : q + 1))
+                  }
+                  className="px-3 py-1 text-lg"
+                  aria-label="Increase quantity"
+                  type="button"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {stock !== null ? `${stock} in stock` : "Stock info not available"}
+            </div>
+          </div>
+          {/* Actions */}
+          <div className="flex flex-col gap-3 mt-3">
+            <button
+              onClick={handleAddToCart}
+              className={`flex-1 bg-main text-white px-4 py-3 flex items-center justify-center gap-2 hover:bg-main/90 transition ${isAdding ? "opacity-60 cursor-wait" : ""
+                }`}
+              type="button"
+              disabled={isAdding}
+            >
+              <TbBasket size={18} />
+              {isAdding ? "Adding..." : "Add to Cart"}
+            </button>
+            <button
+              className="flex-1 bg-transparent text-main px-4 py-3 flex items-center justify-center gap-2 hover:bg-gray-300/90 transition border border-main"
+              type="button"
+              title="Add to Wishlist"
+              onClick={handleWishlist}
+              aria-pressed={activeWishlist}
+            >
+              <Heart
+                size={18}
+                fill={activeWishlist ? "currentColor" : "none"}
+                className={activeWishlist ? "text-red-500" : ""}
+              />
+              {activeWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+            </button>
+            <ProductShippingInfo shipping={product.shipping} />
+          </div>
+        </>
+      )}
+      {categoryId == 8 && (
+        <div className="flex flex-col gap-3 mt-3">
+          <button
+            className={`flex-1 bg-main text-white px-4 py-3 flex items-center justify-center gap-2 hover:bg-main/90 transition ${isAdding ? "opacity-60 cursor-wait" : ""
+              }`}
+            type="button"
+          >
+            <TbPhoneCall size={18} />
+            {product.vendor?.contact_number}
+          </button>
+        </div>
+      )
+      }
 
       {/* Extra Info / widgets */}
-      <ProductVendorInfo vendor={product.vendor} />
+      < ProductVendorInfo vendor={product.vendor} />
       <ProductWarranty warranty={product.warranty} />
       <ProductReturnPolicy returnPolicy={product.returnPolicy} />
       <ProductSocialShare product={product} />
-    </div>
+    </div >
   );
 }

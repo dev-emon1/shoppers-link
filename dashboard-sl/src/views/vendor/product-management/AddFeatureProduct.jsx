@@ -186,10 +186,10 @@ const AddFeaturedProducts = () => {
               className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
               {/* Modal Header */}
-              <div className="bg-main text-white p-2 rounded-t-3xl">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-bold flex items-center gap-3">
-                    <Sparkles size={28} />
+              <div className="p-2 rounded-t-3xl">
+                <div className="flex justify-between items-center border-b px-6 py-0">
+                  <h2 className="text-xl font-bold flex items-center gap-3 ">
+                    {/* <Sparkles size={28} /> */}
                     Make Featured
                   </h2>
                   <button
@@ -202,21 +202,20 @@ const AddFeaturedProducts = () => {
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 space-y-6">
+              <div className="p-4 space-y-6">
                 {/* Product Preview */}
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl px-6 text-center">
+                <div className="rounded-2xl px-2 text-center">
                   <img
-                    src={`${IMAGE_URL}/${
-                      selectedProduct.images?.find((i) => i.is_primary)
-                        ?.image_path
-                    }`}
+                    src={`${IMAGE_URL}/${selectedProduct.images?.find((i) => i.is_primary)
+                      ?.image_path
+                      }`}
                     alt={selectedProduct.name}
                     className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-xl"
                   />
-                  <h3 className="text-xl font-bold mt-4">
+                  <h3 className="text-md font-bold mt-2">
                     {selectedProduct.name}
                   </h3>
-                  <p className="text-gray-600">• SKU: {selectedProduct.sku}</p>
+                  <p className="text-gray-600 text-sm">• SKU: {selectedProduct.sku}</p>
                 </div>
 
                 {/* Variant */}
@@ -228,7 +227,7 @@ const AddFeaturedProducts = () => {
                     <select
                       value={selectedVariantId}
                       onChange={(e) => setSelectedVariantId(e.target.value)}
-                      className="w-full px-5 py-2 border-2 border-gray-200 rounded-xl focus:border-main outline-none text-lg"
+                      className="w-full px-5 py-1.5 border-2 border-gray-200 rounded-xl focus:border-main outline-none text-sm"
                     >
                       <option value="">All Variants</option>
                       {selectedProduct.variants.map((v) => {
@@ -236,7 +235,7 @@ const AddFeaturedProducts = () => {
                         try {
                           const attr = JSON.parse(v.attributes);
                           label = Object.values(attr).join(" • ");
-                        } catch {}
+                        } catch { }
                         return (
                           <option key={v.id} value={v.id}>
                             {label}
@@ -258,19 +257,19 @@ const AddFeaturedProducts = () => {
                       placeholder="e.g. HOT, SALE, NEW"
                       value={badgeText}
                       onChange={(e) => setBadgeText(e.target.value)}
-                      className="flex-1 px-5 border-2 rounded-xl focus:border-main outline-none"
+                      className="flex-1 px-5 border-2 rounded-xl focus:border-main outline-none text-sm"
                     />
                     <input
                       type="color"
                       value={badgeColor}
                       onChange={(e) => setBadgeColor(e.target.value)}
-                      className="w-24 h-14 rounded-2xl cursor-pointer border-4 border-white shadow-lg"
+                      className="w-24 h-10 rounded-2xl cursor-pointer shadow-lg"
                     />
                   </div>
                   {badgeText && (
-                    <div className="p-6 bg-gray-100 rounded-2xl text-center">
+                    <div className="p-2 rounded-2xl text-center">
                       <span
-                        className="inline-block px-8 rounded-full text-white font-bold text-xl shadow-2xl"
+                        className="inline-block px-8 rounded-full text-white font-bold text-sm shadow-2xl"
                         style={{ backgroundColor: badgeColor }}
                       >
                         {badgeText}
@@ -309,7 +308,7 @@ const AddFeaturedProducts = () => {
                 <div className="bg-main rounded-xl">
                   <button
                     onClick={handleSubmit}
-                    className="w-full bg-white text-transparent bg-clip-text bg-main font-bold text-xl p-2 rounded-xl hover:shadow-2xl transition"
+                    className="w-full bg-white text-transparent bg-clip-text bg-main font-bold text-xl p-1 rounded-xl hover:shadow-2xl transition text-sm"
                   >
                     Add to Featured
                   </button>

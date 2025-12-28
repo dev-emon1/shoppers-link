@@ -4,6 +4,7 @@ import {
   MdSell,
   MdOutlineArrowDropDown,
   MdOutlineArrowDropUp,
+  MdWarning,
 } from "react-icons/md";
 
 export const statusCardsData = [
@@ -16,6 +17,7 @@ export const statusCardsData = [
     isIncrease: true,
     time: "Last Week",
     roles: ["admin"], // only admin sees it
+    url: "/admin/vendors",
   },
   {
     id: 2,
@@ -26,6 +28,7 @@ export const statusCardsData = [
     isIncrease: false,
     time: "Last Week",
     roles: ["admin",], // both can see
+    url: "/admin/customers",
   },
   {
     id: 3,
@@ -36,6 +39,7 @@ export const statusCardsData = [
     isIncrease: true,
     time: "Last Week",
     roles: ["admin", "vendor"],
+    url: "/vendor/orders/order-list",
   },
   {
     id: 4,
@@ -46,6 +50,7 @@ export const statusCardsData = [
     isIncrease: true,
     time: "Last Week",
     roles: ["vendor"], // vendor only
+    url: "/vendor/orders/order-list",
   },
   {
     id: 5,
@@ -56,6 +61,7 @@ export const statusCardsData = [
     isIncrease: true,
     time: "Last Week",
     roles: ["admin", "vendor"],
+    url: "/vendor/orders/order-list",
   },
   {
     id: 6,
@@ -66,7 +72,19 @@ export const statusCardsData = [
     isIncrease: false,
     time: "Last Week",
     roles: ["admin", "vendor"],
+    url: "/vendor/orders/order-list",
   },
+  {
+    id: 7,
+    icon: MdWarning,
+    title: "Low Inventory",
+    count: "0",
+    percentage: "0%",
+    isIncrease: false, // Usually false as this is a warning
+    time: "Real-time",
+    roles: ["admin", "vendor"],
+    url: "/vendor/inventory/inventory-create",
+  }
 ];
 
 

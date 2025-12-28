@@ -11,6 +11,7 @@ import {
   changePassword,
 } from "@/modules/user/store/profileReducer";
 import { setUserFromToken } from "@/modules/user/store/authReducer";
+import { IMAGE_URL } from "@/core/api/axiosClient";
 
 export default function ProfilePage() {
   const { user } = useSelector((state) => state.auth);
@@ -76,7 +77,11 @@ export default function ProfilePage() {
       toast.error(result.payload?.message || "Password update failed");
     }
   };
-
+  const avatarSrc = profileImage
+    ? profileImage  // This is the local blob preview from the file input
+    : user?.customer?.profile_picture
+      ? `${IMAGE_URL}avatars/${user.customer.profile_picture}`
+      : "/default-avatar.png";
   return (
     <div className="space-y-10">
       {/* HEADER BLOCK */}
@@ -85,7 +90,7 @@ export default function ProfilePage() {
           {/* PROFILE IMAGE */}
           <div className="relative">
             <Image
-              src={profileImage || user?.avatar || "/default-avatar.png"}
+              src={avatarSrc}
               width={110}
               height={110}
               className="rounded-full border-4 border-white shadow-md object-cover"

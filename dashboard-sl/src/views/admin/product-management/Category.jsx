@@ -167,6 +167,34 @@ const Category = React.memo(() => {
     setPerPage(Number(e.target.value));
     setPage(1);
   }, []);
+
+  // ===== Toggle Status =====
+  const handleToggleStatus = useCallback(async (id, currentStatus) => {
+    const newStatus = currentStatus === 1 ? 0 : 1;
+
+    // Optimistic Update: Update UI first for a snappy feel
+    setCategories((prev) =>
+      prev.map((cat) => (cat.id === id ? { ...cat, status: newStatus } : cat))
+    );
+
+    try {
+      const res = await API.post(`categories/${id}/toggle-status`, {
+        status: newStatus,
+        _method: 'PATCH' // Many Laravel APIs use POST with _method for partial updates
+      });
+
+      if (!res.data.success) {
+        throw new Error("Failed to update status");
+      }
+    } catch (error) {
+      console.error("❌ Status update failed:", error);
+      // Rollback if API fails
+      setCategories((prev) =>
+        prev.map((cat) => (cat.id === id ? { ...cat, status: currentStatus } : cat))
+      );
+      alert("⚠️ Failed to update status on server.");
+    }
+  }, []);
   // ===== Table Columns =====
   const columns = [
     {
@@ -200,17 +228,21 @@ const Category = React.memo(() => {
     {
       key: "status",
       label: "Status",
-      className: "font-medium text-gray-800 capitalize",
+      className: "text-center w-[100px]",
       render: (item) => (
-        <span
-          className={`
-        px-2 py-1 rounded-full text-xs font-semibold
-        ${item.status == 1 ? 'bg-green text-white' : 'bg-red text-white'}
-      `}
-        >
-          {item.status == 1 ? 'Active' : 'Inactive'}
-        </span>
-      )
+        <div className="flex justify-center">
+          <button
+            onClick={() => handleToggleStatus(item.id, item.status)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${item.status === 1 ? "bg-green" : "bg-gray-300"
+              }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${item.status === 1 ? "translate-x-6" : "translate-x-1"
+                }`}
+            />
+          </button>
+        </div>
+      ),
     },
     {
       key: "actions",
@@ -318,14 +350,14 @@ const Category = React.memo(() => {
               />
             </div>
             {/* Status */}
-            <div className="flex flex-col w-full gap-1 mb-5">
+            {/* <div className="flex flex-col w-full gap-1 mb-5">
               <label className="text-sm font-medium">Select Status</label>
               <select className="px-2 py-2 border rounded-md" value={status} onChange={(e) => setStatus(Number(e.target.value))}>
                 <option value="">-- Choose Status --</option>
                 <option value={1}>Active</option>
                 <option value={0}>Inactive</option>
               </select>
-            </div>
+            </div> */}
 
             {/* Image Upload */}
             <div className="max-w-md mx-auto mt-6">

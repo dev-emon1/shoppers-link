@@ -16,7 +16,7 @@ export default function ProductDetails({ product, breadcrumb = [] }) {
     );
   }
   // console.log(product);
-
+  const categoryId = product.category.id;
   const [selectedVariant, setSelectedVariant] = useState(null);
 
   const defaultBreadcrumb = [
@@ -99,9 +99,11 @@ export default function ProductDetails({ product, breadcrumb = [] }) {
         </div>
 
         {/* Reviews Section */}
-        <div className="py-6 order-4">
-          <ProductReviews product={product} />
-        </div>
+        {categoryId !== 8 && (
+          <div className="py-6 order-4">
+            <ProductReviews product={product} />
+          </div>
+        )}
       </div>
     </>
   );

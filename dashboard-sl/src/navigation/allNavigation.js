@@ -23,7 +23,7 @@ export const allNavigation = {
       role: "vendor",
       children: [
         { name: "Overview", path: "/vendor/dashboard/overview" },
-        { name: "Sales Analytics", path: "/vendor/dashboard/sales-analytics" },
+        // { name: "Sales Analytics", path: "/vendor/dashboard/sales-analytics" },
       ],
     },
     {
@@ -147,16 +147,6 @@ export const allNavigation = {
         { name: "Order History", path: "/admin/orders/order-history" },
         { name: "Refund Requests", path: "/admin/orders/refund-requests" },
         { name: "Return Management", path: "/admin/orders/return-management" },
-      ],
-    },
-    {
-      name: "Promotion Management",
-      path: "/admin/promotion",
-      icon: FaCartArrowDown,
-      role: "admin",
-      children: [
-        { name: "Slider", path: "/admin/pomotion/slider" },
-        { name: "Banner", path: "/admin/pomotion/banner" },
       ],
     },
     {
@@ -303,6 +293,8 @@ export const allNavigation = {
       icon: BiBookContent,
       role: "admin",
       children: [
+        { name: "Slider", path: "/admin/content/slider" },
+        { name: "Banner", path: "/admin/content/banner" },
         { name: "Home Page", path: "/admin/content/homepage" },
         { name: "About Us", path: "/admin/content/about-us" },
         { name: "Contact Page", path: "/admin/content/contact-page" },
