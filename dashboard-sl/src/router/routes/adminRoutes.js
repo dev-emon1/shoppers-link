@@ -83,18 +83,18 @@ const Transaction = lazy(() =>
   import("../../views/admin/payment-management/Transaction")
 );
 const Slider = lazy(() =>
-  import("../../views/admin/promotion-management/Slider")
+  import("../../views/admin/content-management/Slider")
 );
 const Banner = lazy(() =>
-  import("../../views/admin/promotion-management/Banner")
+  import("../../views/admin/content-management/Banner")
 );
 const Brand = lazy(() => import("../../views/admin/product-management/Brand"));
 const Profile = lazy(() => import("../../views/auth/Profile"));
 const protectAdmin = (component) => createElement(ProtectedRoute, { element: createElement(component), allowedRole: "admin" });
 
 export const adminRoutes = [
-  { path: "/admin/pomotion/slider", element: protectAdmin(Slider) },
-  { path: "/admin/pomotion/banner", element: protectAdmin(Banner) },
+  { path: "/admin/content/slider", element: protectAdmin(Slider) },
+  { path: "/admin/content/banner", element: protectAdmin(Banner) },
   { path: "/admin/users/customers/:id", element: protectAdmin(CustomerDetail) },
   { path: "/admin/dashboard", element: protectAdmin(Overview) },
   { path: "/admin/dashboard/overview", element: protectAdmin(Overview) },

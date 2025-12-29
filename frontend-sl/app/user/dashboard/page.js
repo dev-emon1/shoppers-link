@@ -31,7 +31,7 @@ export default function DashboardPage() {
 
       {/* QUICK SHORTCUTS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-        <Link href="/user/orders">
+        <Link href="/user/dashboard/orders">
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-md cursor-pointer border transition group">
             <ShoppingBag className="text-main" size={28} />
             <p className="font-medium mt-3 group-hover:text-main">My Orders</p>
@@ -39,7 +39,7 @@ export default function DashboardPage() {
           </div>
         </Link>
 
-        <Link href="/wishlist">
+        <Link href="/user/dashboard/wishlist">
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-md cursor-pointer border transition group">
             <Heart className="text-main" size={28} />
             <p className="font-medium mt-3 group-hover:text-main">Wishlist</p>
@@ -49,7 +49,7 @@ export default function DashboardPage() {
           </div>
         </Link>
 
-        <Link href="/user/address">
+        <Link href="/user/dashboard/address">
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-md cursor-pointer border transition group">
             <MapPin className="text-main" size={28} />
             <p className="font-medium mt-3 group-hover:text-main">
@@ -59,7 +59,7 @@ export default function DashboardPage() {
           </div>
         </Link>
 
-        <Link href="/support">
+        <Link href="/user/dashboard/support">
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-md cursor-pointer border transition group">
             <Headphones className="text-main" size={28} />
             <p className="font-medium mt-3 group-hover:text-main">Support</p>

@@ -27,6 +27,7 @@ function extractTimeline(order, entity = order) {
     map[change.to.toLowerCase()] = change.date_time;
   }
   // Fallback for pending if not set
+  // console.log(order);
   map.pending = map.pending ?? order.created_at ?? null;
   return map;
 }

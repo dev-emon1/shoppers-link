@@ -143,7 +143,36 @@ const Subcategory = () => {
   }, []);
   // ===== Table Columns =====
   // console.log(subcategories);
+  // ===== Toggle Status =====
+  const handleToggleStatus = useCallback(async (id, currentStatus) => {
+    const newStatus = currentStatus === 1 ? 0 : 1;
 
+    // Optimistic Update: Update subcategories UI immediately
+    setSubcategories((prev) =>
+      prev.map((sub) => (sub.id === id ? { ...sub, status: newStatus } : sub))
+    );
+
+    try {
+      // Note: Make sure the URL matches your Laravel route (usually camelCase or kebab-case)
+      const res = await API.post(`subCategories/${id}/toggle-status`, {
+        status: newStatus,
+        _method: 'PATCH'
+      });
+
+      if (!res.data.success) {
+        throw new Error("Failed to update status");
+      }
+    } catch (error) {
+      console.error("❌ Status update failed:", error);
+
+      // Rollback: Revert the UI if the API call fails
+      setSubcategories((prev) =>
+        prev.map((sub) => (sub.id === id ? { ...sub, status: currentStatus } : sub))
+      );
+
+      alert("⚠️ Failed to update status on server.");
+    }
+  }, []);
   const columns = [
     { key: "no", label: "No", render: (item, i) => (page - 1) * perPage + i + 1 },
     {
@@ -168,17 +197,21 @@ const Subcategory = () => {
     {
       key: "status",
       label: "Status",
-      className: "font-medium text-gray-800 capitalize",
+      className: "text-center w-[100px]",
       render: (item) => (
-        <span
-          className={`
-        px-2 py-1 rounded-full text-xs font-semibold
-        ${item.status == 1 ? 'bg-green text-white' : 'bg-red text-white'}
-      `}
-        >
-          {item.status == 1 ? 'Active' : 'Inactive'}
-        </span>
-      )
+        <div className="flex justify-center">
+          <button
+            onClick={() => handleToggleStatus(item.id, item.status)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${item.status === 1 ? "bg-green" : "bg-gray-300"
+              }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${item.status === 1 ? "translate-x-6" : "translate-x-1"
+                }`}
+            />
+          </button>
+        </div>
+      ),
     },
     {
       key: "actions",
@@ -267,14 +300,14 @@ const Subcategory = () => {
               <textarea className="px-2 py-2 border rounded-md" value={subCategoryDetails} onChange={(e) => setSubCategoryDetails(e.target.value)} rows={3} />
             </div>
             {/* Status */}
-            <div className="flex flex-col w-full gap-1 mb-5">
+            {/* <div className="flex flex-col w-full gap-1 mb-5">
               <label className="text-sm font-medium">Select Status</label>
               <select className="px-2 py-2 border rounded-md" value={status} onChange={(e) => setStatus(Number(e.target.value))}>
                 <option value="">-- Choose Status --</option>
                 <option value={1}>Active</option>
                 <option value={0}>Inactive</option>
               </select>
-            </div>
+            </div> */}
             {/* Image Upload */}
             <div className="flex flex-col w-full gap-1 mb-5">
               <label className="text-sm font-medium">Image (optional)</label>

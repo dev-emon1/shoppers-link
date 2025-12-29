@@ -29,6 +29,7 @@ const ProductActions = ({
 
     if (isAdding) return;
 
+
     // Build normalized cart item with fallbacks
     const item = buildCartItemFromProduct({
       product,
@@ -81,28 +82,29 @@ const ProductActions = ({
 
   return (
     <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/0 group-hover:bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300">
-      <button
-        onClick={handleWishlist}
-        className={`bg-white p-2 rounded-full shadow ${
-          active ? "text-red-500" : ""
-        }`}
-        aria-label="Toggle wishlist"
-      >
-        <Heart size={16} fill={active ? "currentColor" : "none"} />
-      </button>
+      {product.category.id !== 8 && (
+        <>
+          <button
+            onClick={handleWishlist}
+            className={`bg-white p-2 rounded-full shadow ${active ? "text-red-500" : ""
+              }`}
+            aria-label="Toggle wishlist"
+          >
+            <Heart size={16} fill={active ? "currentColor" : "none"} />
+          </button>
 
-      <button
-        onClick={handleAddToCart}
-        className={`bg-white p-2 rounded-full shadow hover:bg-main hover:text-white transition ${
-          isAdding ? "opacity-60 cursor-wait" : ""
-        }`}
-        aria-label="Add to cart"
-        disabled={isAdding}
-        title={isAdding ? "Adding..." : "Add to cart"}
-      >
-        <ShoppingBag size={16} />
-      </button>
-
+          <button
+            onClick={handleAddToCart}
+            className={`bg-white p-2 rounded-full shadow hover:bg-main hover:text-white transition ${isAdding ? "opacity-60 cursor-wait" : ""
+              }`}
+            aria-label="Add to cart"
+            disabled={isAdding}
+            title={isAdding ? "Adding..." : "Add to cart"}
+          >
+            <ShoppingBag size={16} />
+          </button>
+        </>
+      )}
       <Link
         href={href || "#"}
         className="bg-white p-2 rounded-full shadow hover:bg-main hover:text-white transition"
