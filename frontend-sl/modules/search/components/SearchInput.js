@@ -39,9 +39,12 @@ export default function SearchInput({
 
   const submit = (e) => {
     e.preventDefault();
+
     const params = new URLSearchParams();
+
     if (q) params.set("q", q);
     if (category) params.set("category_id", category);
+
     router.push(`/search?${params.toString()}`);
     onClose();
   };

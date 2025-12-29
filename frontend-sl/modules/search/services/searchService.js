@@ -15,11 +15,16 @@ export async function searchProductsApi({
   limit = null,
   signal,
 }) {
-  if (!q) return { items: [], total: 0 };
+  // ❗ only block when BOTH are missing
+  if (!q && !categoryId) {
+    return { items: [], total: 0 };
+  }
 
   const params = new URLSearchParams();
 
-  params.append("search", q);
+  if (q) {
+    params.append("search", q);
+  }
 
   if (categoryId) {
     params.append("category_id", categoryId);
@@ -33,13 +38,6 @@ export async function searchProductsApi({
     signal,
   });
 
-  /**
-   * Expected backend response
-   * {
-   *   data: [...],
-   *   total: number
-   * }
-   */
   return {
     items: response.data?.data ?? [],
     total:
