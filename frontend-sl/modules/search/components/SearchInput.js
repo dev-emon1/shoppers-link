@@ -9,7 +9,8 @@ export default function SearchInput({
   initialQuery = "",
   onOpen = () => {},
   onClose = () => {},
-  onQueryChange = () => {}, // <- new: notify parent of typing
+  onQueryChange = () => {}, // notify parent of typing
+  onCategoryChange = () => {},
 }) {
   const router = useRouter();
   const [q, setQ] = useState(initialQuery || "");
@@ -22,9 +23,8 @@ export default function SearchInput({
   const flatCats = useMemo(() => {
     if (!Array.isArray(categories)) return [];
     return categories.map((c) => ({
-      id: c?.id,
-      name: c?.name,
-      slug: c?.slug,
+      id: c.id,
+      name: c.name,
     }));
   }, [categories]);
 
@@ -33,11 +33,18 @@ export default function SearchInput({
     onQueryChange(q);
   }, [q, onQueryChange]);
 
+  useEffect(() => {
+    onCategoryChange(category);
+  }, [category, onCategoryChange]);
+
   const submit = (e) => {
     e.preventDefault();
+
     const params = new URLSearchParams();
+
     if (q) params.set("q", q);
-    if (category) params.set("category", category);
+    if (category) params.set("category_id", category);
+
     router.push(`/search?${params.toString()}`);
     onClose();
   };
@@ -52,8 +59,9 @@ export default function SearchInput({
           className="text-textSecondary text-sm bg-transparent outline-none cursor-pointer w-full"
         >
           <option value="">{loading ? "Loading..." : "All Categories"}</option>
+
           {flatCats.map((c) => (
-            <option key={c.id} value={c.slug}>
+            <option key={c.id} value={c.id}>
               {c.name}
             </option>
           ))}

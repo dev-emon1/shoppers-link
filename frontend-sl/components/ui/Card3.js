@@ -55,10 +55,14 @@ const Card3 = ({
       <div className="relative w-full h-64 overflow-hidden">
         <Image
           src={imageSrc}
-          alt={name}
+          alt={name || "Product"}
           fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover group-hover:scale-110 transition-transform duration-500"
+          sizes="(max-width: 768px) 50vw, 33vw"
+          className="object-contain p-2 group-hover:scale-110 transition-transform duration-500"
+          loading="lazy" // Built-in lazy loading
+          placeholder="blur"
+          blurDataURL="/images/placeholder-blur.png" // Optional: create a low-res blur placeholder
+          priority={false}
         />
 
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-all duration-300">

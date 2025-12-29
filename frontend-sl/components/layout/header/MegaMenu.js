@@ -3,8 +3,11 @@
 import React, { useRef, useMemo, useCallback } from "react";
 import Link from "next/link";
 
-
-const SubColumn = React.memo(function SubColumn({ categorySlug, sub, onItemClick }) {
+const SubColumn = React.memo(function SubColumn({
+  categorySlug,
+  sub,
+  onItemClick,
+}) {
   const children = Array.isArray(sub?.children)
     ? sub.children
     : Array.isArray(sub?.child_categories)
@@ -22,7 +25,7 @@ const SubColumn = React.memo(function SubColumn({ categorySlug, sub, onItemClick
           <li key={child?.id}>
             <Link
               href={`/${categorySlug}/${sub?.slug}/${child?.slug}`}
-  onClick={onItemClick()}
+              onClick={onItemClick()}
               className="hover:text-main hover:underline transition-all duration-150 block"
             >
               {child?.name}
@@ -53,13 +56,13 @@ const MegaMenu = ({
   const openTimer = useRef(null);
   const closeTimer = useRef(null);
 
-    const closeMegaMenuOnClick = useCallback(
-      (cb) => (e) => {
-        cb?.(e);
-        setActiveMenu(null);
-      },
-      [setActiveMenu]
-    );
+  const closeMegaMenuOnClick = useCallback(
+    (cb) => (e) => {
+      cb?.(e);
+      setActiveMenu(null);
+    },
+    [setActiveMenu]
+  );
 
   const handleMouseEnter = useCallback(
     (index) => {
@@ -136,7 +139,7 @@ const MegaMenu = ({
                             key={sub?.id}
                             categorySlug={category?.slug}
                             sub={sub}
-                             onItemClick={closeMegaMenuOnClick}
+                            onItemClick={closeMegaMenuOnClick}
                           />
                         ))}
                       </div>

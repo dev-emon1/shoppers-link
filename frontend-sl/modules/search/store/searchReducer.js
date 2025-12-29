@@ -4,76 +4,70 @@ import { searchProductsApi } from "../services/searchService";
 
 export const loadSearchResults = createAsyncThunk(
   "search/loadSearchResults",
-  async ({ q = "" } = {}, { signal, rejectWithValue }) => {
+  async (
+    { q, categoryId = null, limit = null },
+    { signal, rejectWithValue }
+  ) => {
     try {
-      const items = await searchProductsApi({ q, signal });
-      return items ?? [];
+      const result = await searchProductsApi({
+        q,
+        categoryId,
+        limit,
+        signal,
+      });
+      return result;
     } catch (err) {
-      // if aborted, return a special reject marker (we'll handle in extraReducers)
-      if (
-        err?.name === "AbortError" ||
-        String(err).toLowerCase().includes("aborted")
-      ) {
-        // throw so action is rejected with AbortError info
+      if (err.name === "CanceledError") {
         throw err;
       }
-      return rejectWithValue(err?.message ?? "Failed to search");
+      return rejectWithValue(err.message || "Search failed");
     }
   }
 );
 
 const initialState = {
+  query: "",
+  categoryId: null,
   items: [],
-  loading: false,
+  total: 0,
+  status: "idle", // idle | loading | success | error
   error: null,
-  lastQuery: "",
 };
 
 const searchSlice = createSlice({
   name: "search",
   initialState,
   reducers: {
+    setSearchQuery(state, action) {
+      state.query = action.payload;
+    },
+    setSearchCategory(state, action) {
+      state.categoryId = action.payload;
+    },
     clearSearch(state) {
-      state.items = [];
-      state.loading = false;
-      state.error = null;
-      state.lastQuery = "";
+      return initialState;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loadSearchResults.pending, (state, action) => {
-        state.loading = true;
+      .addCase(loadSearchResults.pending, (state) => {
+        state.status = "loading";
         state.error = null;
-        state.lastQuery = action?.meta?.arg?.q ?? "";
       })
       .addCase(loadSearchResults.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = action.payload ?? [];
+        state.status = "success";
+        state.items = action.payload.items;
+        state.total = action.payload.total;
       })
       .addCase(loadSearchResults.rejected, (state, action) => {
-        // If aborted (external signal), do NOT set an error message for the user.
-        const isAbort =
-          (action.error &&
-            (action.error.name === "AbortError" ||
-              String(action.error.message || "")
-                .toLowerCase()
-                .includes("aborted"))) ||
-          (action?.payload === undefined &&
-            action?.error?.message &&
-            String(action.error.message).toLowerCase().includes("abort"));
-
-        state.loading = false;
-        if (!isAbort) {
-          state.error =
-            action.payload ?? action.error?.message ?? "Search failed";
-        } else {
-          // keep previous items (if any) and clear error
-          state.error = null;
-        }
+        if (action.error?.name === "CanceledError") return;
+        state.status = "error";
+        state.error = action.payload;
       });
   },
 });
 
-export const { clearSearch } = searchSlice.actions;
+export const { setSearchQuery, setSearchCategory, clearSearch } =
+  searchSlice.actions;
+
 export default searchSlice.reducer;

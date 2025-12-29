@@ -194,7 +194,8 @@ const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
         </div>
 
         {/* ================= View All ================= */}
-        {viewAllHref && (
+        {/* ================= View All ================= */}
+        {viewAllHref && displayProducts.length >= 5 && (
           <div className="text-center mt-10">
             <ViewAllButton href={viewAllHref} />
           </div>
