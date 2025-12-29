@@ -7,6 +7,7 @@ import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 import useWishlistSession from "@/modules/wishlist/hooks/useWishlist";
 import useCartSession from "@/modules/cart/hooks/useCart";
 import toast from "react-hot-toast";
+import { IMAGE_URL } from "@/core/api/axiosClient";
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist } = useWishlistSession();
@@ -17,7 +18,11 @@ export default function WishlistPage() {
     removeFromWishlist(product.id);
     toast.success("Moved to cart!");
   };
-
+  // console.log(wishlist);
+  const buildHref = (p) =>
+    `/${[p.category?.slug, p.sub_category?.slug, p.child_category?.slug, p.slug]
+      .filter(Boolean)
+      .join("/")}`;
   return (
     <div className="container py-10 space-y-8">
       {/* PAGE HEADER */}
@@ -52,9 +57,9 @@ export default function WishlistPage() {
               className="bg-white border rounded-2xl shadow-sm p-4 group hover:shadow-md transition"
             >
               {/* Image */}
-              <Link href={`/product/${product.slug}`}>
+              <Link href={buildHref(product)} className="block overflow-hidden">
                 <Image
-                  src={product.images?.[0] || "/placeholder.png"}
+                  src={`${IMAGE_URL}/${product?.primary_image || "placeholder.png"}`}
                   alt={product.name}
                   width={300}
                   height={250}

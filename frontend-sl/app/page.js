@@ -60,7 +60,7 @@ export default function Home() {
         <TopRatingProducts />
 
         {/* Promotional campaign banner */}
-        <PromoBanner />
+        <PromoBanner position="homepage" />
 
         {/* New arrivals section */}
         <NewArrivals />
