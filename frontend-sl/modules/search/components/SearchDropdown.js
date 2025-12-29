@@ -1,264 +1,228 @@
-// modules/search/components/SearchDropdown.jsx
 "use client";
 
-import React, { useRef, useEffect } from "react";
-import { X } from "lucide-react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+
 import useSearchProducts from "../hooks/useSearchProducts";
-import Card3 from "@/components/ui/Card3";
+import { makeImageUrl } from "@/lib/utils/image";
+import { buildProductUrl } from "@/lib/utils/buildProductUrl";
+import Loader from "@/components/ui/Loader";
 
-const MEDIA_BASE =
-  (typeof process !== "undefined" && process.env.NEXT_PUBLIC_MEDIA_BASE) ||
-  "http://localhost:8000";
+/* ----------------------------------
+   CONFIG
+----------------------------------- */
+const MAX_PREVIEW = 2;
+const RECENT_KEY = "recent_searches";
 
-function buildImageUrl(path) {
-  if (!path) return "";
+/* ----------------------------------
+   helpers
+----------------------------------- */
+function getRecentSearches() {
+  if (typeof window === "undefined") return [];
   try {
-    const base = MEDIA_BASE.endsWith("/") ? MEDIA_BASE : MEDIA_BASE + "/";
-    return new URL(path, base).toString();
-  } catch (e) {
-    return path;
+    return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+  } catch {
+    return [];
   }
 }
 
-function resolveImageSrc(p) {
-  if (!p) return "/images/product-placeholder.jpg";
-
-  if (Array.isArray(p.images) && p.images.length > 0) {
-    const first = p.images[0];
-    if (first && typeof first === "object" && first.image_path) {
-      return buildImageUrl(`storage/${first.image_path}`);
-    }
-    if (typeof first === "string") {
-      return buildImageUrl(first);
-    }
-    if (first?.url) return buildImageUrl(first.url);
-    if (first?.src) return buildImageUrl(first.src);
-  }
-
-  if (p.primary_image) {
-    if (String(p.primary_image).startsWith("http")) return p.primary_image;
-    return buildImageUrl(p.primary_image);
-  }
-
-  if (p.image) {
-    if (String(p.image).startsWith("http")) return p.image;
-    return buildImageUrl(p.image);
-  }
-
-  if (p.image_url) {
-    if (String(p.image_url).startsWith("http")) return p.image_url;
-    return buildImageUrl(p.image_url);
-  }
-
-  return "/images/product-placeholder.jpg";
+function saveRecentSearch(q) {
+  if (!q) return;
+  const list = getRecentSearches();
+  const updated = [q, ...list.filter((i) => i !== q)].slice(0, 5);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
 }
 
-function buildHrefFromProduct(p, baseHref = "") {
-  if (!p) return "#";
+/* ----------------------------------
+   COMPONENT
+----------------------------------- */
+const SearchDropdown = ({ isOpen, query, onClose, onViewAll, categoryId }) => {
+  const router = useRouter();
+  const containerRef = useRef(null);
 
-  if (baseHref && typeof baseHref === "string" && baseHref.trim()) {
-    const trimmedBase = baseHref.replace(/\/$/, "");
-    const prodSlug = p.slug ?? p.product_slug ?? p.id ?? p._id ?? "";
-    return prodSlug ? `${trimmedBase}/${prodSlug}` : trimmedBase;
-  }
+  const [recent, setRecent] = useState([]);
 
-  const catSlug = p.category?.slug ?? p.categorySlug ?? p.category_slug ?? "";
-  const subSlug =
-    p.sub_category?.slug ?? p.subcategorySlug ?? p.sub_category_slug ?? "";
-  const childSlug =
-    p.child_category?.slug ??
-    p.childCategorySlug ??
-    p.child_category_slug ??
-    "";
-  const prodSlug = p.slug ?? p.product_slug ?? p.url_slug ?? p.handle ?? "";
+  /* fetch search result */
+  const { items, total, loading, isEmpty } = useSearchProducts({
+    query,
+    debounce: 300,
+    categoryId,
+  });
 
-  if (prodSlug && catSlug) {
-    const parts = [catSlug, subSlug, childSlug, prodSlug].filter(Boolean);
-    return "/" + parts.map((s) => s.replace(/^\/|\/$/g, "")).join("/");
-  }
+  const safeTotal = Array.isArray(total)
+    ? total[0]
+    : Number(total) || items.length;
 
-  if (p.full_slug) return `/${String(p.full_slug).replace(/^\//, "")}`;
-  if (p.url_path) return `/${String(p.url_path).replace(/^\//, "")}`;
+  /* frontend slice (backend limit no) */
+  const previewItems = useMemo(() => items.slice(0, MAX_PREVIEW), [items]);
 
-  if (p.slug) return `/${p.slug}`;
-  if (p.id || p._id) return `/product/${p.id ?? p._id}`;
-
-  return "#";
-}
-
-export default function SearchDropdown({
-  isOpen = false,
-  onClose = () => {},
-  query = "",
-  baseHref = "",
-}) {
-  const { items: products = [], loading, error } = useSearchProducts(query);
-
-  // also close on Escape key (nice to have)
+  /* load recent search on open */
   useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    if (isOpen) {
+      setRecent(getRecentSearches());
+    }
+  }, [isOpen]);
+
+  /* outside click close */
+  useEffect(() => {
+    function handleClick(e) {
+      if (!containerRef.current?.contains(e.target)) {
+        onClose?.();
+      }
+    }
+    if (isOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <>
-      <div className="absolute top-full left-0 w-full bg-bgSurface shadow-2xl border-t border-border z-50 animate-fadeIn">
-        <div className="container py-6 md:py-8">
-          <div className="flex flex-col md:flex-row gap-6">
-            <aside className="flex-1 min-w-[220px]">
-              <div className="mb-2">
-                <h3 className="text-lg font-semibold text-textPrimary">
-                  Search
-                </h3>
-                <p className="text-xs text-textSecondary mt-1">
-                  Results for <strong>{query || "—"}</strong>
-                </p>
+    <AnimatePresence>
+      <motion.div
+        ref={containerRef}
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.2 }}
+        className="
+          absolute left-0 right-0 top-full mt-2 z-[999]
+          bg-white rounded-2xl shadow-2xl border
+          overflow-hidden
+        "
+      >
+        {/* ----------------------------------
+            EMPTY QUERY → SUGGESTIONS
+        ----------------------------------- */}
+        {!query && (
+          <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Recent */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-500 mb-3">
+                Recent Searches
+              </h4>
+
+              {recent.length === 0 && (
+                <p className="text-sm text-gray-400">No recent searches</p>
+              )}
+
+              <ul className="space-y-2">
+                {recent.map((q) => (
+                  <li key={q}>
+                    <button
+                      onClick={() => {
+                        saveRecentSearch(q);
+                        router.push(`/search?q=${encodeURIComponent(q)}`);
+                        onClose();
+                      }}
+                      className="text-sm hover:text-main transition"
+                    >
+                      {q}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* ----------------------------------
+            TYPING → PRODUCT RESULT
+        ----------------------------------- */}
+        {query && (
+          <>
+            {/* loading */}
+            {loading && (
+              <div className="py-8 flex justify-center">
+                <Loader size="sm" />
               </div>
-              <div className="mt-4 text-xs text-textSecondary">
-                <p>
-                  Tip: try brand, model, or full product name for better
-                  results.
-                </p>
+            )}
+
+            {/* empty */}
+            {!loading && isEmpty && (
+              <div className="py-10 text-center text-sm text-gray-500">
+                No products found for <b>{query}</b>
               </div>
-            </aside>
+            )}
 
-            <section className="flex-[2]">
-              {loading && (
-                <p className="mb-4 text-sm text-textSecondary">Searching...</p>
-              )}
-              {error && !String(error).toLowerCase().includes("abort") && (
-                <p className="mb-4 text-sm text-red">Error: {error}</p>
-              )}
+            {/* results */}
+            {!loading && previewItems.length > 0 && (
+              <>
+                <ul className="divide-y">
+                  {previewItems.map((product) => {
+                    const href = buildProductUrl(product);
 
-              {!loading && products.length === 0 && (
-                <div className="p-6 bg-white rounded shadow-sm">
-                  <p className="text-sm text-textSecondary">
-                    No products found.
-                  </p>
-                </div>
-              )}
+                    const imagePath =
+                      product.primary_image ||
+                      product.images?.find((img) => img.is_primary)
+                        ?.image_path ||
+                      product.images?.[0]?.image_path ||
+                      "";
 
-              {products.length > 0 && (
-                <div
-                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 search-dropdown-scroll max-h-[60vh] overflow-y-auto pr-2"
-                  // note: .search-dropdown-scroll styles hide scrollbar via styled-jsx below
-                >
-                  {products.map((p) => {
-                    const imageSrc = resolveImageSrc(p);
-                    const name =
-                      p?.name ?? p?.title ?? p?.product_name ?? "Product Name";
-                    const href = buildHrefFromProduct(p, baseHref);
-                    const slugForProps =
-                      p?.slug ?? p?.product_slug ?? p?.id ?? p?._id ?? "";
-                    let numericPrice = null;
-                    try {
-                      if (Array.isArray(p.variants) && p.variants.length > 0) {
-                        const v = p.variants[0];
-                        const vprice = v?.price ?? v?.base_price ?? null;
-                        if (
-                          vprice !== null &&
-                          vprice !== undefined &&
-                          !Number.isNaN(Number(vprice))
-                        )
-                          numericPrice = Number(vprice);
-                      }
-                      if (
-                        numericPrice === null &&
-                        p.price !== undefined &&
-                        p.price !== null &&
-                        !Number.isNaN(Number(p.price))
-                      )
-                        numericPrice = Number(p.price);
-                      if (
-                        numericPrice === null &&
-                        p.base_price !== undefined &&
-                        p.base_price !== null &&
-                        !Number.isNaN(Number(p.base_price))
-                      )
-                        numericPrice = Number(p.base_price);
-                    } catch (e) {}
+                    const imageSrc = makeImageUrl(imagePath);
 
-                    const oldPrice =
-                      p.old_price !== undefined && p.old_price !== null
-                        ? Number(p.old_price)
-                        : p.original_price ?? null;
-
-                    const vendorName =
-                      p.vendor?.shop_name ?? p.vendor?.name ?? null;
-                    const vendorId = p.vendor?.id ?? p.vendorId ?? null;
-                    const isNew = !!(
-                      p.is_new ||
-                      p.isNew ||
-                      p.featured?.is_featured
-                    );
-                    const discount = p.discount ?? 0;
-
-                    // Wrap Card3 in a clickable div so we can close dropdown on click (before navigation)
                     return (
-                      <div
-                        key={p.id ?? p._id ?? slugForProps}
-                        className="group block"
+                      <li
+                        key={product.id}
                         onClick={() => {
-                          try {
-                            onClose();
-                          } catch (e) {}
+                          saveRecentSearch(query);
+                          router.push(href);
+                          onClose();
                         }}
+                        className="
+                          flex items-center gap-4 px-4 py-3
+                          cursor-pointer hover:bg-gray-50 transition
+                        "
                       >
-                        <Card3
-                          product={p}
-                          imageSrc={imageSrc}
-                          isNew={isNew}
-                          discount={discount}
-                          name={name}
-                          slug={slugForProps}
-                          vendorId={vendorId}
-                          vendorName={vendorName}
-                          rating={p.rating ?? 0}
-                          price={numericPrice}
-                          oldPrice={oldPrice}
-                          category={p.category?.name ?? p.category ?? ""}
-                          href={href}
-                        />
-                      </div>
+                        {/* image */}
+                        <div className="relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                          <Image
+                            src={imageSrc}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+
+                        {/* info */}
+                        <div className="flex-1">
+                          <p className="text-sm font-medium line-clamp-1">
+                            {product.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            ৳ {Number(product.price).toLocaleString()}
+                          </p>
+                        </div>
+                      </li>
                     );
                   })}
-                </div>
-              )}
-            </section>
-          </div>
-        </div>
+                </ul>
 
-        <div
-          className="absolute top-4 right-6 flex items-center gap-2 cursor-pointer z-50"
-          onClick={onClose}
-        >
-          <button
-            aria-label="Close search panel"
-            className="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow hover:bg-gray-50 transition"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      </div>
-
-      {/* hide scrollbar visually but keep scrolling functional (cross-browser) */}
-      <style jsx global>{`
-        .search-dropdown-scroll {
-          -ms-overflow-style: none; /* IE and Edge */
-          scrollbar-width: none; /* Firefox */
-        }
-        .search-dropdown-scroll::-webkit-scrollbar {
-          display: none; /* Chrome, Safari, Opera */
-          width: 0;
-          height: 0;
-        }
-      `}</style>
-    </>
+                {/* view all */}
+                {safeTotal > MAX_PREVIEW && (
+                  <button
+                    onClick={() => {
+                      saveRecentSearch(query);
+                      onViewAll();
+                      onClose();
+                    }}
+                    className="
+                      w-full py-3 text-sm font-medium
+                      text-main hover:bg-main/5
+                      border-t
+                    "
+                  >
+                    View all results ({safeTotal})
+                  </button>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </motion.div>
+    </AnimatePresence>
   );
-}
+};
+
+export default SearchDropdown;

@@ -38,6 +38,8 @@ const MainNav = ({
 
   const { user } = useSelector((state) => state.auth || {});
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategoryId, setSearchCategoryId] = useState(null);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [openDropdown, setOpenDropdown] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -111,11 +113,12 @@ const MainNav = ({
           {/* Desktop Search */}
           <div className="hidden md:flex flex-1 max-w-2xl mx-8">
             <SearchInput
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onFocus={() => setIsSearchOpen(true)}
-              onEnter={handleSearchSubmit}
-              onSearchClick={handleSearchSubmit}
+              initialQuery={searchQuery}
+              initialCategory={searchCategoryId}
+              onOpen={() => setIsSearchOpen(true)}
+              onClose={() => setIsSearchOpen(false)}
+              onQueryChange={setSearchQuery}
+              onCategoryChange={setSearchCategoryId}
             />
           </div>
 
@@ -216,6 +219,7 @@ const MainNav = ({
         <SearchDropdown
           isOpen={isSearchOpen}
           query={searchQuery}
+          categoryId={searchCategoryId}
           onClose={() => setIsSearchOpen(false)}
           onViewAll={handleSearchSubmit}
         />
