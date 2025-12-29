@@ -86,7 +86,7 @@ export const allNavigation = {
           name: "Product Performance",
           path: "/vendor/reports/product-performance",
         },
-        { name: "Customer Reports", path: "/vendor/reports/customers" },
+        // { name: "Customer Reports", path: "/vendor/reports/customers" },
         { name: "Revenue Reports", path: "/vendor/reports/revenue" },
         // {
         //   name: "Traffic & Conversion",

@@ -39,7 +39,7 @@ const PromoBanner = ({ position = "middle-banner" }) => {
             // 1. Updated from item.image to item.image_path
             src={banner.image_path?.startsWith("http")
               ? banner.image_path
-              : `${IMAGE_URL}${banner.image_path}`}
+              : `${IMAGE_URL}/${banner.image_path}`}
             alt={banner.title}
             fill
             priority

@@ -80,7 +80,7 @@ export default function ProfilePage() {
   const avatarSrc = profileImage
     ? profileImage  // This is the local blob preview from the file input
     : user?.customer?.profile_picture
-      ? `${IMAGE_URL}avatars/${user.customer.profile_picture}`
+      ? `${IMAGE_URL}/avatars/${user.customer.profile_picture}`
       : "/default-avatar.png";
   return (
     <div className="space-y-10">

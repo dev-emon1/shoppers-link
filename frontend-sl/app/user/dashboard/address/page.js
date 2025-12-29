@@ -118,8 +118,8 @@ export default function AddressPage() {
               <div className="flex items-start gap-3">
                 <MapPin size={24} className="text-main mt-1" />
                 <div className="flex-1">
-                  <h3 className="font-semibold">{user?.customer?.full_name}</h3>
-                  <p className="text-gray-600 text-sm">{a.address_line1}</p>
+                  <h3 className="font-semibold">{a.address_line1}</h3>
+                  <p className="text-gray-600 text-sm">{a.address_line2}</p>
                   <p className="text-gray-600 text-sm">{a.city}, {a.state} - {a.postal_code}</p>
                   <p className="text-gray-600 text-sm font-medium">{a.country}</p>
                 </div>
@@ -139,6 +139,7 @@ export default function AddressPage() {
           <div className="bg-white w-[95%] max-w-md p-6 rounded-xl space-y-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-semibold">{editAddressId ? "Edit" : "Add"} Address</h2>
             <InputField label="Address Line 1" value={form.address_line1} onChange={(v) => setForm({ ...form, address_line1: v })} />
+            <InputField label="Address Line 2" value={form.address_line2} onChange={(v) => setForm({ ...form, address_line2: v })} />
             <div className="grid grid-cols-2 gap-4">
               <InputField label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
               <InputField label="State" value={form.state} onChange={(v) => setForm({ ...form, state: v })} />

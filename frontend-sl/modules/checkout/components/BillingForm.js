@@ -3,6 +3,8 @@
 import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { validateBilling } from "../utils/validation";
+import { getAddressesApi } from "@/modules/user/services/address.service";
+import { useSelector } from "react-redux";
 
 export default function BillingForm({
   value = {},
@@ -12,9 +14,44 @@ export default function BillingForm({
   onUseSaved,
   registerValidate,
 }) {
-  const [form, setForm] = useState({ ...value });
+  const { user } = useSelector((state) => state.auth);
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // ফর্ম স্টেট ইনিশিয়ালাইজেশন
+  const [form, setForm] = useState({
+    fullName: user?.customer?.full_name || "",
+    phone: user?.customer?.contact_number || "",
+    email: user?.email || "",
+    area: "",
+    line1: "",
+    city: "",
+    postalCode: "",
+    notes: "",
+    address_line1: "", // Address Type (Home/Office)
+    ...value
+  });
+
   const [localErrors, setLocalErrors] = useState(errors || {});
 
+  // ১. অ্যাড্রেস লিস্ট ফেচ করা
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (!user?.customer?.id) return;
+      try {
+        setLoading(true);
+        const res = await getAddressesApi(user.customer.id);
+        setAddresses(res.data || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAddresses();
+  }, [user?.customer?.id]);
+
+  // ২. ফর্ম চেঞ্জ হ্যান্ডলার
   useEffect(() => {
     onChange && onChange(form);
   }, [form]);
@@ -23,23 +60,17 @@ export default function BillingForm({
     setLocalErrors(errors || {});
   }, [errors]);
 
-  // register validator on mount / when form changes
-  useEffect(() => {
-    if (typeof registerValidate === "function") {
-      const unregister = registerValidate(() => {
-        const errs = validateBilling(form);
-        setLocalErrors(errs);
-        const firstKey = Object.keys(errs)[0];
-        const focusSelector = firstKey ? `[name="${firstKey}"]` : null;
-        return {
-          valid: Object.keys(errs).length === 0,
-          errors: errs,
-          focusSelector,
-        };
-      });
-      return () => unregister && unregister();
-    }
-  }, [form, registerValidate]);
+  // ৩. অ্যাড্রেস বাটন ক্লিক করলে ফর্ম ফিল করা
+  const handleAddressSelect = (addr) => {
+    setForm((prev) => ({
+      ...prev,
+      address_line1: addr.address_line1,
+      line1: addr.address_line2,
+      city: addr.city,
+      postalCode: addr.postal_code,
+      area: addr.state,
+    }));
+  };
 
   const handleChange = (field) => (e) => {
     setForm((p) => ({ ...p, [field]: e.target.value }));
@@ -56,6 +87,36 @@ export default function BillingForm({
           <p className="text-xs md:text-sm text-textSecondary">
             Both the invoice and the delivery will be sent to this address.
           </p>
+        </div>
+        <div className="flex flex-wrap gap-2 items-center">
+          <span className="text-xs text-textSecondary">Address type:</span>
+          {addresses.length > 0 ? (
+            addresses.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => {
+                  // ইউজার ক্লিক করলে পুরো ফর্ম ওই অ্যাড্রেস দিয়ে আপডেট হবে
+                  setForm({
+                    ...form,
+                    address_line1: a.address_line1,
+                    line1: a.address_line2, // API address_line2 -> Form line1
+                    city: a.city,
+                    postalCode: a.postal_code,
+                    area: a.state, // API state -> Form area (যদি প্রয়োজন হয়)
+                  });
+                }}
+                className={`px-3 py-1 text-xs font-medium rounded-full border transition-all ${form.address_line1 === a.address_line1
+                  ? "bg-main text-white border-main shadow-sm"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-main"
+                  }`}
+              >
+                {a.address_line1}
+              </button>
+            ))
+          ) : (
+            <span className="text-xs font-medium text-gray-400">No saved address</span>
+          )}
         </div>
 
         {hasSavedBilling && (
@@ -78,7 +139,7 @@ export default function BillingForm({
           <input
             name="fullName"
             type="text"
-            value={form.fullName || ""}
+            value={user?.customer?.full_name || ""}
             onChange={handleChange("fullName")}
             className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
             placeholder="e.g. Shahariar Emon"
@@ -96,7 +157,7 @@ export default function BillingForm({
           <input
             name="phone"
             type="tel"
-            value={form.phone || ""}
+            value={user?.customer?.contact_number || ""}
             onChange={handleChange("phone")}
             className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
             placeholder="01XXXXXXXXX"
@@ -114,7 +175,7 @@ export default function BillingForm({
           <input
             name="email"
             type="email"
-            value={form.email || ""}
+            value={user?.email || ""}
             onChange={handleChange("email")}
             className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
             placeholder="you@example.com"
