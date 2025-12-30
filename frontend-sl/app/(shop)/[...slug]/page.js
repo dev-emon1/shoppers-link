@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { makeCrumbsFromSlug } from "@/lib/breadcrumb";
 
 /* UI */
@@ -22,11 +23,45 @@ import useProductsForChild from "@/modules/category/hooks/useProductsForChild";
 import useSortedProducts from "@/modules/product/hooks/useSortedProducts";
 import useProductFilters from "@/modules/product/hooks/useProductFilters";
 
+/* ======================================================
+   URL <-> Filter helpers (PAGE LEVEL)
+====================================================== */
+function parseFilters(sp) {
+  return {
+    brands: (sp.get("brands") || "").split(",").filter(Boolean),
+    ratings: (sp.get("ratings") || "").split(",").map(Number).filter(Boolean),
+    availability: sp.get("in_stock") || null,
+    price:
+      (sp.get("price") || "")
+        .split("-")
+        .map(Number)
+        .filter((n) => !isNaN(n)).length === 2
+        ? (sp.get("price") || "").split("-").map(Number)
+        : [],
+  };
+}
+
+function filtersToQuery(filters) {
+  const q = new URLSearchParams();
+
+  if (filters.brands?.length) q.set("brands", filters.brands.join(","));
+  if (filters.ratings?.length) q.set("ratings", filters.ratings.join(","));
+  if (filters.availability) q.set("in_stock", filters.availability);
+  if (filters.price?.length === 2)
+    q.set("price", `${filters.price[0]}-${filters.price[1]}`);
+
+  return q;
+}
+
 export default function CategoryPage({ params }) {
   /* ---------------- UI State ---------------- */
   const [view, setView] = useState("grid");
   const [sort, setSort] = useState("newest");
   const [filterOpen, setFilterOpen] = useState(false);
+
+  /* ---------------- Routing ---------------- */
+  const router = useRouter();
+  const sp = useSearchParams();
 
   /* ---------------- Params ---------------- */
   const resolvedParams =
@@ -65,10 +100,21 @@ export default function CategoryPage({ params }) {
     deriveFilters,
   } = useProductsForChild({ catSlug, subSlug, childSlug });
 
-  /* ---------------- Filters Hook (ALWAYS CALLED) ---------------- */
-  const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
-    useProductFilters(isChildPage ? baseProducts : []);
+  /* ---------------- URL -> Initial Filters ---------------- */
+  const initialFilters = useMemo(() => parseFilters(sp), [sp.toString()]);
 
+  /* ---------------- Filters Hook (PURE) ---------------- */
+  const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
+    useProductFilters({
+      products: isChildPage ? baseProducts : [],
+      initialFilters,
+      onFiltersChange: (next) => {
+        const q = filtersToQuery(next);
+        router.replace(`?${q.toString()}`, { scroll: false });
+      },
+    });
+
+  /* ---------------- Sorting ---------------- */
   const sortedProducts = useSortedProducts(
     isChildPage ? filteredProducts : [],
     sort
