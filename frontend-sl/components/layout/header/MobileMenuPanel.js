@@ -8,7 +8,6 @@ export default function MobileMenuPanel({
   onItemClick = () => {},
   onBack = null,
 }) {
-  console.log(title, items);
   return (
     <div className="w-full h-full shrink-0 overflow-y-auto">
       <div className="sticky top-0 z-10 bg-neutral-100 border-b">
@@ -51,7 +50,6 @@ export default function MobileMenuPanel({
                   <span
                     className={`text-[15px] ${isLink ? "" : "font-normal"}`}
                   >
-                    {console.log(label)}
                     {label}
                   </span>
                   {!isLink && (
