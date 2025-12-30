@@ -73,7 +73,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Recent Orders</h2>
           <Link
-            href="/user/orders"
+            href="/user/dashboard/orders"
             className="text-main font-medium flex items-center gap-1"
           >
             View all <ChevronRight size={18} />

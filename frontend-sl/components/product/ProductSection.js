@@ -176,7 +176,7 @@ const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
             <>
               <button
                 onClick={() => swiperRef.current?.slidePrev()}
-                className="hidden lg:flex absolute -left-12 top-1/2 -translate-y-1/2 z-10 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition"
+                className="hidden lg:flex absolute -left-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition"
                 aria-label="Previous"
               >
                 <ChevronLeft size={36} />
@@ -184,7 +184,7 @@ const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
 
               <button
                 onClick={() => swiperRef.current?.slideNext()}
-                className="hidden lg:flex absolute -right-12 top-1/2 -translate-y-1/2 z-10 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition"
+                className="hidden lg:flex absolute -right-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition"
                 aria-label="Next"
               >
                 <ChevronRight size={36} />
@@ -193,7 +193,6 @@ const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
           )}
         </div>
 
-        {/* ================= View All ================= */}
         {/* ================= View All ================= */}
         {viewAllHref && displayProducts.length >= 5 && (
           <div className="text-center mt-10">
