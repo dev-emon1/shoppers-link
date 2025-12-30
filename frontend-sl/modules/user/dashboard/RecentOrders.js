@@ -8,6 +8,7 @@ import { Calendar, CreditCard, ChevronRight } from "lucide-react";
 import useOrders from "@/modules/user/hooks/useOrders";
 import { makeImageUrl } from "@/lib/utils/image";
 import { getSessionTTL, setSessionTTL } from "@/lib/cache/sessionTTL";
+import StatusBadge from "@/modules/user/dashboard/order/StatusBadge";
 
 /* ----------------------------------
    CONFIG
@@ -20,9 +21,7 @@ const CACHE_TTL = 120; // seconds
 ---------------------------------- */
 const getOrderThumbnail = (order) => {
   const primaryItem = order?.vendor_orders?.[0]?.items?.[0];
-
   if (!primaryItem) return "/placeholder-image.jpg";
-
   return makeImageUrl(primaryItem?.image?.image_path);
 };
 
@@ -42,7 +41,6 @@ export default function RecentOrders() {
     // 2️⃣ Session cache (TTL based)
     const cached = getSessionTTL(CACHE_KEY);
     if (cached && Array.isArray(cached)) {
-      // redux empty but cache exists → fetch once (no UX lag)
       fetchOrders({ page: 1, per_page: 10 });
       return;
     }
@@ -73,16 +71,6 @@ export default function RecentOrders() {
       .slice(0, 5);
   }, [list]);
 
-  /* ----------------------------------
-     UI STATES
-  ---------------------------------- */
-  const statusColors = {
-    delivered: "bg-green/10 text-green",
-    processing: "bg-yellow/10 text-yellow",
-    cancelled: "bg-red/10 text-red",
-    pending: "bg-gray-100 text-gray-500",
-  };
-
   if (loading && recentOrders.length === 0)
     return (
       <p className="text-gray-500 text-center mt-5">Loading recent orders...</p>
@@ -103,7 +91,7 @@ export default function RecentOrders() {
       {recentOrders.map((order) => (
         <div
           key={order.unid}
-          className="bg-white p-4 rounded-xl shadow-sm border transition"
+          className="bg-white p-4 shadow-sm border transition"
         >
           <div className="flex gap-4 items-start">
             {/* LEFT : IMAGE */}
@@ -123,14 +111,8 @@ export default function RecentOrders() {
               <div className="flex items-center justify-between">
                 <h3 className="font-medium text-sm">{order.unid}</h3>
 
-                <span
-                  className={`px-2 py-1 text-xs rounded-full font-medium ${
-                    statusColors[order.status?.toLowerCase()] ??
-                    "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {order.status}
-                </span>
+                {/* ✅ StatusBadge used */}
+                <StatusBadge status={order.status} />
               </div>
 
               <div className="grid grid-cols-3 gap-4 mt-2 text-sm text-gray-500">

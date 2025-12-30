@@ -7,6 +7,7 @@ import { makeImageUrl } from "@/lib/utils/image";
 import { showToast } from "@/lib/utils/toast";
 import WriteReviewModal from "../../components/review/WriteReviewModal";
 import ViewReviewModal from "../../components/review/ViewReviewModal";
+
 /* timeline steps */
 const PROGRESS_STEPS = [
   { key: "pending", label: "Pending" },
@@ -60,13 +61,13 @@ export default function OrderCard({ order }) {
   const overallIndex = isAllCancelled
     ? -1
     : activeStatuses.length > 0
-      ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0)) // Safe filter, but since default 0, won't be empty
-      : 0;
+    ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0)) // Safe filter, but since default 0, won't be empty
+    : 0;
   const overallStatus = isAllCancelled
     ? "cancelled"
     : activeStatuses.length > 0
-      ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
-      : "pending";
+    ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
+    : "pending";
   const progressPercent =
     overallIndex < 0
       ? 0
@@ -81,30 +82,36 @@ export default function OrderCard({ order }) {
     !isCancelled &&
     hasDelivered &&
     activeStatuses.some((s) => s !== "delivered");
+
   const cancelledBy =
     order.cancelled_by === "vendor"
       ? "Cancelled by Vendor"
       : "Cancelled by Customer";
+
   const cancelReason =
     order.cancel_reason ??
     (order.cancelled_by === "vendor"
       ? "The vendor cancelled this order."
       : "You cancelled this order.");
+
   const itemCount =
     order.vendor_orders?.reduce(
       (sum, vo) => sum + (vo.item_count ?? vo.items?.length ?? 0),
       0
     ) ?? 0;
+
   const isSingleItemSingleVendor =
     vendorCount === 1 &&
     (order.vendor_orders[0]?.item_count ??
       order.vendor_orders[0]?.items?.length ??
       0) === 1;
+
   const showReviewInCard = hasDelivered && isSingleItemSingleVendor;
   // console.log(hasDelivered);
   const createdAt = new Date(order.created_at ?? Date.now()).toLocaleString();
   const timelineMap = useMemo(() => extractTimeline(order, order), [order]);
   const allSameStatus = new Set(vendorStatuses).size <= 1;
+
   const canCancel =
     !isCancelled &&
     overallStatus === "pending" &&
@@ -112,6 +119,7 @@ export default function OrderCard({ order }) {
       (vo) => (vo.status ?? "pending").toLowerCase() === "pending"
     );
   const { doCancelSafe, cancelling } = useOrderFromList(order.unid ?? order.id);
+
   const handleCancel = () => {
     if (!canCancel) return;
     setOptimisticCancelled(true);
@@ -142,7 +150,7 @@ export default function OrderCard({ order }) {
   const handleViewDetails = () => {
     try {
       sessionStorage.setItem("selectedOrder", JSON.stringify(order));
-    } catch { }
+    } catch {}
     router.push(
       `/user/dashboard/orders/${encodeURIComponent(order.unid ?? order.id)}`
     );
@@ -151,10 +159,11 @@ export default function OrderCard({ order }) {
   const hasReviewed = order.vendor_orders?.[0]?.review?.submitted ?? false;
   return (
     <article
-      className={`rounded-xl shadow-sm p-4 border transition ${isCancelled
-        ? "bg-gray-50 text-gray-400 opacity-80"
-        : "bg-bgSurface text-textPrimary"
-        }`}
+      className={`rounded-xl shadow-sm p-4 border transition ${
+        isCancelled
+          ? "bg-gray-50 text-gray-400 opacity-80"
+          : "bg-bgSurface text-textPrimary"
+      }`}
     >
       <div className="flex gap-3">
         <img
@@ -166,7 +175,9 @@ export default function OrderCard({ order }) {
           <div className="flex justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold">Order ID: <span className="text-main">{order.unid}</span></h3>
+                <h3 className="text-sm font-semibold">
+                  Order ID: <span className="text-main">{order.unid}</span>
+                </h3>
                 <StatusBadge
                   status={isCancelled ? "cancelled" : overallStatus}
                 />
@@ -183,6 +194,7 @@ export default function OrderCard({ order }) {
               </div>
             </div>
           </div>
+
           {/* Timeline OR Cancel Info */}
           <div className="mt-3">
             {!isCancelled ? (
@@ -206,8 +218,9 @@ export default function OrderCard({ order }) {
                     return (
                       <div key={step.key} className="flex-1 text-center">
                         <div
-                          className={`text-xs font-medium transition-colors ${isActive ? "text-textPrimary" : "text-textSecondary"
-                            }`}
+                          className={`text-xs font-medium transition-colors ${
+                            isActive ? "text-textPrimary" : "text-textSecondary"
+                          }`}
                         >
                           {step.label}
                         </div>
@@ -217,8 +230,8 @@ export default function OrderCard({ order }) {
                             {timestamp
                               ? new Date(timestamp).toLocaleString()
                               : idx === 0
-                                ? createdAt
-                                : "-"}
+                              ? createdAt
+                              : "-"}
                           </div>
                         )}
                       </div>
@@ -255,6 +268,7 @@ export default function OrderCard({ order }) {
           </div>
         </div>
       </div>
+
       {/* Actions */}
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -331,6 +345,7 @@ export default function OrderCard({ order }) {
           )}
         </div>
       </div>
+
       {/* Expanded Vendor Preview */}
       {expanded && (
         <div className="mt-4 border-t pt-4 text-sm text-textSecondary space-y-3">
