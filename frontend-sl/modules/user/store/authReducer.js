@@ -30,7 +30,7 @@ export const loginUser = createAsyncThunk(
       const data = await loginUserApi({ email, phone, password });
       return data;
     } catch (error) {
-      return rejectWithValue(error?.response?.data?.message || "Login failed");
+      return rejectWithValue(error?.response?.data?.message || "Invalid login credentials. Please check your email/phone or password.");
     }
   }
 );

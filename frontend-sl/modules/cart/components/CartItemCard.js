@@ -24,7 +24,7 @@ const CartItemCard = ({ item, vendorId, onRemove, onQuantityChange }) => {
     const cleaned = imageSrc.replace(/^\/+/, "");
     imageSrc = `${DEFAULT_MEDIA_BASE.replace(/\/$/, "")}/storage/${cleaned}`;
   }
-  console.log(item);
+  // console.log(item);
 
   // Final fallback
   if (!imageSrc) imageSrc = "/images/placeholder.png";

@@ -25,16 +25,14 @@ const getImageSrc = (item) => {
       return first.replace("http:/", "http://");
     }
     if (first.startsWith("/")) return first;
-    return `${
-      process.env.NEXT_PUBLIC_MEDIA_BASE ?? "http://localhost:8000"
-    }/storage/${first.replace(/^\/+/, "")}`;
+    return `${process.env.NEXT_PUBLIC_MEDIA_BASE ?? "http://localhost:8000"
+      }/storage/${first.replace(/^\/+/, "")}`;
   }
   if (typeof first === "object") {
     if (first?.src) return first.src;
     if (first?.image_path) {
-      return `${
-        process.env.NEXT_PUBLIC_MEDIA_BASE ?? "http://localhost:8000"
-      }/storage/${String(first.image_path).replace(/^\/+/, "")}`;
+      return `${process.env.NEXT_PUBLIC_MEDIA_BASE ?? "http://localhost:8000"
+        }/storage/${String(first.image_path).replace(/^\/+/, "")}`;
     }
   }
   return "/images/placeholder.png";
@@ -71,22 +69,22 @@ const MiniCartDrawer = ({ open, onClose }) => {
   const vendorKeysForRender = mounted ? vendorKeys : [];
   const totalItemsForRender = mounted ? toNumber(totalItems) : 0;
   const subtotalForRender = mounted ? subtotalNumber : 0;
+  console.log(cart);
+
 
   return (
     <>
       {/* Overlay */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 bg-black/50 z-40 transition-opacity ${
-          open ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+        className={`fixed inset-0 bg-black/50 z-40 transition-opacity ${open ? "opacity-100 visible" : "opacity-0 invisible"
+          }`}
       />
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-[90%] sm:w-[420px] bg-white shadow-xl z-50 flex flex-col transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-[90%] sm:w-[420px] bg-white shadow-xl z-50 flex flex-col transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
@@ -187,6 +185,9 @@ const MiniCartDrawer = ({ open, onClose }) => {
                             <h5 className="text-sm font-medium truncate">
                               {item.name}
                             </h5>
+                            <span className="text-xs text-gray-500">
+                              {item.sku}
+                            </span>
                             <p className="text-xs text-gray-500">
                               ৳{formatPrice(priceNumber)}
                             </p>
@@ -198,11 +199,10 @@ const MiniCartDrawer = ({ open, onClose }) => {
                           <button
                             disabled={currentQty <= 1}
                             onClick={handleDecrease}
-                            className={`px-2 py-1 border rounded-md text-sm transition ${
-                              currentQty <= 1
-                                ? "opacity-50 cursor-not-allowed"
-                                : "hover:bg-gray-100"
-                            }`}
+                            className={`px-2 py-1 border rounded-md text-sm transition ${currentQty <= 1
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-gray-100"
+                              }`}
                           >
                             −
                           </button>
@@ -214,11 +214,10 @@ const MiniCartDrawer = ({ open, onClose }) => {
                           <button
                             disabled={currentQty >= stock}
                             onClick={handleIncrease}
-                            className={`px-2 py-1 border rounded-md text-sm transition ${
-                              currentQty >= stock
-                                ? "opacity-50 cursor-not-allowed"
-                                : "hover:bg-gray-100"
-                            }`}
+                            className={`px-2 py-1 border rounded-md text-sm transition ${currentQty >= stock
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-gray-100"
+                              }`}
                           >
                             +
                           </button>
