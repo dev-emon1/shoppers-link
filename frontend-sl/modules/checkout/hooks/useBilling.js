@@ -11,7 +11,7 @@ const initialBilling = {
   line1: "",
   city: "",
   area: "",
-  postcode: "",
+  postalCode: "",
   notes: "",
 };
 
@@ -34,14 +34,15 @@ export default function useBilling() {
         user.default_address;
 
       if (billingSource) {
+
         fromUser = {
           fullName: billingSource.fullName || billingSource.name || "",
           phone: billingSource.phone || "",
           email: billingSource.email || user.email || "",
-          line1: billingSource.line1 || billingSource.addressLine || "",
+          line1: billingSource.line1 || "",
           city: billingSource.city || "",
           area: billingSource.area || "",
-          postcode: billingSource.postcode || billingSource.postalCode || "",
+          postalCode: billingSource.postalCode || billingSource.postcode || "",
           notes: billingSource.notes || "",
         };
       }

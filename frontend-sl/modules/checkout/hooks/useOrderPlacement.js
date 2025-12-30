@@ -15,7 +15,7 @@ export default function useOrderPlacement({
   cart,
   user,
 }) {
-  console.log(cart);
+  // console.log(cart);
   const router = useRouter();
   const [isPlacing, setIsPlacing] = useState(false);
   // console.log(user);
@@ -82,7 +82,7 @@ export default function useOrderPlacement({
       };
 
       // 🚀 Real API call
-      console.log(payload);
+      // console.log(payload);
       const response = await orderService.placeOrder(payload);
 
       // 🔐 Optional: verify response (basic)

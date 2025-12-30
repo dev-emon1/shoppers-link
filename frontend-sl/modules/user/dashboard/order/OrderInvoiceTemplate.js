@@ -95,8 +95,32 @@ const OrderInvoiceTemplate = ({
           {activeVendorOrders.map((v) =>
             v.items?.map((it, idx) => (
               <tr key={`${v.id}-${idx}`}>
-                <td style={{ padding: "10px", border: "1px solid #eee" }}>
-                  {it.product?.name}
+                <td style={{ padding: "12px", border: "1px solid #eee", verticalAlign: "top" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    {/* Product Name */}
+                    <span style={{ fontWeight: "600", color: "#333", fontSize: "14px" }}>
+                      {it.product?.name}
+                    </span>
+
+                    {/* Attributes Wrapper */}
+                    {it.variant?.attributes && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                        {Object.entries(JSON.parse(it.variant.attributes)).map(([key, value]) => (
+                          <span
+                            key={key}
+                            style={{
+                              fontSize: "11px",
+                              display: "inline-flex",
+                              gap: "4px"
+                            }}
+                          >
+                            <strong style={{ textTransform: "capitalize" }}>{key}:</strong>
+                            {value}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </td>
                 <td style={{ padding: "10px", border: "1px solid #eee" }}>
                   {v.vendor?.shop_name}
@@ -153,7 +177,7 @@ const OrderInvoiceTemplate = ({
           <span>Grand Total:</span> <span>৳ {totals?.grandTotal}</span>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
