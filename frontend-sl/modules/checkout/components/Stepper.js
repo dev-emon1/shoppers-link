@@ -5,7 +5,7 @@ import { steps } from "../hooks/useCheckoutSteps";
 
 export default function Stepper({ active }) {
   return (
-    <ol className="flex items-center gap-4 md:gap-8 mb-4 overflow-x-auto">
+    <ol className="flex flex-wrap items-center gap-4 md:gap-8 mb-4 overflow-x-auto">
       {steps.map((step, index) => {
         const isCompleted = active > index + 1;
         const isActive = active === index + 1;

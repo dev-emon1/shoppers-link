@@ -7,7 +7,6 @@ import { makeImageUrl } from "@/lib/utils/image";
 import { showToast } from "@/lib/utils/toast";
 import WriteReviewModal from "../../components/review/WriteReviewModal";
 import ViewReviewModal from "../../components/review/ViewReviewModal";
-
 /* timeline steps */
 const PROGRESS_STEPS = [
   { key: "pending", label: "Pending" },
@@ -82,36 +81,30 @@ export default function OrderCard({ order }) {
     !isCancelled &&
     hasDelivered &&
     activeStatuses.some((s) => s !== "delivered");
-
   const cancelledBy =
     order.cancelled_by === "vendor"
       ? "Cancelled by Vendor"
       : "Cancelled by Customer";
-
   const cancelReason =
     order.cancel_reason ??
     (order.cancelled_by === "vendor"
       ? "The vendor cancelled this order."
       : "You cancelled this order.");
-
   const itemCount =
     order.vendor_orders?.reduce(
       (sum, vo) => sum + (vo.item_count ?? vo.items?.length ?? 0),
       0
     ) ?? 0;
-
   const isSingleItemSingleVendor =
     vendorCount === 1 &&
     (order.vendor_orders[0]?.item_count ??
       order.vendor_orders[0]?.items?.length ??
       0) === 1;
-
   const showReviewInCard = hasDelivered && isSingleItemSingleVendor;
   // console.log(hasDelivered);
   const createdAt = new Date(order.created_at ?? Date.now()).toLocaleString();
   const timelineMap = useMemo(() => extractTimeline(order, order), [order]);
   const allSameStatus = new Set(vendorStatuses).size <= 1;
-
   const canCancel =
     !isCancelled &&
     overallStatus === "pending" &&
@@ -119,7 +112,6 @@ export default function OrderCard({ order }) {
       (vo) => (vo.status ?? "pending").toLowerCase() === "pending"
     );
   const { doCancelSafe, cancelling } = useOrderFromList(order.unid ?? order.id);
-
   const handleCancel = () => {
     if (!canCancel) return;
     setOptimisticCancelled(true);
@@ -194,7 +186,6 @@ export default function OrderCard({ order }) {
               </div>
             </div>
           </div>
-
           {/* Timeline OR Cancel Info */}
           <div className="mt-3">
             {!isCancelled ? (
@@ -268,7 +259,6 @@ export default function OrderCard({ order }) {
           </div>
         </div>
       </div>
-
       {/* Actions */}
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -345,7 +335,6 @@ export default function OrderCard({ order }) {
           )}
         </div>
       </div>
-
       {/* Expanded Vendor Preview */}
       {expanded && (
         <div className="mt-4 border-t pt-4 text-sm text-textSecondary space-y-3">

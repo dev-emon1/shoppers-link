@@ -3,7 +3,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import MobileMenuPanel from "./MobileMenuPanel";
 import { useRouter } from "next/navigation";
 
-const TABS = ["Shop", "Brands", "Services", "Help", "Money"];
+// const TABS = ["Shop", "Brands", "Services", "Help", "Money"];
+const TABS = ["Shop", "Help"];
 
 export function useMediaQuery(query) {
   const [matches, setMatches] = useState(false);
@@ -90,9 +91,7 @@ export default function MobileMenu({ isOpen, onClose, menuItems = [] }) {
   }, [mounted, closing]);
 
   // ---------- Panel builders ----------
-  // এই লাইনটা পুরোপুরি রিপ্লেস করো
   const buildRootForShop = () => {
-    // নতুন লজিক: menuItems যদি array হয় → সেটা নাও, না হলে [menuItems] করো
     const categories = Array.isArray(menuItems)
       ? menuItems
       : menuItems && typeof menuItems === "object"
@@ -117,23 +116,23 @@ export default function MobileMenu({ isOpen, onClose, menuItems = [] }) {
   const ROOTS = useMemo(
     () => ({
       Shop: buildRootForShop(),
-      Brands: buildSimpleList("Brands", [
-        "Our top brands",
-        "Trending brands",
-        "All brands",
-      ]),
-      Services: buildSimpleList("Services", [
-        "Customer services",
-        "Delivery",
-        "Returns",
-        "Gift cards",
-      ]),
-      Help: buildSimpleList("Help", ["Contact us", "Track order", "FAQs"]),
-      Money: buildSimpleList("Money", [
-        "Credit cards",
-        "Finance options",
-        "Insurance",
-      ]),
+      // Brands: buildSimpleList("Brands", [
+      //   "Our top brands",
+      //   "Trending brands",
+      //   "All brands",
+      // ]),
+      // Services: buildSimpleList("Services", [
+      //   "Customer services",
+      //   "Delivery",
+      //   "Returns",
+      //   "Gift cards",
+      // ]),
+      // Help: buildSimpleList("Help", ["Contact us", "Track order", "FAQs"]),
+      // Money: buildSimpleList("Money", [
+      //   "Credit cards",
+      //   "Finance options",
+      //   "Insurance",
+      // ]),
     }),
     [menuItems]
   );

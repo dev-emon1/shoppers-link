@@ -87,8 +87,8 @@ const SearchDropdown = ({ isOpen, query, onClose, onViewAll, categoryId }) => {
         exit={{ opacity: 0, y: -6 }}
         transition={{ duration: 0.2 }}
         className="
-          absolute left-0 right-0 top-full mt-2 z-[999]
-          bg-white rounded-2xl shadow-2xl border
+          absolute left-0 right-0 top-[85%] md:top-full mt-2 z-[999]
+          bg-white shadow-xl border
           overflow-hidden
         "
       >

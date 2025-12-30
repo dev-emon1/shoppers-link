@@ -195,7 +195,7 @@ const MainNav = ({
 
         {/* Mobile Search */}
         <div className="md:hidden mt-3 pb-3">
-          <div className="flex border rounded-lg overflow-hidden">
+          <div className="flex border overflow-hidden">
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -206,7 +206,7 @@ const MainNav = ({
             />
             <button
               onClick={handleSearchSubmit}
-              className="bg-orange-600 text-white px-5"
+              className="bg-main text-white px-5"
             >
               <Search size={18} />
             </button>

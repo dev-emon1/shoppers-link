@@ -14,10 +14,10 @@ import StatusBadge from "@/modules/user/dashboard/order/StatusBadge";
    CONFIG
 ---------------------------------- */
 const CACHE_KEY = "recent_orders";
-const CACHE_TTL = 120; // seconds
+const CACHE_TTL = 120;
 
 /* ----------------------------------
-   IMAGE HANDLER (SAME AS OrderCard)
+   IMAGE HANDLER
 ---------------------------------- */
 const getOrderThumbnail = (order) => {
   const primaryItem = order?.vendor_orders?.[0]?.items?.[0];
@@ -30,27 +30,23 @@ export default function RecentOrders() {
   const { list, loading, fetchOrders } = useOrders();
 
   /* ----------------------------------
-     HYDRATION LOGIC
+     DATA HYDRATION
   ---------------------------------- */
   useEffect(() => {
     if (!user?.id) return;
-
-    // 1️⃣ Redux already has data
     if (Array.isArray(list) && list.length > 0) return;
 
-    // 2️⃣ Session cache (TTL based)
     const cached = getSessionTTL(CACHE_KEY);
     if (cached && Array.isArray(cached)) {
       fetchOrders({ page: 1, per_page: 10 });
       return;
     }
 
-    // 3️⃣ Final fallback → API
     fetchOrders({ page: 1, per_page: 10 });
   }, [user, list, fetchOrders]);
 
   /* ----------------------------------
-     REDUX → SESSION SYNC
+     SYNC TO SESSION
   ---------------------------------- */
   useEffect(() => {
     if (Array.isArray(list) && list.length > 0) {
@@ -59,7 +55,7 @@ export default function RecentOrders() {
   }, [list]);
 
   /* ----------------------------------
-     DERIVE LATEST 5 ORDERS
+     LATEST 5 ORDERS
   ---------------------------------- */
   const recentOrders = useMemo(() => {
     if (!Array.isArray(list)) return [];
@@ -71,69 +67,70 @@ export default function RecentOrders() {
       .slice(0, 5);
   }, [list]);
 
-  if (loading && recentOrders.length === 0)
+  /* ----------------------------------
+     STATES
+  ---------------------------------- */
+  if (loading && recentOrders.length === 0) {
     return (
-      <p className="text-gray-500 text-center mt-5">Loading recent orders...</p>
+      <p className="text-gray-500 text-center py-6">Loading recent orders…</p>
     );
+  }
 
-  if (!recentOrders.length)
+  if (!recentOrders.length) {
     return (
-      <p className="text-gray-500 text-center mt-5">
+      <p className="text-gray-500 text-center py-6">
         You have no recent orders.
       </p>
     );
+  }
 
   /* ----------------------------------
      RENDER
   ---------------------------------- */
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {recentOrders.map((order) => (
         <div
           key={order.unid}
-          className="bg-white p-4 shadow-sm border transition"
+          className="border rounded-xl p-4 hover:shadow-sm transition"
         >
-          <div className="flex gap-4 items-start">
-            {/* LEFT : IMAGE */}
-            <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border bg-gray-50">
+          <div className="flex gap-4">
+            {/* IMAGE */}
+            <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden border bg-gray-50">
               <img
                 src={getOrderThumbnail(order)}
-                alt={
-                  order?.vendor_orders?.[0]?.items?.[0]?.product?.name ??
-                  "product"
-                }
+                alt="product"
                 className="w-full h-full object-cover"
               />
             </div>
 
-            {/* RIGHT : CONTENT */}
+            {/* CONTENT */}
             <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium text-sm">{order.unid}</h3>
+              {/* TOP ROW */}
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">
+                    Order ID: {order.unid}
+                  </p>
+                  <p className="font-semibold mt-1">৳ {order.total_amount}</p>
+                </div>
 
-                {/* ✅ StatusBadge used */}
                 <StatusBadge status={order.status} />
               </div>
 
-              <div className="grid grid-cols-3 gap-4 mt-2 text-sm text-gray-500">
+              {/* META + CTA */}
+              <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <Calendar size={14} />
                   <span>{new Date(order.created_at).toLocaleDateString()}</span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <CreditCard size={14} />
-                  <span>৳ {order.total_amount}</span>
-                </div>
-
-                <div className="flex justify-end">
-                  <Link
-                    href={`/user/dashboard/orders/${order.unid}`}
-                    className="flex items-center gap-1 text-main font-medium hover:underline"
-                  >
-                    View <ChevronRight size={14} />
-                  </Link>
-                </div>
+                <Link
+                  href={`/user/dashboard/orders/${order.unid}`}
+                  className="inline-flex items-center gap-1 text-main font-medium hover:underline"
+                >
+                  View details <ChevronRight size={14} />
+                </Link>
               </div>
             </div>
           </div>
