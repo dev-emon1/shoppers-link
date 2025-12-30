@@ -30,11 +30,10 @@ const InputField = ({
         name={name}
         value={value}
         onChange={onChange}
-        className={`w-full py-3 pl-10 pr-10 border rounded-lg transition duration-200 ${
-          error
-            ? "border-red focus:border-red focus:ring-red"
-            : "border-gray-300 focus:ring-main focus:border-main"
-        } placeholder-gray-500`}
+        className={`w-full py-3 pl-10 pr-10 border rounded-lg transition duration-200 ${error
+          ? "border-red focus:border-red focus:ring-red"
+          : "border-gray-300 focus:ring-main focus:border-main"
+          } placeholder-gray-500`}
         placeholder={placeholder}
       />
 
@@ -146,7 +145,7 @@ export default function LoginForm() {
             Password
           </label>
           <Link
-            href="/auth/forgot-password"
+            href="/user/forgot-password"
             className="text-sm font-medium text-main hover:text-mainHover transition duration-200"
           >
             Forgot Password?
