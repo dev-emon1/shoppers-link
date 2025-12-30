@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import React from "react";
 
 export default function HelpLine() {
   return (
-    <Link
+    <a
       href="https://wa.me/+8801401446644"
       target="_blank"
       rel="noopener noreferrer"
@@ -19,6 +18,6 @@ export default function HelpLine() {
         height={40}
         className=" hover:scale-110 transition-transform duration-300"
       />
-    </Link>
+    </a>
   );
 }

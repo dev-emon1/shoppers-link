@@ -64,19 +64,19 @@ export default function SupportPage() {
         <SupportCard
           icon={<Mail size={24} />}
           title="Email Support"
-          text="support@shopperslink.com"
+          text="info@fingertipsinnovations.com"
         />
 
         <SupportCard
           icon={<Phone size={24} />}
           title="Call Us"
-          text="+880 1700 000000"
+          text="+880 1401-446644"
         />
 
         <SupportCard
           icon={<MessageCircle size={24} />}
           title="WhatsApp"
-          text="+880 1700 000000"
+          text="+880 1401-446644"
         />
       </div>
 
