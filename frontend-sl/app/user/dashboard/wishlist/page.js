@@ -8,15 +8,34 @@ import useWishlistSession from "@/modules/wishlist/hooks/useWishlist";
 import useCartSession from "@/modules/cart/hooks/useCart";
 import toast from "react-hot-toast";
 import { IMAGE_URL } from "@/core/api/axiosClient";
+import useCart from "@/modules/cart/hooks/useCart";
+import useWishlist from "@/modules/wishlist/hooks/useWishlist";
 
 export default function WishlistPage() {
-  const { wishlist, removeFromWishlist } = useWishlistSession();
-  const { addItem } = useCartSession();
-
+  const { wishlist, remove, clear } = useWishlist();
+  const { add } = useCart();
   const handleMoveToCart = (product) => {
-    addItem("defaultVendor", "Shopperslink", product);
-    removeFromWishlist(product.id);
-    toast.success("Moved to cart!");
+    // 1. Ensure price is a number
+    const priceNum = Number(product.price) || 0;
+
+    // 2. Construct the payload based on your Redux hook requirements
+    const payload = {
+      vendorId: product.vendor.id ?? "default-vendor",
+      vendorName: product.vendorName ?? "ShoppersLink Official",
+      id: product.id,
+      name: product.name,
+      price: priceNum,
+      // Use the same image logic you used in the <img> tag below
+      image: product?.primary_image || "placeholder.png",
+      quantity: 1,
+      variantId: product?.variants?.[0]?.id || null,
+    };
+    // console.log(payload);
+
+    // 3. Execute actions
+    add(payload);
+    remove(product.id); // Uncommented so it actually "moves" the item
+    toast.success(`🛒 ${product.name} moved to cart`);
   };
   // console.log(wishlist);
   const buildHref = (p) =>
@@ -92,7 +111,7 @@ export default function WishlistPage() {
                 </button>
 
                 <button
-                  onClick={() => removeFromWishlist(product.id)}
+                  onClick={() => remove(product.id)}
                   className="p-2 rounded-lg hover:bg-red-50 text-red-500 transition"
                 >
                   <Trash2 size={18} />

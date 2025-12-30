@@ -91,7 +91,7 @@ function extractTimeline(order, entity = order) {
 }
 
 export default function OrderDetailsPane({ order }) {
-  // console.log(order);
+  // console.log(order.vendor_orders);
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);
@@ -199,6 +199,7 @@ export default function OrderDetailsPane({ order }) {
     }
   };
 
+
   // Invoice generation - exclude cancelled, handle overflow with new page, text wrapping
   const generateInvoice = async () => {
     // 1. Prepare data
@@ -207,6 +208,7 @@ export default function OrderDetailsPane({ order }) {
         (v) => (v.status ?? "").toLowerCase() !== "cancelled"
       ) ?? [];
 
+    // console.log(activeVendorOrders);
     // 2. Create a temporary container to render the template
     const container = document.createElement("div");
     container.style.position = "absolute";
@@ -248,6 +250,7 @@ export default function OrderDetailsPane({ order }) {
       document.body.removeChild(container);
     }, 500);
   };
+
   return (
     <div
       className={`p-4 md:p-6 bg-bgSurface rounded-lg border ${isCancelled ? "opacity-70 grayscale" : ""
@@ -412,6 +415,7 @@ export default function OrderDetailsPane({ order }) {
           const hasReviewed = (v.items ?? []).some(item => !!item.review);
 
           // console.log(hasReviewed);
+          console.log(order.vendor_orders);
 
           return (
             <div
@@ -462,7 +466,8 @@ export default function OrderDetailsPane({ order }) {
                           className="w-8 h-8 object-cover rounded"
                         />
                         <div>
-                          {it.product?.name} • Qty: {it.quantity} • ৳ {it.total}
+                          <p>{it.product?.name}</p>
+                          <span className="text-xs">{it.variant?.sku} • Qty: {it.quantity} • ৳ {it.total}</span>
                         </div>
                       </div>
                     ))}
@@ -600,6 +605,7 @@ export default function OrderDetailsPane({ order }) {
                 Paid
               </div>
             )}
+
         </div>
       </div>
     </div>

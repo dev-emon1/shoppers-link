@@ -17,23 +17,34 @@ export default function BillingForm({
   const { user } = useSelector((state) => state.auth);
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // ফর্ম স্টেট ইনিশিয়ালাইজেশন
-  const [form, setForm] = useState({
-    fullName: user?.customer?.full_name || "",
-    phone: user?.customer?.contact_number || "",
-    email: user?.email || "",
-    area: "",
-    line1: "",
-    city: "",
-    postalCode: "",
-    notes: "",
-    address_line1: "", // Address Type (Home/Office)
-    ...value
-  });
-
   const [localErrors, setLocalErrors] = useState(errors || {});
 
+  // ফর্ম স্টেট ইনিশিয়ালাইজেশন
+
+  const [form, setForm] = useState({
+    fullName: value.fullName || "",
+    phone: value.phone || "",
+    email: value.email || "",
+    area: value.area || "",
+    line1: value.line1 || "",
+    city: value.city || "",
+    postalCode: value.postalCode || value.postcode || "",
+    notes: value.notes || "",
+  });
+
+  // Logic to auto-fill when Redux User data arrives
+  useEffect(() => {
+    if (user && !form.fullName && !form.phone) {
+      setForm(prev => ({
+        ...prev,
+        fullName: user?.customer?.full_name || "",
+        phone: user?.customer?.contact_number || "",
+        email: user?.email || "",
+      }));
+    }
+  }, [user]);
+
+  // ... rest of the component
   // ১. অ্যাড্রেস লিস্ট ফেচ করা
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -95,17 +106,7 @@ export default function BillingForm({
               <button
                 key={a.id}
                 type="button"
-                onClick={() => {
-                  // ইউজার ক্লিক করলে পুরো ফর্ম ওই অ্যাড্রেস দিয়ে আপডেট হবে
-                  setForm({
-                    ...form,
-                    address_line1: a.address_line1,
-                    line1: a.address_line2, // API address_line2 -> Form line1
-                    city: a.city,
-                    postalCode: a.postal_code,
-                    area: a.state, // API state -> Form area (যদি প্রয়োজন হয়)
-                  });
-                }}
+                onClick={() => handleAddressSelect(a)}
                 className={`px-3 py-1 text-xs font-medium rounded-full border transition-all ${form.address_line1 === a.address_line1
                   ? "bg-main text-white border-main shadow-sm"
                   : "bg-white text-gray-600 border-gray-200 hover:border-main"

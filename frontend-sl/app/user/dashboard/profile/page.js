@@ -42,7 +42,7 @@ export default function ProfilePage() {
       toast.success("Profile picture updated!");
 
       // Refresh user info
-      dispatch(setUserFromToken(result.payload));
+      // dispatch(setUserFromToken(result.payload));
     } else {
       toast.error("Upload failed");
     }
@@ -53,7 +53,7 @@ export default function ProfilePage() {
     if (updateProfile.fulfilled.match(result)) {
       toast.success("Profile updated successfully!");
 
-      dispatch(setUserFromToken(result.payload));
+      // dispatch(setUserFromToken(result.payload));
     } else {
       toast.error(result.payload?.message || "Failed to update");
     }

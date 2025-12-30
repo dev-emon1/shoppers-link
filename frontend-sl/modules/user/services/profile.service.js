@@ -20,6 +20,6 @@ export const updateProfilePhotoApi = async (file) => {
 
 // Change password
 export const changePasswordApi = async (payload) => {
-  const res = await api.post("/user/profile/change-password", payload);
+  const res = await api.post("/change/password", payload);
   return res.data;
 };
