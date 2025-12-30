@@ -1,7 +1,6 @@
 "use client";
 
-import { use, useMemo, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { use, useState } from "react";
 import { makeCrumbsFromSlug } from "@/lib/breadcrumb";
 
 /* UI */
@@ -21,6 +20,7 @@ import RelatedProducts from "@/modules/product/components/RelatedProducts";
 import { useCategoryFinders } from "@/modules/category/hooks/useCategoryFinders";
 import useProductsForChild from "@/modules/category/hooks/useProductsForChild";
 import useSortedProducts from "@/modules/product/hooks/useSortedProducts";
+import useProductFilters from "@/modules/product/hooks/useProductFilters";
 
 export default function CategoryPage({ params }) {
   /* ---------------- UI State ---------------- */
@@ -28,6 +28,7 @@ export default function CategoryPage({ params }) {
   const [sort, setSort] = useState("newest");
   const [filterOpen, setFilterOpen] = useState(false);
 
+  /* ---------------- Params ---------------- */
   const resolvedParams =
     typeof params?.then === "function" ? use(params) : params;
 
@@ -36,9 +37,6 @@ export default function CategoryPage({ params }) {
     : [];
 
   const [catSlug, subSlug, childSlug, productSlug] = segments;
-
-  const router = useRouter();
-  const sp = useSearchParams();
 
   /* ---------------- Category Finders ---------------- */
   const {
@@ -59,67 +57,28 @@ export default function CategoryPage({ params }) {
   const isSubcategoryPage = !!sub && !child;
   const isCategoryPage = !!cat && !sub && !child;
 
-  /* ---------------- Products (Child / PLP) ---------------- */
+  /* ---------------- Products ---------------- */
   const {
-    products: baseProducts,
+    products: baseProducts = [],
     loading: productsLoading,
     error: productsError,
     deriveFilters,
-    applyFilters,
   } = useProductsForChild({ catSlug, subSlug, childSlug });
 
-  /* ---------------- Filters from URL ---------------- */
-  const [selected, setSelected] = useState({
-    brands: (sp.get("brands") || "").split(",").filter(Boolean),
-    ratings: (sp.get("ratings") || "").split(",").map(Number).filter(Boolean),
-    price:
-      (sp.get("price") || "")
-        .split("-")
-        .map(Number)
-        .filter((n) => !isNaN(n)).length === 2
-        ? (sp.get("price") || "").split("-").map(Number)
-        : [],
-  });
+  /* ---------------- Filters Hook (ALWAYS CALLED) ---------------- */
+  const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
+    useProductFilters(isChildPage ? baseProducts : []);
 
-  useEffect(() => {
-    setSelected({
-      brands: (sp.get("brands") || "").split(",").filter(Boolean),
-      ratings: (sp.get("ratings") || "").split(",").map(Number).filter(Boolean),
-      price:
-        (sp.get("price") || "")
-          .split("-")
-          .map(Number)
-          .filter((n) => !isNaN(n)).length === 2
-          ? (sp.get("price") || "").split("-").map(Number)
-          : [],
-    });
-  }, [sp.toString()]);
-
-  const filters = isChildPage ? deriveFilters(baseProducts) : null;
-
-  const filtered = useMemo(
-    () => (isChildPage ? applyFilters(baseProducts, selected) : []),
-    [isChildPage, baseProducts, selected, applyFilters]
+  const sortedProducts = useSortedProducts(
+    isChildPage ? filteredProducts : [],
+    sort
   );
-
-  /* -----------------------------
-   Sorting (after filtering)
------------------------------ */
-  const sortedProducts = useSortedProducts(filtered, sort);
-
-  /* ---------------- Helpers ---------------- */
-  const getSubCategories = (category) =>
-    (category?.sub_categories || category?.subcategories || []) ?? [];
-
-  const getChildCategories = (subcat) =>
-    (subcat?.child_categories || subcat?.children || []) ?? [];
 
   /* ======================================================
      1️⃣ PRODUCT DETAILS PAGE
   ====================================================== */
   if (isProductPage) {
     const product = baseProducts.find((p) => p.slug === productSlug);
-    console.log(product);
 
     if (!product) {
       return (
@@ -145,7 +104,7 @@ export default function CategoryPage({ params }) {
      2️⃣ CATEGORY LANDING PAGE
   ====================================================== */
   if (isCategoryPage) {
-    const heroItems = getSubCategories(cat).map((s) => ({
+    const heroItems = (cat?.sub_categories || []).map((s) => ({
       id: s.id,
       name: s.name,
       image: s.image,
@@ -178,7 +137,7 @@ export default function CategoryPage({ params }) {
      3️⃣ SUBCATEGORY PAGE
   ====================================================== */
   if (isSubcategoryPage) {
-    const heroItems = getChildCategories(sub).map((c) => ({
+    const heroItems = (sub?.child_categories || []).map((c) => ({
       id: c.id,
       name: c.name,
       image: c.image,
@@ -211,29 +170,16 @@ export default function CategoryPage({ params }) {
      4️⃣ CHILD CATEGORY (PLP)
   ====================================================== */
   if (isChildPage) {
-    const onFilterChange = (next) => {
-      setSelected(next);
-
-      const q = new URLSearchParams();
-      if (next.brands?.length) q.set("brands", next.brands.join(","));
-      if (next.ratings?.length) q.set("ratings", next.ratings.join(","));
-      if (next.price?.length === 2)
-        q.set("price", `${next.price[0]}-${next.price[1]}`);
-
-      router.replace(`?${q.toString()}`);
-    };
+    const filters = deriveFilters(baseProducts);
 
     return (
       <ProductsLayout
         sidebar={
           <ListingSidebar
             mode="filter"
-            category={cat}
-            tree={getSidebarTree(catSlug)}
             filters={filters}
             selected={selected}
-            onFilterChange={onFilterChange}
-            active={{ sub: subSlug, child: childSlug }}
+            onFilterChange={setSelected}
             mobileOpen={filterOpen}
             onCloseMobile={() => setFilterOpen(false)}
           />
@@ -242,25 +188,27 @@ export default function CategoryPage({ params }) {
           <ListingHeader
             title={child.name}
             breadcrumb={breadcrumb}
-            total={filtered.length}
+            total={filteredProducts.length}
             view={view}
             sort={sort}
             showControls
             onViewChange={setView}
             onSortChange={setSort}
             onOpenFilter={() => setFilterOpen(true)}
+            filterCount={activeCount}
+            onClearFilters={clearFilters}
           />
         }
       >
         {productsLoading ? (
-          <div className="py-20 text-center text-gray-500">
+          <div className="py-20 text-center">
             <Loader />
           </div>
         ) : productsError ? (
           <div className="py-20 text-center text-red-500">
             Failed to load products.
           </div>
-        ) : filtered.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="py-20 text-center text-gray-500">
             No products found.
           </div>
