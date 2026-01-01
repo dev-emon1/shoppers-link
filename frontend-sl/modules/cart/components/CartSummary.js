@@ -15,6 +15,7 @@ const CartSummary = ({ totalItems = 0, totalPrice = 0, onClear }) => {
   const handleClick = () => {
     router.push("/checkout");
   };
+  // console.log(totalItems);
 
   const handleClear = () => {
     // small confirmation to avoid accidental clear
