@@ -10,6 +10,7 @@ const CartPage = () => {
 
   const vendors = cart || {};
   const vendorKeys = Object.keys(vendors);
+  // console.log(cart);
 
   if (vendorKeys.length === 0) return <EmptyCart />;
 
