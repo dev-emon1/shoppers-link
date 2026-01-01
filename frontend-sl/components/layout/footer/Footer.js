@@ -74,15 +74,16 @@ export default function Footer() {
 
           <h3 className="font-semibold text-lg mb-4">Helpline</h3>
           <ul className="space-y-2 text-sm text-secondaryActive">
-            <li>
-              <span className="block font-medium">Email:</span>
+            <li className="flex flex-col gap-1">
+              <span className="font-medium">Email:</span>
               <a
-                className="text-secondaryActive hover:text-main"
+                className="text-secondaryActive hover:text-main break-all"
                 href="mailto:info@fingertipsinnovations.com"
               >
                 info@fingertipsinnovations.com
               </a>
             </li>
+
             <li>
               <span className="block font-medium">Phone:</span>
               <a
