@@ -57,7 +57,7 @@ const CartIconButton = () => {
           </span>
         </div>
 
-        <span className="hidden sm:block text-[11px] font-medium tracking-wide group-hover:text-main text-textPrimary">
+        <span className="hidden md:block text-[11px] font-medium tracking-wide group-hover:text-main text-textPrimary">
           Cart
         </span>
       </button>

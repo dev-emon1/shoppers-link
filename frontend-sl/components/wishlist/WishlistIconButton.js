@@ -24,7 +24,7 @@ const WishlistIconButton = () => {
           }`}
         />
 
-        <span className="hidden sm:block text-[11px] font-medium tracking-wide text-textPrimary group-hover:text-main">
+        <span className="hidden md:block text-[11px] font-medium tracking-wide text-textPrimary group-hover:text-main">
           Wishlist
         </span>
 
