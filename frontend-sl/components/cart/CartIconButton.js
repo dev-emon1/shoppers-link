@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import useCart from "@/modules/cart/hooks/useCart";
 import MiniCartDrawer from "./MiniCartDrawer";
 
@@ -37,8 +37,8 @@ const CartIconButton = () => {
         className="relative flex items-center justify-center flex-col lg:flex-row lg:gap-1 hover:text-main group transition-all duration-200"
       >
         <div className="relative">
-          <ShoppingBag
-            size={20}
+          <ShoppingCart
+            size={22}
             className="text-gray-700 group-hover:text-main transition-colors"
           />
 
@@ -47,7 +47,7 @@ const CartIconButton = () => {
           <span
             aria-hidden={isVisuallyHidden}
             className={
-              "absolute -top-2 -right-2 bg-main text-white text-[10px] font-semibold rounded-full w-5 h-5 flex items-center justify-center shadow-md ring-2 ring-white " +
+              "absolute -top-2 -right-2 bg-main text-white text-[10px] font-semibold rounded-full w-[18px] h-[18px] flex items-center justify-center shadow-md ring-2 ring-white " +
               (isVisuallyHidden
                 ? "opacity-0 pointer-events-none"
                 : "opacity-100")
@@ -57,7 +57,7 @@ const CartIconButton = () => {
           </span>
         </div>
 
-        <span className="sm:block text-[10px] lg:text-sm lg:font-medium group-hover:text-main text-textPrimary">
+        <span className="hidden md:block text-[11px] font-medium tracking-wide group-hover:text-main text-textPrimary">
           Cart
         </span>
       </button>
