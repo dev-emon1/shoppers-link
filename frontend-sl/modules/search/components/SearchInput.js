@@ -50,8 +50,11 @@ export default function SearchInput({
   };
 
   return (
-    <form onSubmit={submit} className="flex items-center w-full">
-      <div className="min-w-[160px] px-2">
+    <form
+      onSubmit={submit}
+      className="flex items-center w-full border border-gray-100"
+    >
+      <div className="min-w-[160px] px-2 ">
         <select
           value={category}
           onFocus={onOpen}
