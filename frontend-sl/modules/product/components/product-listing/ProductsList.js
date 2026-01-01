@@ -9,6 +9,7 @@ import ProductActions from "@/components/product/ProductActions";
 
 const ProductsList = ({ products = [] }) => {
   if (!products.length) return null;
+  // console.log(products);
 
   const buildImage = (p) => {
     if (Array.isArray(p.images) && p.images.length > 0) {
