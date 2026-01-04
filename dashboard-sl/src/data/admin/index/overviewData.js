@@ -1,4 +1,4 @@
-import { FaUser, FaUsers, FaShoppingCart } from "react-icons/fa";
+import { FaUser, FaUsers, FaShoppingCart, FaTimesCircle, FaBan } from "react-icons/fa";
 import { HiMiniReceiptRefund } from "react-icons/hi2";
 import {
   MdSell,
@@ -56,6 +56,17 @@ export const statusCardsData = [
     id: 5,
     icon: FaShoppingCart,
     title: "Pending Orders",
+    count: "12",
+    percentage: "2.5%",
+    isIncrease: true,
+    time: "Last Week",
+    roles: ["admin", "vendor"],
+    url: "/vendor/orders/order-list",
+  },
+  {
+    id: 5,
+    icon: FaBan,
+    title: "Cancel Orders",
     count: "12",
     percentage: "2.5%",
     isIncrease: true,

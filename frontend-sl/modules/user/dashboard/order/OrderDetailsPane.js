@@ -576,13 +576,14 @@ export default function OrderDetailsPane({ order }) {
           Order ID: {order.id ?? "-"}
         </div> */}
         <div className="flex flex-wrap items-center gap-3 justify-end">
-          <button
-            onClick={generateInvoice}
-            className="px-5 py-2 bg-main text-white rounded-md hover:opacity-90 transition flex items-center gap-2"
-          >
-            <Download size={18} /> Download Invoice
-          </button>
-
+          {!isCancelled && (
+            <button
+              onClick={generateInvoice}
+              className="px-5 py-2 bg-main text-white rounded-md hover:opacity-90 transition flex items-center gap-2"
+            >
+              <Download size={18} /> Download Invoice
+            </button>
+          )}
           {!isCancelled &&
             !isDelivered &&
             order.payment_status === "unpaid" && (
