@@ -17,7 +17,7 @@ export const statusCardsData = [
     isIncrease: true,
     time: "Last Week",
     roles: ["admin"], // only admin sees it
-    url: "/admin/vendors",
+    url: "/admin/vendors/all-vendors",
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ export const statusCardsData = [
     isIncrease: false,
     time: "Last Week",
     roles: ["admin",], // both can see
-    url: "/admin/customers",
+    url: "/admin//users/customers",
   },
   {
     id: 3,
@@ -39,7 +39,10 @@ export const statusCardsData = [
     isIncrease: true,
     time: "Last Week",
     roles: ["admin", "vendor"],
-    url: "/vendor/orders/order-list",
+    // Logic: if admin is in the roles list, use admin URL, else vendor URL
+    url: ["admin", "vendor"].includes("admin")
+      ? "/admin/orders/order-list"
+      : "/vendor/orders/order-list",
   },
   {
     id: 4,
@@ -49,8 +52,11 @@ export const statusCardsData = [
     percentage: "4.5%",
     isIncrease: true,
     time: "Last Week",
-    roles: ["vendor"], // vendor only
-    url: "/vendor/orders/order-list",
+    roles: ["vendor", "admin"], // vendor only
+    // Logic: if admin is in the roles list, use admin URL, else vendor URL
+    url: ["admin", "vendor"].includes("admin")
+      ? "/admin/orders/order-list"
+      : "/vendor/orders/order-list",
   },
   {
     id: 5,
@@ -61,7 +67,10 @@ export const statusCardsData = [
     isIncrease: true,
     time: "Last Week",
     roles: ["admin", "vendor"],
-    url: "/vendor/orders/order-list",
+    // Logic: if admin is in the roles list, use admin URL, else vendor URL
+    url: ["admin", "vendor"].includes("admin")
+      ? "/admin/orders/order-list"
+      : "/vendor/orders/order-list",
   },
   {
     id: 5,
@@ -72,7 +81,10 @@ export const statusCardsData = [
     isIncrease: true,
     time: "Last Week",
     roles: ["admin", "vendor"],
-    url: "/vendor/orders/order-list",
+    // Logic: if admin is in the roles list, use admin URL, else vendor URL
+    url: ["admin", "vendor"].includes("admin")
+      ? "/admin/orders/order-list"
+      : "/vendor/orders/order-list",
   },
   {
     id: 6,

@@ -16,6 +16,7 @@ export default function ShopProfile({ data }) {
         state: data.vendor.state || '',
         postal_code: data.vendor.postal_code || '',
         country: data.vendor.country || '',
+        link: data.vendor.link || '',
         logo: data.vendor.logo || '',
         banner: data.vendor.banner || '',
         nid_front: data.vendor.nid_front || '',
@@ -48,7 +49,7 @@ export default function ShopProfile({ data }) {
         // শুধু টেক্সট ফিল্ডগুলো
         const textFields = [
             'shop_name', 'owner_name', 'contact_number', 'description',
-            'address', 'city', 'state', 'postal_code', 'country'
+            'address', 'city', 'state', 'postal_code', 'country', 'link'
         ];
 
         textFields.forEach(field => {
@@ -100,6 +101,7 @@ export default function ShopProfile({ data }) {
             state: originalData.vendor.state || '',
             postal_code: originalData.vendor.postal_code || '',
             country: originalData.vendor.country || '',
+            link: originalData.vendor.link || '',
             logo: originalData.vendor.logo || '',
             banner: originalData.vendor.banner || '',
             nid_front: originalData.vendor.nid_front || '',
@@ -226,6 +228,7 @@ export default function ShopProfile({ data }) {
                     {editableField('State', 'state')}
                     {editableField('Postal Code', 'postal_code')}
                     {editableField('Country', 'country')}
+                    {editableField('Facebook', 'link')}
                 </div>
 
                 {/* Documents */}
