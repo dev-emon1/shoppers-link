@@ -78,10 +78,10 @@ export default function ProfilePage() {
     }
   };
   const avatarSrc = profileImage
-    ? profileImage  // This is the local blob preview from the file input
+    ? profileImage // This is the local blob preview from the file input
     : user?.customer?.profile_picture
-      ? `${IMAGE_URL}/avatars/${user.customer.profile_picture}`
-      : "/default-avatar.png";
+    ? `${IMAGE_URL}/avatars/${user.customer.profile_picture}`
+    : "/default-avatar.png";
   return (
     <div className="space-y-10">
       {/* HEADER BLOCK */}
@@ -148,7 +148,7 @@ export default function ProfilePage() {
               />
               <input
                 type="text"
-                value={form.email}
+                value={form.email ?? ""}
                 disabled
                 className="w-full py-3 pl-10 pr-3 border rounded-lg mt-1 bg-gray-100 cursor-not-allowed"
               />

@@ -6,6 +6,7 @@ import Link from "next/link";
 import React from "react";
 import { TbCurrencyTaka } from "react-icons/tb";
 import ProductActions from "../product/ProductActions";
+import { makeImageUrl } from "@/lib/utils/image";
 
 const CountdownTimer = ({ endsAt }) => {
   const [timeLeft, setTimeLeft] = useState("");
@@ -52,9 +53,7 @@ const CountdownTimer = ({ endsAt }) => {
 };
 
 const Card = ({ data, href }) => {
-  const productImage = data?.images?.[0]?.image_path
-    ? `${process.env.NEXT_PUBLIC_API_IMAGE_URL}/${data.images[0].image_path}`
-    : "/images/placeholder.png";
+  const productImage = makeImageUrl(data?.images?.[0]?.image_path || null);
 
   // Price & Discount
   const variant = data?.variants?.[0] || {};
