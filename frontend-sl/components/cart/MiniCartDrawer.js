@@ -71,6 +71,7 @@ const MiniCartDrawer = ({ open, onClose }) => {
   const vendorKeysForRender = mounted ? vendorKeys : [];
   const totalItemsForRender = mounted ? toNumber(totalItems) : 0;
   const subtotalForRender = mounted ? subtotalNumber : 0;
+  // console.log(cart);
 
   return (
     <>

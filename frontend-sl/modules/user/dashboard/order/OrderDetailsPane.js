@@ -91,7 +91,7 @@ function extractTimeline(order, entity = order) {
 }
 
 export default function OrderDetailsPane({ order }) {
-  // console.log(order.vendor_orders);
+  // console.log("order details", order.vendor_orders);
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);
@@ -415,7 +415,7 @@ export default function OrderDetailsPane({ order }) {
           const hasReviewed = (v.items ?? []).some(item => !!item.review);
 
           // console.log(hasReviewed);
-          console.log(order.vendor_orders);
+          // console.log("order details", order.vendor_orders);
 
           return (
             <div
