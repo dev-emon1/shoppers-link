@@ -43,6 +43,7 @@ const Overview = () => {
       // Change this key to "Total Sales" to match your initialCards title
       "Total Sales": `৳${(data.total_sale || 0).toLocaleString()}`,
       "Pending Orders": data.total_pending_orders,
+      "Cancel Orders": data.total_cancel_orders,
       "Total Products": data.total_products,
       "Refund Request": data.total_refunds || 0, // Ensure this exists in your API data too
       "Low Inventory": data.low_stock_count,
