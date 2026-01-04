@@ -1,33 +1,65 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import TopBar from "./TopBar";
 import MainNav from "./MainNav";
 import MegaMenu from "./MegaMenu";
 import MobileMenu from "./MobileMenu";
+
 import useScrollNavbar from "@/core/hooks/useScrollNavbar";
-import { useDispatch, useSelector } from "react-redux";
+import useMediaQuery from "@/core/hooks/useMediaQuery";
 import { loadAllCategories } from "@/modules/category/store/categoryReducer";
 
 const Header = () => {
+  const dispatch = useDispatch();
+
+  /* ----------------------------------
+     UI State
+  ---------------------------------- */
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);
 
+  /* ----------------------------------
+     Hooks
+  ---------------------------------- */
   const { showTopBar, isScrollingDown } = useScrollNavbar(80);
-  const dispatch = useDispatch();
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const { items: categories = [] } = useSelector(
     (state) => state.category || {}
   );
 
+  /* ----------------------------------
+     Load categories once
+  ---------------------------------- */
   useEffect(() => {
     dispatch(loadAllCategories());
   }, [dispatch]);
 
+  /* ----------------------------------
+     Auto close mobile menu on desktop
+  ---------------------------------- */
+  useEffect(() => {
+    if (isDesktop && showSidebar) {
+      setShowSidebar(false);
+    }
+  }, [isDesktop, showSidebar]);
+
+  /* ----------------------------------
+     Reset mega menu on mobile
+  ---------------------------------- */
+  useEffect(() => {
+    if (!isDesktop) {
+      setActiveMenu(null);
+    }
+  }, [isDesktop]);
+
   return (
-    <header className="fixed top-0 left-0 w-full z-[999] bg-bgSurface shadow-sm">
-      {/* Top Bar */}
+    <header className="fixed top-0 left-0 w-full z-[999] bg-bgSurface">
+      {/* Top Bar (CSS handles hide till lg) */}
       <div
         className={`transition-all duration-300 ${
           showTopBar
@@ -47,20 +79,24 @@ const Header = () => {
         isScrollingDown={isScrollingDown}
       />
 
-      {/* Mega Menu */}
-      <MegaMenu
-        categories={categories}
-        activeMenu={activeMenu}
-        setActiveMenu={setActiveMenu}
-        showTopBar={showTopBar}
-      />
+      {/* Desktop Mega Menu */}
+      <div className="hidden lg:block">
+        <MegaMenu
+          categories={categories}
+          activeMenu={activeMenu}
+          setActiveMenu={setActiveMenu}
+          showTopBar={showTopBar}
+        />
+      </div>
 
-      {/* Mobile Menu */}
-      <MobileMenu
-        isOpen={showSidebar}
-        onClose={() => setShowSidebar(false)}
-        menuItems={categories}
-      />
+      {/* Mobile / Tablet Menu */}
+      {!isDesktop && (
+        <MobileMenu
+          isOpen={showSidebar}
+          onClose={() => setShowSidebar(false)}
+          menuItems={categories}
+        />
+      )}
     </header>
   );
 };

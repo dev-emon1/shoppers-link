@@ -42,7 +42,7 @@ const TopBar = () => {
   };
 
   return (
-    <div className="hidden md:block bg-main text-textWhite text-sm py-1 relative z-40">
+    <div className="hidden lg:block bg-main text-textWhite text-sm py-1 relative z-40">
       <div className="container flex justify-between items-center">
         {/* Left Text */}
         <div>

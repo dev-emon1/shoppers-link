@@ -44,7 +44,7 @@ export default function NewsletterShowcase() {
         </div>
 
         {/* Two-column layout: Newsletter + Partner CTA */}
-        <div className="grid md:grid-cols-2 gap-10">
+        <div className="grid lg:grid-cols-2 gap-10">
           {/* ================= Newsletter Subscription Card ================= */}
           <div className="bg-bgSurface p-10 rounded-2xl shadow-lg border border-border hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
             <h3 className="text-2xl font-semibold text-textPrimary">

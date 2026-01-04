@@ -139,7 +139,7 @@ export default function CategoryPage({ params }) {
       .slice(0, 8);
 
     return (
-      <div className="mt-6">
+      <div className="mt-12">
         <ProductDetails product={product} breadcrumb={breadcrumb} />
         <RelatedProducts product={product} products={related} />
       </div>
