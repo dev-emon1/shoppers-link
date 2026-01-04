@@ -112,6 +112,7 @@ export default function ProductSummary({
       vendorId: product?.vendor?.id ?? null,
       vendorName: product?.vendor?.shop_name ?? product?.vendor?.name ?? null,
     });
+    // console.log(product);
 
     if (!item) {
       return showToast("Could not add product to cart");
@@ -150,9 +151,18 @@ export default function ProductSummary({
   };
 
   const stock = selectedVariant?.stock ?? product.stock ?? null;
+  const isOutOfStock = selectedVariant && stock !== null && stock <= 0;
+
   useEffect(() => {
-    if (stock != null && qty > stock) setQty(stock);
-  }, [stock, qty]);
+    if (stock === 0) {
+      setQty(1); // UI consistency (or 0 if you prefer)
+    } else if (stock != null && qty > stock) {
+      setQty(stock);
+    } else if (stock != null && qty < 1) {
+      setQty(1);
+    }
+  }, [stock]);
+
 
   const activeWishlist = Boolean(
     product && wishlist.some((p) => p?.id === product?.id)
@@ -267,44 +277,69 @@ export default function ProductSummary({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <label className="text-sm">Quantity</label>
-              <div className="flex items-center border rounded">
-                <button
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="px-3 py-1 text-lg"
-                  aria-label="Decrease quantity"
-                  type="button"
-                >
-                  -
-                </button>
-                <div className="px-4">{qty}</div>
-                <button
-                  onClick={() =>
-                    setQty((q) => (stock != null ? Math.min(stock, q + 1) : q + 1))
-                  }
-                  className="px-3 py-1 text-lg"
-                  aria-label="Increase quantity"
-                  type="button"
-                >
-                  +
-                </button>
-              </div>
+
+              {stock !== null && stock <= 0 ? (
+                <p className="text-red text-sm font-bold">Out of stock</p>
+              ) : (
+                <div className="flex items-center border rounded">
+                  <button
+                    type="button"
+                    aria-label="Decrease quantity"
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    className="px-3 py-1 text-lg"
+                  >
+                    -
+                  </button>
+
+                  <div className="px-4 select-none">{qty}</div>
+
+                  <button
+                    type="button"
+                    aria-label="Increase quantity"
+                    onClick={() =>
+                      setQty((q) =>
+                        stock != null ? Math.min(stock, q + 1) : q + 1
+                      )
+                    }
+                    className="px-3 py-1 text-lg"
+                  >
+                    +
+                  </button>
+                </div>
+              )}
             </div>
+
+            {/* Stock info */}
             <div className="text-sm text-muted-foreground">
-              {stock !== null ? `${stock} in stock` : "Stock info not available"}
+              {stock !== null && stock > 0
+                ? `${stock} in stock`
+                : stock === null
+                  ? "Stock info not available"
+                  : null}
             </div>
           </div>
+
           {/* Actions */}
           <div className="flex flex-col gap-3 mt-3">
             <button
               onClick={handleAddToCart}
-              className={`flex-1 bg-main text-white px-4 py-3 flex items-center justify-center gap-2 hover:bg-main/90 transition ${isAdding ? "opacity-60 cursor-wait" : ""
-                }`}
               type="button"
-              disabled={isAdding}
+              disabled={isAdding || isOutOfStock}
+              className={`flex-1 px-4 py-3 flex items-center justify-center gap-2 transition
+    ${isOutOfStock
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-main text-white hover:bg-main/90"}
+    ${isAdding ? "opacity-60 cursor-wait" : ""}
+  `}
             >
               <TbBasket size={18} />
-              {isAdding ? "Adding..." : "Add to Cart"}
+              {isOutOfStock
+                ? "Out of Stock"
+                : isAdding
+                  ? "Adding..."
+                  : "Add to Cart"}
             </button>
+
             <button
               className="flex-1 bg-transparent text-main px-4 py-3 flex items-center justify-center gap-2 hover:bg-gray-300/90 transition border border-main"
               type="button"

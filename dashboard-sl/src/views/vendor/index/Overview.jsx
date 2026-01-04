@@ -14,7 +14,7 @@ const Overview = () => {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  // console.log(data);
   useEffect(() => {
     const fetchOverview = async () => {
       try {
@@ -102,7 +102,7 @@ const Overview = () => {
       <div className="flex flex-col lg:flex-row justify-between gap-4 mt-8">
         <div className="w-full  p-4 bg-white shadow-md rounded-2xl">
           <h3 className="font-semibold mb-4 text-gray-700">Sales Analytics</h3>
-          <Chart chartData={data?.monthly_stats} />
+          <Chart chartData={data} role={user?.type} />
         </div>
         {/* <div className="w-full lg:w-1/3 bg-white shadow-md rounded-2xl p-4 flex items-center justify-center">
           <div className="text-center">
