@@ -1,3 +1,3 @@
 export function middleware(request) {
-  // তোমার middleware logic
+  // middleware logic
 }
