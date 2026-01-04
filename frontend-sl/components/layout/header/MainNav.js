@@ -20,6 +20,7 @@ import fingertipsLogo from "@/public/svg/fingertips.svg";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/modules/user/store/authReducer";
 import { useOutsideClick } from "@/lib/utils/useOutSideClick";
+import { makeImageUrl } from "@/lib/utils/image";
 
 const BRAND_SEQUENCE = [
   { text: "A concern of", logo: fingertipsLogo, alt: "Fingertips" },
@@ -58,6 +59,8 @@ const MainNav = ({
     return () => clearInterval(interval);
   }, []);
 
+  const imageSrc = makeImageUrl(user?.customer?.profile_picture);
+  console.log(imageSrc);
   const handleSearchSubmit = () => {
     const q = searchQuery.trim();
     if (!q) return;
@@ -145,13 +148,14 @@ const MainNav = ({
                 <>
                   <button className="flex items-center gap-2">
                     {/* Avatar */}
-                    {user?.avatar ? (
+                    {user?.customer?.profile_picture ? (
                       <Image
-                        src={user.avatar}
+                        src={imageSrc}
                         alt={user.user_name}
                         width={28}
                         height={28}
                         className="rounded-full object-cover border"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">

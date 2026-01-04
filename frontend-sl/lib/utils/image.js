@@ -1,27 +1,51 @@
 // lib/utils/image.js
-export function makeImageUrl(path) {
-  if (!path) return "/placeholder-product.png";
-  if (typeof path !== "string") return "/placeholder-product.png";
 
-  // already an absolute url
+const KNOWN_FOLDERS = [
+  "avatars",
+  "banners",
+  "categories",
+  "childCategories",
+  "probanners",
+  "product_images",
+  "reviews",
+  "subCategories",
+  "vendors",
+];
+
+export function makeImageUrl(path) {
+  if (!path || typeof path !== "string") {
+    return "/placeholder-user.png";
+  }
+
+  // already absolute
   if (/^https?:\/\//i.test(path)) return path;
 
-  const envBase =
+  const base =
     process.env.NEXT_PUBLIC_API_IMAGE_URL ||
     process.env.NEXT_PUBLIC_MEDIA_BASE ||
     "";
-  const base = String(envBase).replace(/\/+$/, ""); // remove trailing slash(es)
 
-  let p = path.replace(/^\/+/, ""); // drop leading slashes
+  const cleanBase = String(base).replace(/\/+$/, "");
+  let p = path.replace(/^\/+/, "");
 
-  // if base ends with '/storage' and path starts with 'storage/', remove that leading 'storage/'
-  if (/\/storage$/i.test(base) && /^storage\//i.test(p)) {
-    p = p.replace(/^storage\//i, "");
+  // if path already contains a known folder, respect it
+  const hasKnownFolder = KNOWN_FOLDERS.some((folder) =>
+    p.startsWith(folder + "/")
+  );
+
+  if (!hasKnownFolder) {
+    /**
+     * 🧠 Smart default rules
+     * - user/customer images → avatars
+     * - product images usually already come prefixed
+     */
+    p = `avatars/${p}`;
   }
 
-  // collapse multiple leading 'storage/' to single 'storage/'
-  p = p.replace(/^(storage\/)+/i, "storage/");
+  // ensure storage prefix
+  if (!p.startsWith("storage/")) {
+    p = `storage/${p}`;
+  }
 
-  if (base) return `${base}/${p}`;
-  return `/${p}`;
+  return cleanBase ? `${cleanBase}/${p}` : `/${p}`;
 }
