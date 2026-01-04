@@ -14,7 +14,7 @@ import React from "react";
  */
 const ProductsLayout = ({ sidebar, topbar, children }) => {
   return (
-    <section className="container py-6">
+    <section className="container">
       {/* Topbar */}
       {topbar && <div className="mb-4">{topbar}</div>}
 

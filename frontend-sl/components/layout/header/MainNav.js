@@ -21,6 +21,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/modules/user/store/authReducer";
 import { useOutsideClick } from "@/lib/utils/useOutSideClick";
 import { makeImageUrl } from "@/lib/utils/image";
+import useMediaQuery from "@/core/hooks/useMediaQuery";
 
 const BRAND_SEQUENCE = [
   { text: "A concern of", logo: fingertipsLogo, alt: "Fingertips" },
@@ -32,7 +33,6 @@ const MainNav = ({
   setIsSearchOpen,
   showSidebar,
   setShowSidebar,
-  isScrollingDown,
 }) => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -49,6 +49,8 @@ const MainNav = ({
   const openTimer = useRef(null);
   const closeTimer = useRef(null);
 
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+
   useOutsideClick(dropdownRef, () => setOpenDropdown(false));
 
   useEffect(() => {
@@ -59,8 +61,12 @@ const MainNav = ({
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (!isDesktop) setOpenDropdown(false);
+  }, [isDesktop]);
+
   const imageSrc = makeImageUrl(user?.customer?.profile_picture);
-  console.log(imageSrc);
+
   const handleSearchSubmit = () => {
     const q = searchQuery.trim();
     if (!q) return;
@@ -82,12 +88,8 @@ const MainNav = ({
   const current = BRAND_SEQUENCE[currentIndex];
 
   return (
-    <nav
-      className={`relative z-50 bg-bgSurface transition-shadow ${
-        isScrollingDown ? "shadow-[0_2px_12px_rgba(0,0,0,0.06)]" : ""
-      }`}
-    >
-      <div className="container mx-auto px-4 md:px-6">
+    <nav className="relative z-50 bg-bgSurface">
+      <div className="container px-0 lg:px-6">
         <div className="flex items-center justify-between h-[68px] md:h-20">
           {/* Logo */}
           <div className="flex items-center gap-4">
@@ -95,7 +97,6 @@ const MainNav = ({
               <ShoppersLinkLogo width={85} height={45} />
             </Link>
 
-            {/* Brand animation */}
             <div className="hidden sm:block w-[180px]">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -114,7 +115,7 @@ const MainNav = ({
           </div>
 
           {/* Desktop Search */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
             <SearchInput
               initialQuery={searchQuery}
               initialCategory={searchCategoryId}
@@ -125,7 +126,7 @@ const MainNav = ({
             />
           </div>
 
-          {/* Right Icons */}
+          {/* Right */}
           <div className="flex items-center gap-4">
             <WishlistIconButton />
             <CartIconButton />
@@ -133,21 +134,20 @@ const MainNav = ({
             {/* User */}
             <div
               ref={dropdownRef}
-              onMouseEnter={handleUserMouseEnter}
-              onMouseLeave={handleUserMouseLeave}
+              onMouseEnter={isDesktop ? handleUserMouseEnter : undefined}
+              onMouseLeave={isDesktop ? handleUserMouseLeave : undefined}
               className="relative"
             >
-              {!mounted || !user ? (
+              {!user ? (
                 <Link href="/user/login" className="flex items-center gap-1">
-                  <User size={20} className="text-gray-600" />
-                  <span className="hidden sm:block text-[11px] font-medium tracking-wide text-textPrimary group-hover:text-main">
+                  <User size={20} />
+                  <span className="hidden sm:block text-[11px] font-medium">
                     Sign In
                   </span>
                 </Link>
               ) : (
                 <>
                   <button className="flex items-center gap-2">
-                    {/* Avatar */}
                     {user?.customer?.profile_picture ? (
                       <Image
                         src={imageSrc}
@@ -159,16 +159,13 @@ const MainNav = ({
                       />
                     ) : (
                       <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
-                        <User size={16} className="text-gray-600" />
+                        <User size={16} />
                       </div>
                     )}
-
-                    {/* Name (desktop only) */}
-                    <span className="hidden lg:inline text-sm font-medium text-gray-700 max-w-[90px] truncate">
+                    <span className="hidden lg:inline text-sm truncate max-w-[90px]">
                       {user.user_name}
                     </span>
-
-                    <ChevronDown size={14} className="text-gray-500" />
+                    <ChevronDown size={14} />
                   </button>
 
                   <AnimatePresence>
@@ -208,7 +205,7 @@ const MainNav = ({
             {/* Mobile Menu */}
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="md:hidden p-2 rounded-full hover:bg-gray-100 transition"
+              className="lg:hidden p-2 rounded-full hover:bg-gray-100"
             >
               {showSidebar ? <X /> : <Menu />}
             </button>
@@ -216,7 +213,7 @@ const MainNav = ({
         </div>
 
         {/* Mobile Search */}
-        <div className="md:hidden pb-3">
+        <div className="lg:hidden pb-3">
           <div className="flex border overflow-hidden">
             <input
               value={searchQuery}
@@ -236,15 +233,16 @@ const MainNav = ({
         </div>
       </div>
 
-      {/* Search Dropdown */}
       {mounted && (
-        <SearchDropdown
-          isOpen={isSearchOpen}
-          query={searchQuery}
-          categoryId={searchCategoryId}
-          onClose={() => setIsSearchOpen(false)}
-          onViewAll={handleSearchSubmit}
-        />
+        <div className="relative z-[1001]">
+          <SearchDropdown
+            isOpen={isSearchOpen}
+            query={searchQuery}
+            categoryId={searchCategoryId}
+            onClose={() => setIsSearchOpen(false)}
+            onViewAll={handleSearchSubmit}
+          />
+        </div>
       )}
     </nav>
   );

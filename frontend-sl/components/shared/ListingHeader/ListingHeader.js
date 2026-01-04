@@ -50,7 +50,7 @@ export default function ListingHeader({
   );
 
   return (
-    <div className="relative z-30 bg-white border border-border mb-4">
+    <div className="container relative z-30 bg-white border border-border mb-4">
       {/* ================= Header (Breadcrumb + Title) ================= */}
       {(title || cleanBreadcrumb.length > 0) && (
         <div className="px-4 py-4">
