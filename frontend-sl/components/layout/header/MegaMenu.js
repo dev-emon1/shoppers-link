@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useRef, useMemo, useCallback } from "react";
+import React, {
+  useRef,
+  useMemo,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import Link from "next/link";
 
 /* ----------------------------------
@@ -49,6 +55,22 @@ const MegaMenu = ({
   setActiveMenu,
   showTopBar,
 }) => {
+  /* ----------------------------------
+     Scroll shadow state
+  ---------------------------------- */
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+
+    onScroll(); // initial
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const cats = useMemo(
     () => (Array.isArray(categories) ? categories : []),
     [categories]
@@ -86,14 +108,15 @@ const MegaMenu = ({
 
   return (
     <nav
-      className="
+      className={`
         bg-bgSurface relative z-30
-        shadow-[0_4px_12px_rgba(0,0,0,0.08)]
-      "
+        transition-shadow duration-300 border-b border-border
+        ${isScrolled ? "shadow-[0_4px_12px_rgba(0,0,0,0.08)]" : "shadow-none"}
+      `}
       style={{ overflow: "visible" }}
     >
       <div className="container">
-        <ul className="flex justify-center gap-8 text-sm font-medium text-textPrimary relative">
+        <ul className="flex justify-center gap-5 xl:gap-8 text-[11px] xl:text-sm font-medium text-textPrimary relative">
           {cats.map((category, index) => {
             const subcategories = Array.isArray(category?.subcategories)
               ? category.subcategories
