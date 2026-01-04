@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import api, { IMAGE_URL } from "@/core/api/axiosClient";
+import api from "@/core/api/axiosClient";
+import { makeImageUrl } from "@/lib/utils/image";
 
 const PromoBanner = ({ position = "middle-banner" }) => {
   const [banner, setBanner] = useState(null);
@@ -36,14 +37,12 @@ const PromoBanner = ({ position = "middle-banner" }) => {
       <div className="container relative overflow-hidden rounded-2xl">
         <div className="relative w-full h-[260px] sm:h-[320px] md:h-[440px] lg:h-[520px] rounded-2xl overflow-hidden">
           <Image
-            // 1. Updated from item.image to item.image_path
-            src={banner.image_path?.startsWith("http")
-              ? banner.image_path
-              : `${IMAGE_URL}/${banner.image_path}`}
+            src={makeImageUrl(banner.image_path)}
             alt={banner.title}
             fill
             priority
             className="object-cover object-center scale-[1.02] hover:scale-[1.06] transition-transform duration-[2500ms]"
+            unoptimized
           />
 
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 md:via-black/40 to-transparent" />
