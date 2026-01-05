@@ -8,6 +8,7 @@ import ProductReviews from "./reviews/ProductReviews";
 import ProductHeader from "../ProductHeader";
 
 export default function ProductDetails({ product, breadcrumb = [] }) {
+  console.log(product);
   if (!product) {
     return (
       <div className="container py-20 text-center text-gray-500">
@@ -63,6 +64,7 @@ export default function ProductDetails({ product, breadcrumb = [] }) {
               images={product.images}
               variants={product.variants}
               selectedVariant={selectedVariant}
+              selectedColor={selectedVariant?.attr?.Color ?? null}
               onSelectVariant={(variantId) => {
                 const v = product.variants?.find(
                   (x) => String(x.id) === String(variantId)

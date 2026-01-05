@@ -1,20 +1,27 @@
 "use client";
+
 import React, { useState, useMemo, useEffect } from "react";
+
 import ProductPriceBlock from "./ProductPriceBlock";
 import ProductShippingInfo from "./ProductShippingInfo";
 import ProductVendorInfo from "./ProductVendorInfo";
 import ProductWarranty from "./ProductWarranty";
 import ProductReturnPolicy from "./ProductReturnPolicy";
 import ProductSocialShare from "./ProductSocialShare";
+
 import ColorSwatch from "../../utils/colorSwatch";
+
 import { Heart, Star } from "lucide-react";
 import { TbBasket, TbPhoneCall } from "react-icons/tb";
-import { useDispatch } from "react-redux";
+
 import useCart from "@/modules/cart/hooks/useCart";
 import useWishlist from "@/modules/wishlist/hooks/useWishlist";
 import { showToast } from "@/lib/utils/toast";
 import buildCartItemFromProduct from "@/modules/cart/utils/buildCartItemFromProduct";
 
+/* ----------------------------------
+   Helpers
+---------------------------------- */
 function parseAttributes(str) {
   try {
     return JSON.parse(str || "{}");
@@ -22,233 +29,236 @@ function parseAttributes(str) {
     return {};
   }
 }
-export default function ProductSummary({
-  product,
-  selectedVariant: externalSelectedVariant = null,
-  onVariantSelect,
-} = {}) {
-  const dispatch = useDispatch();
+
+/* ----------------------------------
+   Component
+---------------------------------- */
+export default function ProductSummary({ product, onVariantSelect } = {}) {
   if (!product) return null;
 
-  const { add } = useCart();
+  const { add, cart } = useCart();
   const { wishlist = [], toggle } = useWishlist();
-  const categoryId = product.category.id;
-  // console.log(product.vendor.contact_number);
 
-  const variants = useMemo(
-    () =>
-      Array.isArray(product.variants)
-        ? product.variants.map((v) => ({
-          ...v,
-          attr: parseAttributes(v.attributes),
-        }))
-        : [],
-    [product.variants]
-  );
+  const categoryId = product?.category?.id;
 
+  /* ----------------------------------
+     Variants normalization
+  ---------------------------------- */
+  const variants = useMemo(() => {
+    if (!Array.isArray(product.variants)) return [];
+    return product.variants.map((v) => ({
+      ...v,
+      attr: parseAttributes(v.attributes),
+    }));
+  }, [product.variants]);
+
+  /* ----------------------------------
+     Attribute options
+  ---------------------------------- */
   const colors = useMemo(() => {
-    const arr = [];
-    variants.forEach((v) => {
-      if (v.attr?.Color && !arr.includes(v.attr.Color)) arr.push(v.attr.Color);
-    });
-    return arr;
+    const set = new Set();
+    variants.forEach((v) => v.attr?.Color && set.add(v.attr.Color));
+    return Array.from(set);
   }, [variants]);
 
   const sizes = useMemo(() => {
-    const arr = [];
-    variants.forEach((v) => {
-      if (v.attr?.Size && !arr.includes(v.attr.Size)) arr.push(v.attr.Size);
-    });
-    return arr;
+    const set = new Set();
+    variants.forEach((v) => v.attr?.Size && set.add(v.attr.Size));
+    return Array.from(set);
   }, [variants]);
 
-  const [selectedColor, setSelectedColor] = useState(colors[0] ?? null);
-  const [selectedSize, setSelectedSize] = useState(sizes[0] ?? null);
+  /* ----------------------------------
+     UI State
+  ---------------------------------- */
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
+  /* ----------------------------------
+     Default selection (first load only)
+  ---------------------------------- */
   useEffect(() => {
     if (!selectedColor && colors.length) setSelectedColor(colors[0]);
     if (!selectedSize && sizes.length) setSelectedSize(sizes[0]);
-  }, [colors.join("|"), sizes.join("|")]);
+  }, [colors, sizes]);
 
-  useEffect(() => {
-    if (!externalSelectedVariant) return;
-    const attr =
-      externalSelectedVariant.attr ??
-      parseAttributes(externalSelectedVariant.attributes);
-    if (attr?.Color) setSelectedColor(attr.Color);
-    if (attr?.Size) setSelectedSize(attr.Size);
-  }, [externalSelectedVariant?.id]);
-
+  /* ----------------------------------
+     Resolve selected variant
+  ---------------------------------- */
   const selectedVariant = useMemo(() => {
     if (!variants.length) return null;
+
     return (
       variants.find((v) => {
-        const c = v.attr?.Color ?? null;
-        const s = v.attr?.Size ?? null;
-        const colorOk = selectedColor ? c === selectedColor : true;
-        const sizeOk = selectedSize ? s === selectedSize : true;
+        const colorOk = selectedColor ? v.attr?.Color === selectedColor : true;
+        const sizeOk = selectedSize ? v.attr?.Size === selectedSize : true;
         return colorOk && sizeOk;
       }) ?? null
     );
   }, [variants, selectedColor, selectedSize]);
 
+  /* ----------------------------------
+     Notify parent (gallery sync)
+  ---------------------------------- */
   useEffect(() => {
     if (typeof onVariantSelect === "function") {
       onVariantSelect(selectedVariant);
     }
   }, [selectedVariant?.id]);
 
+  /* ----------------------------------
+     Stock & Quantity safety
+  ---------------------------------- */
+  const stock = selectedVariant?.stock ?? product.stock ?? null;
+  const isOutOfStock = stock !== null && stock <= 0;
+
+  useEffect(() => {
+    if (stock === 0) {
+      setQty(1);
+    } else if (stock != null && qty > stock) {
+      setQty(stock);
+    } else if (qty < 1) {
+      setQty(1);
+    }
+  }, [stock]);
+
+  /* ----------------------------------
+     Cart logic
+  ---------------------------------- */
   const handleAddToCart = async () => {
-    if (!product) return showToast("Product missing");
     if (isAdding) return;
 
-    // build normalized cart item
+    const vendorId = product?.vendor?.id ?? null;
+    const cartItems = cart?.[vendorId]?.items ?? [];
+
+    const existingQty = cartItems
+      .filter(
+        (i) =>
+          String(i.productId) === String(product.id) &&
+          String(i.variantId) === String(selectedVariant?.id)
+      )
+      .reduce((sum, i) => sum + Number(i.quantity || 0), 0);
+
+    if (stock <= 0) {
+      return showToast("This product is out of stock");
+    }
+
+    if (existingQty + qty > stock) {
+      return showToast(
+        `Only ${Math.max(0, stock - existingQty)} item(s) left in stock`
+      );
+    }
+
     const item = buildCartItemFromProduct({
       product,
       variantId: selectedVariant?.id ?? null,
       quantity: qty,
-      vendorId: product?.vendor?.id ?? null,
+      vendorId,
       vendorName: product?.vendor?.shop_name ?? product?.vendor?.name ?? null,
     });
-    // console.log(product);
 
-    if (!item) {
-      return showToast("Could not add product to cart");
-    }
-
-    // STOCK CHECK
-    if (typeof item.stock === "number" && item.stock <= 0) {
-      return showToast("This product is out of stock");
-    }
-
-    // prepare payload
-    const payload = {
-      vendorId: item.vendorId,
-      vendorName: item.vendorName,
-      ...item,
-    };
+    if (!item) return showToast("Could not add product to cart");
 
     try {
       setIsAdding(true);
-      await add(payload);
+      await add({
+        vendorId: item.vendorId,
+        vendorName: item.vendorName,
+        ...item,
+      });
       showToast(`${product.name} added to cart`);
-    } catch (err) {
-      console.error("Add to cart failed:", err);
+    } catch {
       showToast("Failed to add to cart");
     } finally {
       setIsAdding(false);
     }
   };
+
+  /* ----------------------------------
+     Wishlist
+  ---------------------------------- */
+  const isWishlisted = wishlist.some((p) => p?.id === product?.id);
+
   const handleWishlist = () => {
-    if (!product) return showToast("Product missing");
-    const active = Boolean(
-      product && wishlist.some((p) => p?.id === product?.id)
-    );
     toggle(product);
-    showToast(active ? "Removed from wishlist" : "Added to wishlist");
+    showToast(isWishlisted ? "Removed from wishlist" : "Added to wishlist");
   };
 
-  const stock = selectedVariant?.stock ?? product.stock ?? null;
-  const isOutOfStock = selectedVariant && stock !== null && stock <= 0;
-
-  useEffect(() => {
-    if (stock === 0) {
-      setQty(1); // UI consistency (or 0 if you prefer)
-    } else if (stock != null && qty > stock) {
-      setQty(stock);
-    } else if (stock != null && qty < 1) {
-      setQty(1);
-    }
-  }, [stock]);
-
-
-  const activeWishlist = Boolean(
-    product && wishlist.some((p) => p?.id === product?.id)
-  );
-
-  // console.log(product?.reviews);
-  // Ensure product.reviews is an array before processing
+  /* ----------------------------------
+     Reviews
+  ---------------------------------- */
   const reviews = product?.reviews || [];
-
-  // Calculate total reviews count
   const reviewsCount = reviews.length;
+  const rating =
+    reviewsCount > 0
+      ? reviews.reduce((a, r) => a + Number(r.rating || 0), 0) / reviewsCount
+      : 0;
 
-  // Calculate average: sum of ratings / count
-  const rating = reviewsCount > 0
-    ? reviews.reduce((acc, curr) => acc + Number(curr.rating), 0) / reviewsCount
-    : 0;
-
+  /* ----------------------------------
+     Render
+  ---------------------------------- */
   return (
     <div className="space-y-4">
       {/* Brand */}
-      <div className="text-sm text-textLight font-semibold">
-        {product.brand || ""}
-      </div>
-      {/* Title */}
-      <h1 className="text-2xl font-semibold text-textPrimary leading-tight">
-        {product.name}
-      </h1>
-      {/* Short Description */}
-      {product.short_description && (
-        <p className="text-sm text-gray-500 leading-relaxed">
-          {product.short_description}
-        </p>
-      )}
-      {/* Rating */}
-      {categoryId !== 8 && (
-        <div className="flex items-center gap-2 text-sm text-gray-800">
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => {
-              const starValue = i + 1;
-
-              return (
-                <Star
-                  key={i}
-                  size={16}
-                  // If rating is 3.5:
-                  // Stars 1, 2, 3 will be yellow.
-                  // Star 4 will be gray (unless you implement a partial fill component)
-                  className={`${starValue <= Math.round(rating)
-                    ? "text-yellow fill-yellow"
-                    : "text-gray-300 fill-transparent"
-                    }`}
-                />
-              );
-            })}
-
-            <span className="text-sm font-medium ml-1">
-              {rating > 0 ? rating.toFixed(1) : "0.0"}
-            </span>
-
-            <span className="text-xs text-muted-foreground ml-1">
-              ({reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'})
-            </span>
-          </div>
+      {product.brand && (
+        <div className="text-sm text-textLight font-semibold">
+          {product.brand}
         </div>
       )}
+
+      {/* Title */}
+      <h1 className="text-2xl font-semibold text-textPrimary">
+        {product.name}
+      </h1>
+
+      {/* Short Description */}
+      {product.short_description && (
+        <p className="text-sm text-gray-500">{product.short_description}</p>
+      )}
+
+      {/* Rating */}
+      {categoryId !== 8 && (
+        <div className="flex items-center gap-2 text-sm">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              size={16}
+              className={
+                i + 1 <= Math.round(rating)
+                  ? "text-yellow fill-yellow"
+                  : "text-gray-300"
+              }
+            />
+          ))}
+          <span>{rating.toFixed(1)}</span>
+          <span className="text-xs text-muted-foreground">
+            ({reviewsCount} reviews)
+          </span>
+        </div>
+      )}
+
       {/* Price */}
       <ProductPriceBlock product={product} selectedVariant={selectedVariant} />
 
-      {/* Color Swatches */}
+      {/* Color */}
       {colors.length > 0 && (
         <div>
-          <h4 className="font-medium mb-3 text-lg">Color</h4>
-          <div className="flex items-center gap-4 flex-wrap">
-            {colors.map((colorName) => (
+          <h4 className="font-medium mb-2">Color</h4>
+          <div className="flex gap-3 flex-wrap">
+            {colors.map((c) => (
               <ColorSwatch
-                key={colorName}
-                value={colorName}
-                selected={colorName === selectedColor}
-                onClick={() => setSelectedColor(colorName)}
+                key={c}
+                value={c}
+                selected={c === selectedColor}
+                onClick={() => setSelectedColor(c)}
               />
             ))}
           </div>
         </div>
       )}
 
-      {/* Size options */}
+      {/* Size */}
       {sizes.length > 0 && (
         <div>
           <h4 className="font-medium mb-2">Size</h4>
@@ -256,12 +266,12 @@ export default function ProductSummary({
             {sizes.map((s) => (
               <button
                 key={s}
-                type="button"
                 onClick={() => setSelectedSize(s)}
-                className={`px-3 py-1 rounded-md text-sm border ${s === selectedSize
-                  ? "bg-main text-white border-main"
-                  : "border-border bg-white"
-                  }`}
+                className={`px-3 py-1 text-sm rounded border ${
+                  s === selectedSize
+                    ? "bg-main text-white border-main"
+                    : "bg-white border-border"
+                }`}
               >
                 {s}
               </button>
@@ -270,113 +280,70 @@ export default function ProductSummary({
         </div>
       )}
 
-      {/* Quantity + Stock */}
-
-      {categoryId !== 8 && (
+      {/* Quantity & Actions */}
+      {categoryId !== 8 ? (
         <>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm">Quantity</label>
-
-              {stock !== null && stock <= 0 ? (
-                <p className="text-red text-sm font-bold">Out of stock</p>
-              ) : (
-                <div className="flex items-center border rounded">
-                  <button
-                    type="button"
-                    aria-label="Decrease quantity"
-                    onClick={() => setQty((q) => Math.max(1, q - 1))}
-                    className="px-3 py-1 text-lg"
-                  >
-                    -
-                  </button>
-
-                  <div className="px-4 select-none">{qty}</div>
-
-                  <button
-                    type="button"
-                    aria-label="Increase quantity"
-                    onClick={() =>
-                      setQty((q) =>
-                        stock != null ? Math.min(stock, q + 1) : q + 1
-                      )
-                    }
-                    className="px-3 py-1 text-lg"
-                  >
-                    +
-                  </button>
-                </div>
-              )}
+            <div className="flex items-center border rounded">
+              <button onClick={() => setQty((q) => Math.max(1, q - 1))}>
+                -
+              </button>
+              <span className="px-4">{qty}</span>
+              <button
+                onClick={() =>
+                  setQty((q) => (stock ? Math.min(stock, q + 1) : q + 1))
+                }
+              >
+                +
+              </button>
             </div>
 
-            {/* Stock info */}
-            <div className="text-sm text-muted-foreground">
-              {stock !== null && stock > 0
-                ? `${stock} in stock`
-                : stock === null
-                  ? "Stock info not available"
-                  : null}
-            </div>
+            {stock !== null && (
+              <span className="text-sm text-muted-foreground">
+                {stock > 0 ? `${stock} in stock` : "Out of stock"}
+              </span>
+            )}
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col gap-3 mt-3">
-            <button
-              onClick={handleAddToCart}
-              type="button"
-              disabled={isAdding || isOutOfStock}
-              className={`flex-1 px-4 py-3 flex items-center justify-center gap-2 transition
-    ${isOutOfStock
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-main text-white hover:bg-main/90"}
-    ${isAdding ? "opacity-60 cursor-wait" : ""}
-  `}
-            >
-              <TbBasket size={18} />
-              {isOutOfStock
-                ? "Out of Stock"
-                : isAdding
-                  ? "Adding..."
-                  : "Add to Cart"}
-            </button>
-
-            <button
-              className="flex-1 bg-transparent text-main px-4 py-3 flex items-center justify-center gap-2 hover:bg-gray-300/90 transition border border-main"
-              type="button"
-              title="Add to Wishlist"
-              onClick={handleWishlist}
-              aria-pressed={activeWishlist}
-            >
-              <Heart
-                size={18}
-                fill={activeWishlist ? "currentColor" : "none"}
-                className={activeWishlist ? "text-red-500" : ""}
-              />
-              {activeWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-            </button>
-            <ProductShippingInfo shipping={product.shipping} />
-          </div>
-        </>
-      )}
-      {categoryId == 8 && (
-        <div className="flex flex-col gap-3 mt-3">
           <button
-            className={`flex-1 bg-main text-white px-4 py-3 flex items-center justify-center gap-2 hover:bg-main/90 transition ${isAdding ? "opacity-60 cursor-wait" : ""
-              }`}
-            type="button"
+            onClick={handleAddToCart}
+            disabled={isAdding || isOutOfStock}
+            className={`w-full py-3 flex items-center justify-center gap-2 ${
+              isOutOfStock
+                ? "bg-gray-400"
+                : "bg-main text-white hover:bg-main/90"
+            }`}
           >
-            <TbPhoneCall size={18} />
-            {product.vendor?.contact_number}
+            <TbBasket size={18} />
+            {isOutOfStock
+              ? "Out of Stock"
+              : isAdding
+              ? "Adding..."
+              : "Add to Cart"}
           </button>
-        </div>
-      )
-      }
 
-      {/* Extra Info / widgets */}
-      < ProductVendorInfo vendor={product.vendor} />
+          <button
+            onClick={handleWishlist}
+            className="w-full border border-main text-main py-3 flex items-center justify-center gap-2"
+          >
+            <Heart size={18} fill={isWishlisted ? "currentColor" : "none"} />
+            {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+          </button>
+
+          <ProductShippingInfo shipping={product.shipping} />
+        </>
+      ) : (
+        <button className="w-full bg-main text-white py-3 flex items-center justify-center gap-2">
+          <TbPhoneCall size={18} />
+          {product.vendor?.contact_number}
+        </button>
+      )}
+
+      {/* Extra */}
+      <ProductVendorInfo vendor={product.vendor} />
       <ProductWarranty warranty={product.warranty} />
       <ProductReturnPolicy returnPolicy={product.returnPolicy} />
       <ProductSocialShare product={product} />
-    </div >
+    </div>
   );
 }

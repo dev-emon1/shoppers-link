@@ -5,10 +5,11 @@ import { smartColor } from "./smartColor";
 export default function ColorSwatch({
   value,
   selected = false,
-  onClick = () => { },
+  onClick = () => {},
   size = 30,
 }) {
   const bg = smartColor(value);
+  const needsBorder = bg === "#000000" || bg === "#101010";
 
   return (
     <button
@@ -18,10 +19,11 @@ export default function ColorSwatch({
       aria-label={`Select color ${value}`}
     >
       <div
-        className={`rounded-full border-2 transition-all duration-200 shadow-sm ${selected
+        className={`rounded-full border-2 transition-all duration-200 shadow-sm ${
+          selected
             ? "ring-4 ring-main/30 border-main scale-110"
             : "border-gray-300 hover:border-gray-400"
-          }`}
+        }`}
         style={{
           width: size,
           height: size,
@@ -30,8 +32,9 @@ export default function ColorSwatch({
       />
 
       <span
-        className={`text-xs font-medium transition-colors ${selected ? "text-main" : "text-gray-600 group-hover:text-gray-800"
-          }`}
+        className={`text-xs font-medium transition-colors ${
+          selected ? "text-main" : "text-gray-600 group-hover:text-gray-800"
+        }`}
       >
         {value}
       </span>
