@@ -185,10 +185,10 @@ export function smartColor(name) {
   }
 
   // CSS named color check
-  const test = document.createElement("div");
-  test.style.color = key;
-  if (test.style.color) {
-    return key;
+  if (typeof window !== "undefined") {
+    const test = document.createElement("div");
+    test.style.color = key;
+    if (test.style.color) return key;
   }
 
   // Hex / rgb / hsl

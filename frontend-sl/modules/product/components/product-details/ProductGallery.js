@@ -29,17 +29,19 @@ function buildImageUrl(value) {
 
 function normalize(entry, variantId = null) {
   if (!entry) return null;
-  if (typeof entry === "string")
-    return { src: buildImageUrl(entry), raw: entry, variant_id: variantId };
+
   if (typeof entry === "object") {
-    const path =
-      entry.image_path || entry.url || entry.src || JSON.stringify(entry);
     return {
-      src: buildImageUrl(path),
-      raw: entry,
-      variant_id: entry.variant_id || variantId,
+      src: buildImageUrl(entry.image_path),
+      color: entry.color ?? null,
+      variant_id: variantId ?? entry.variant_id ?? null,
     };
   }
+
+  if (typeof entry === "string") {
+    return { src: buildImageUrl(entry), color: null, variant_id: null };
+  }
+
   return null;
 }
 
@@ -48,11 +50,27 @@ export default function ProductGallery({
   variants = [],
   selectedVariant = null,
   onSelectVariant,
+  selectedColor = null,
   heroHeight = 520,
 }) {
+  console.log(variants);
   const [activeIdx, setActiveIdx] = useState(0);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const mainSwiperRef = useRef(null);
+
+  useEffect(() => {
+    if (!selectedVariant) return;
+
+    setActiveIdx(0);
+
+    requestAnimationFrame(() => {
+      if (mainSwiperRef.current) {
+        mainSwiperRef.current.slideTo(0, 0);
+        mainSwiperRef.current.update();
+      }
+    });
+  }, [selectedVariant?.id, selectedColor]);
+
   const [isMobile, setIsMobile] = useState(false);
   const [targetImageSrc, setTargetImageSrc] = useState(null);
 
@@ -65,14 +83,34 @@ export default function ProductGallery({
 
   const allImages = useMemo(() => {
     const merged = [];
+    const getColorForVariant = (vid) => {
+      const v = variants.find((varnt) => varnt.id === vid);
+      if (!v) return null;
+      try {
+        const attrs = JSON.parse(v.attributes || "{}");
+        return attrs.Color ?? null;
+      } catch {
+        return null;
+      }
+    };
 
     if (images?.length) {
-      images.forEach((img) => merged.push(normalize(img)));
+      images.forEach((img) => {
+        const color = img.variant_id
+          ? getColorForVariant(img.variant_id)
+          : null;
+        const normalized = normalize(img);
+        if (normalized) normalized.color = color; // Override color
+        merged.push(normalized);
+      });
     }
 
     variants?.forEach((v) => {
       (v.images || []).forEach((img) => {
-        merged.push(normalize(img, v.id));
+        const color = getColorForVariant(v.id);
+        const normalized = normalize(img, v.id);
+        if (normalized) normalized.color = color; // Override color
+        merged.push(normalized);
       });
     });
 
@@ -85,18 +123,18 @@ export default function ProductGallery({
   }, [images, variants]);
 
   const mainDisplayImages = useMemo(() => {
-    if (!selectedVariant) {
-      return allImages.filter((img) => img.variant_id == null);
+    if (!selectedVariant?.attr?.Color) {
+      return allImages;
     }
 
-    const variantImages = allImages.filter(
-      (img) => String(img.variant_id) === String(selectedVariant.id)
+    const color = String(selectedVariant.attr.Color).toLowerCase();
+
+    const colorImages = allImages.filter(
+      (img) => img.color && String(img.color).toLowerCase() === color
     );
 
-    return variantImages.length > 0
-      ? variantImages
-      : allImages.filter((img) => img.variant_id == null);
-  }, [allImages, selectedVariant]);
+    return colorImages.length ? colorImages : allImages;
+  }, [allImages, selectedVariant?.attr?.Color]);
 
   const thumbnailImages = allImages;
 

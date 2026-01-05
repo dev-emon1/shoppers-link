@@ -54,10 +54,10 @@ const MainNav = ({
   useOutsideClick(dropdownRef, () => isDesktop && setOpenDropdown(false));
 
   useEffect(() => {
-    setMounted(true);
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % BRAND_SEQUENCE.length);
     }, 4500);
+
     return () => clearInterval(interval);
   }, []);
 
