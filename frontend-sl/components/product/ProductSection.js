@@ -44,8 +44,16 @@ const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="h-80 rounded-xl bg-gray-200 animate-pulse"
-              />
+                className="h-80 rounded-xl bg-main/10 animate-pulse"
+              >
+                <div className="w-full h-3/4 bg-gray-main/10 px-4 pt-4" >
+                  <div className="w-full h-full bg-main/10 rounded" />
+                </div>{/* Image placeholder */}
+                <div className="p-4">
+                  <div className="h-4 bg-main/10 rounded mb-2" />{/* Title placeholder */}
+                  <div className="h-4 bg-main/10 rounded w-1/2 mx-auto" />{/* Price placeholder */}
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -108,10 +116,10 @@ const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
   ------------------------------------------------------------ */
   const displayProducts = showExpiringSoon
     ? sortedProducts.filter((p) => {
-        if (!p.featured?.ends_at) return false;
-        const end = new Date(p.featured.ends_at.replace(" ", "T"));
-        return (end - now) / (1000 * 60 * 60 * 24) < 3;
-      })
+      if (!p.featured?.ends_at) return false;
+      const end = new Date(p.featured.ends_at.replace(" ", "T"));
+      return (end - now) / (1000 * 60 * 60 * 24) < 3;
+    })
     : sortedProducts;
 
   return (
@@ -132,11 +140,10 @@ const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
           {expiringProductsCount > 0 && (
             <button
               onClick={() => setShowExpiringSoon(!showExpiringSoon)}
-              className={`mt-6 px-8 py-3 rounded-full font-bold text-white transition shadow-lg ${
-                showExpiringSoon
-                  ? "bg-secondary hover:bg-secondaryHover"
-                  : "bg-main hover:bg-mainHover"
-              }`}
+              className={`mt-6 px-8 py-3 rounded-full font-bold text-white transition shadow-lg ${showExpiringSoon
+                ? "bg-secondary hover:bg-secondaryHover"
+                : "bg-main hover:bg-mainHover"
+                }`}
             >
               {showExpiringSoon
                 ? "Show All Products"
