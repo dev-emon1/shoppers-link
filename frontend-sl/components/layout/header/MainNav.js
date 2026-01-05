@@ -51,7 +51,7 @@ const MainNav = ({
 
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-  useOutsideClick(dropdownRef, () => setOpenDropdown(false));
+  useOutsideClick(dropdownRef, () => isDesktop && setOpenDropdown(false));
 
   useEffect(() => {
     setMounted(true);
@@ -66,26 +66,14 @@ const MainNav = ({
   }, [isDesktop]);
 
   const imageSrc = makeImageUrl(user?.customer?.profile_picture);
+  const current = BRAND_SEQUENCE[currentIndex];
 
   const handleSearchSubmit = () => {
     const q = searchQuery.trim();
     if (!q) return;
-
     setIsSearchOpen(false);
     router.push(`/search?q=${encodeURIComponent(q)}`);
   };
-
-  const handleUserMouseEnter = () => {
-    clearTimeout(closeTimer.current);
-    openTimer.current = setTimeout(() => setOpenDropdown(true), 120);
-  };
-
-  const handleUserMouseLeave = () => {
-    clearTimeout(openTimer.current);
-    closeTimer.current = setTimeout(() => setOpenDropdown(false), 180);
-  };
-
-  const current = BRAND_SEQUENCE[currentIndex];
 
   return (
     <nav className="relative z-50 bg-bgSurface">
@@ -134,72 +122,101 @@ const MainNav = ({
             {/* User */}
             <div
               ref={dropdownRef}
-              onMouseEnter={isDesktop ? handleUserMouseEnter : undefined}
-              onMouseLeave={isDesktop ? handleUserMouseLeave : undefined}
+              onMouseEnter={
+                isDesktop
+                  ? () => {
+                      clearTimeout(closeTimer.current);
+                      openTimer.current = setTimeout(
+                        () => setOpenDropdown(true),
+                        120
+                      );
+                    }
+                  : undefined
+              }
+              onMouseLeave={
+                isDesktop
+                  ? () => {
+                      clearTimeout(openTimer.current);
+                      closeTimer.current = setTimeout(
+                        () => setOpenDropdown(false),
+                        180
+                      );
+                    }
+                  : undefined
+              }
               className="relative"
             >
-              {!user ? (
-                <Link href="/user/login" className="flex items-center gap-1">
-                  <User size={20} />
-                  <span className="hidden sm:block text-[11px] font-medium">
-                    Sign In
-                  </span>
-                </Link>
-              ) : (
-                <>
-                  <button className="flex items-center gap-2">
-                    {user?.customer?.profile_picture ? (
-                      <Image
-                        src={imageSrc}
-                        alt={user.user_name}
-                        width={28}
-                        height={28}
-                        className="rounded-full object-cover border"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
-                        <User size={16} />
-                      </div>
-                    )}
+              <button
+                onClick={() => {
+                  if (!isDesktop) {
+                    router.push(user ? "/user/dashboard" : "/user/login");
+                  }
+                }}
+                className="flex items-center gap-2"
+              >
+                {user?.customer?.profile_picture ? (
+                  <Image
+                    src={
+                      user?.customer?.profile_picture
+                        ? imageSrc
+                        : "/avatar-placeholder.png"
+                    }
+                    alt={user?.user_name || "User"}
+                    width={28}
+                    height={28}
+                    className="rounded-full object-cover border bg-gray-100"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
+                    <User size={16} />
+                  </div>
+                )}
+
+                {user ? (
+                  <>
                     <span className="hidden lg:inline text-sm truncate max-w-[90px]">
                       {user.user_name}
                     </span>
                     <ChevronDown size={14} />
-                  </button>
+                  </>
+                ) : (
+                  <span className="hidden sm:block text-[11px] font-medium">
+                    Sign In
+                  </span>
+                )}
+              </button>
 
-                  <AnimatePresence>
-                    {openDropdown && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border"
-                      >
-                        <Link
-                          href="/user/dashboard"
-                          className="block px-5 py-3 text-sm hover:bg-gray-50"
-                        >
-                          Dashboard
-                        </Link>
-                        <Link
-                          href="/user/dashboard/orders"
-                          className="block px-5 py-3 text-sm hover:bg-gray-50"
-                        >
-                          My Orders
-                        </Link>
-                        <hr />
-                        <button
-                          onClick={() => dispatch(logout())}
-                          className="w-full text-left px-5 py-3 text-sm text-red-600 hover:bg-red-50"
-                        >
-                          Logout
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </>
-              )}
+              <AnimatePresence>
+                {isDesktop && openDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border"
+                  >
+                    <Link
+                      href="/user/dashboard"
+                      className="block px-5 py-3 text-sm hover:bg-gray-50"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/user/dashboard/orders"
+                      className="block px-5 py-3 text-sm hover:bg-gray-50"
+                    >
+                      My Orders
+                    </Link>
+                    <hr />
+                    <button
+                      onClick={() => dispatch(logout())}
+                      className="w-full text-left px-5 py-3 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      Logout
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Mobile Menu */}
@@ -234,15 +251,13 @@ const MainNav = ({
       </div>
 
       {mounted && (
-        <div className="relative z-[1001]">
-          <SearchDropdown
-            isOpen={isSearchOpen}
-            query={searchQuery}
-            categoryId={searchCategoryId}
-            onClose={() => setIsSearchOpen(false)}
-            onViewAll={handleSearchSubmit}
-          />
-        </div>
+        <SearchDropdown
+          isOpen={isSearchOpen}
+          query={searchQuery}
+          categoryId={searchCategoryId}
+          onClose={() => setIsSearchOpen(false)}
+          onViewAll={handleSearchSubmit}
+        />
       )}
     </nav>
   );

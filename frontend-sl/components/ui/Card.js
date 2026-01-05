@@ -61,6 +61,7 @@ const Card = ({ data, href }) => {
   const discountAmount = parseFloat(variant.discount) || 0;
   const originalPrice = discountAmount > 0 ? price + discountAmount : null;
 
+  const isITProduct = data?.category?.id === 8;
   const displayPrice =
     price > 0 ? price.toLocaleString("en-BD") : "Price on request";
 
@@ -122,12 +123,15 @@ const Card = ({ data, href }) => {
 
         {/* Price */}
         <div className="mt-4">
-          {price > 0 ? (
+          {isITProduct ? (
+            <p className="text-sm font-semibold text-main">Call for Price</p>
+          ) : price > 0 ? (
             <div className="flex items-center justify-center gap-2">
               <p className="text-2xl font-bold text-main flex items-center">
                 <TbCurrencyTaka size={24} />
                 {displayPrice}
               </p>
+
               {originalPrice && (
                 <p className="text-base text-textSecondary line-through flex items-center">
                   <TbCurrencyTaka size={18} />
@@ -136,7 +140,7 @@ const Card = ({ data, href }) => {
               )}
             </div>
           ) : (
-            <p className="text-textSecondary">Call for price</p>
+            <p className="text-textSecondary">—</p>
           )}
         </div>
 
