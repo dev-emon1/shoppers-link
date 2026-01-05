@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import TopBar from "./TopBar";
@@ -57,8 +57,18 @@ const Header = () => {
     }
   }, [isDesktop]);
 
+  const headerRef = useRef(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!headerRef.current) return;
+    setHeaderHeight(headerRef.current.offsetHeight);
+  }, [isSearchOpen, showTopBar]);
   return (
-    <header className="fixed top-0 left-0 w-full z-[999] bg-bgSurface">
+    <header
+      className="fixed top-0 left-0 w-full z-[999] bg-bgSurface"
+      ref={headerRef}
+    >
       {/* Top Bar (CSS handles hide till lg) */}
       <div
         className={`transition-all duration-300 ${
@@ -95,6 +105,7 @@ const Header = () => {
           isOpen={showSidebar}
           onClose={() => setShowSidebar(false)}
           menuItems={categories}
+          offsetTop={headerHeight}
         />
       )}
     </header>

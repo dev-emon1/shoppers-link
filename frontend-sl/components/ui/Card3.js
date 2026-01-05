@@ -21,10 +21,11 @@ const Card3 = ({
   category = "",
   href,
 }) => {
-  console.log(imageSrc);
   const hasBadge = isNew || Number(discount) > 0;
   const badgeText = isNew ? "NEW" : Number(discount) > 0 ? `-${discount}%` : "";
   const badgeClass = isNew ? "bg-green" : Number(discount) > 0 ? "bg-red" : "";
+
+  const isITProduct = fullProduct?.category?.id === 8;
 
   // numeric safe conversion
   const numericPrice =
@@ -86,28 +87,27 @@ const Card3 = ({
 
         {category && <p className="text-textLight text-xs mt-1">{category}</p>}
 
-        {numericPrice !== null ? (
-          <div className="mt-3">
-            <span className="text-lg font-bold text-main">
-              ৳
-              {numericPrice.toLocaleString(undefined, {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2,
-              })}
+        <div className="mt-3">
+          {isITProduct ? (
+            <span className="text-sm font-semibold text-main">
+              Call for Price
             </span>
-            {numericOldPrice !== null && (
-              <span className="text-xs text-textLight line-through ml-2">
-                ৳
-                {numericOldPrice.toLocaleString(undefined, {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 2,
-                })}
+          ) : numericPrice !== null ? (
+            <>
+              <span className="text-lg font-bold text-main">
+                ৳{numericPrice.toLocaleString()}
               </span>
-            )}
-          </div>
-        ) : (
-          <div className="mt-3 text-textLight">—</div>
-        )}
+
+              {numericOldPrice !== null && (
+                <span className="text-xs text-textLight line-through ml-2">
+                  ৳{numericOldPrice.toLocaleString()}
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="text-textLight">—</span>
+          )}
+        </div>
       </Link>
     </div>
   );
