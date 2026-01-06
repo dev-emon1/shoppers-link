@@ -174,35 +174,239 @@ const COLOR_MAP = {
   cornsilk: "#fff8dc",
 };
 
+const COLOR_FAMILIES = [
+  // BLACK FAMILY
+  {
+    color: "#101010",
+    keys: [
+      "black",
+      "jet",
+      "coal",
+      "charcoal",
+      "midnight",
+      "ink",
+      "noir",
+      "matte black",
+      "carbon",
+      "pitch",
+      "onyx",
+      "ebony",
+    ],
+  },
+
+  // WHITE FAMILY
+  {
+    color: "#f8f4ef",
+    keys: [
+      "white",
+      "off white",
+      "off-white",
+      "ivory",
+      "cream",
+      "snow",
+      "pearl",
+      "eggshell",
+      "chalk",
+      "milk",
+      "alabaster",
+    ],
+  },
+
+  // BLUE FAMILY
+  {
+    color: "#2563eb",
+    keys: [
+      "blue",
+      "navy",
+      "sky",
+      "ocean",
+      "royal",
+      "denim",
+      "azure",
+      "cobalt",
+      "indigo",
+      "sapphire",
+      "cerulean",
+      "steel blue",
+      "ice blue",
+      "powder blue",
+      "baby blue",
+      "midnight blue",
+      "aqua blue",
+    ],
+  },
+
+  // GREEN FAMILY
+  {
+    color: "#16a34a",
+    keys: [
+      "green",
+      "olive",
+      "mint",
+      "forest",
+      "emerald",
+      "jade",
+      "sea green",
+      "bottle green",
+      "parrot",
+      "leaf",
+      "pista",
+      "sage",
+      "moss",
+      "lime",
+      "neon green",
+      "army green",
+    ],
+  },
+
+  // RED FAMILY
+  {
+    color: "#dc2626",
+    keys: [
+      "red",
+      "maroon",
+      "crimson",
+      "wine",
+      "burgundy",
+      "cherry",
+      "ruby",
+      "brick",
+      "blood red",
+      "scarlet",
+      "rust",
+      "oxblood",
+    ],
+  },
+
+  // PINK FAMILY
+  {
+    color: "#f472b6",
+    keys: [
+      "pink",
+      "rose",
+      "blush",
+      "baby pink",
+      "hot pink",
+      "dusty rose",
+      "salmon",
+      "coral",
+      "peach",
+      "fuchsia",
+      "magenta",
+    ],
+  },
+
+  // YELLOW / GOLD FAMILY
+  {
+    color: "#facc15",
+    keys: [
+      "yellow",
+      "gold",
+      "golden",
+      "mustard",
+      "amber",
+      "honey",
+      "lemon",
+      "sun",
+      "saffron",
+      "champagne",
+      "wheat",
+    ],
+  },
+
+  // ORANGE FAMILY
+  {
+    color: "#fb923c",
+    keys: [
+      "orange",
+      "burnt orange",
+      "rust orange",
+      "tangerine",
+      "pumpkin",
+      "carrot",
+      "apricot",
+      "terracotta",
+    ],
+  },
+
+  // PURPLE FAMILY
+  {
+    color: "#7c3aed",
+    keys: [
+      "purple",
+      "violet",
+      "plum",
+      "lavender",
+      "orchid",
+      "eggplant",
+      "grape",
+      "mauve",
+      "lilac",
+    ],
+  },
+
+  // BROWN FAMILY
+  {
+    color: "#92400e",
+    keys: [
+      "brown",
+      "tan",
+      "coffee",
+      "chocolate",
+      "mocha",
+      "camel",
+      "beige",
+      "khaki",
+      "sand",
+      "earth",
+      "wood",
+      "cinnamon",
+    ],
+  },
+
+  // GREY FAMILY
+  {
+    color: "#9ca3af",
+    keys: [
+      "grey",
+      "gray",
+      "ash",
+      "smoke",
+      "silver",
+      "slate",
+      "stone",
+      "graphite",
+      "cement",
+      "cloud",
+    ],
+  },
+
+  // MULTI / SPECIAL
+  {
+    color: "#60a5fa",
+    keys: ["multi", "mixed", "combo", "printed", "abstract", "pattern"],
+  },
+];
+
 export function smartColor(name) {
-  if (!name) return "#94a3b8";
+  if (!name) return "#9ca3af";
 
-  const key = String(name).trim().toLowerCase();
+  const key = name.toLowerCase().trim();
 
-  // Direct match
-  if (COLOR_MAP[key]) {
-    return COLOR_MAP[key];
+  // 1️⃣ Exact map
+  if (COLOR_MAP[key]) return COLOR_MAP[key];
+
+  // 2️⃣ Keyword family match
+  for (const family of COLOR_FAMILIES) {
+    if (family.keys.some((k) => key.includes(k))) {
+      return family.color;
+    }
   }
 
-  // CSS named color check
-  if (typeof window !== "undefined") {
-    const test = document.createElement("div");
-    test.style.color = key;
-    if (test.style.color) return key;
-  }
+  // 3️⃣ Safe CSS named colors
+  const SAFE = ["black", "white", "red", "blue", "green", "gray"];
+  if (SAFE.includes(key)) return key;
 
-  // Hex / rgb / hsl
-  if (/^#/.test(key) || /^rgb/.test(key) || /^hsl/.test(key)) {
-    return key;
-  }
-
-  // Fallback: Beautiful HSL
-  let hash = 0;
-  for (let i = 0; i < key.length; i++) {
-    hash = key.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const h = Math.abs(hash % 360);
-  const s = 65 + (hash % 25);
-  const l = 55 + (hash % 15);
-  return `hsl(${h}, ${s}%, ${l}%)`;
+  // 4️⃣ Ultimate fallback (neutral, not random)
+  return "#cbd5e1";
 }

@@ -2,13 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Star } from "lucide-react";
+import { Star, Flame } from "lucide-react";
 import { TbCurrencyTaka } from "react-icons/tb";
 
 import ProductImageSlider from "../product/ProductImageSlider";
 import ProductActions from "../product/ProductActions";
 
-const Card = ({ data, href }) => {
+const Card = ({ data, href, showSoldCount = false }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const variant = data?.variants?.[0] || {};
@@ -20,8 +20,10 @@ const Card = ({ data, href }) => {
   const displayPrice =
     price > 0 ? price.toLocaleString("en-BD") : "Price on request";
 
-  const badge = data?.featured?.badge_text || null;
-  const badgeBg = data?.featured?.badge_color || null;
+  const soldCount =
+    typeof data?.sold_count === "number" && data.sold_count > 0
+      ? data.sold_count
+      : null;
 
   return (
     <Link
@@ -30,17 +32,7 @@ const Card = ({ data, href }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Badge */}
-      {badge && (
-        <span
-          className="absolute top-3 left-3 z-20 text-xs font-bold text-white px-3 py-1 rounded-full"
-          style={{ backgroundColor: badgeBg || "#EF4444" }}
-        >
-          {badge}
-        </span>
-      )}
-
-      {/* Image + Actions */}
+      {/* Image */}
       <div className="relative w-full aspect-square bg-white">
         <ProductImageSlider images={data?.images || []} isHovered={isHovered} />
         <ProductActions product={data} isHovered={isHovered} />
@@ -48,10 +40,12 @@ const Card = ({ data, href }) => {
 
       {/* Content */}
       <div className="p-4 space-y-2">
+        {/* Name */}
         <h3 className="text-sm font-semibold text-textPrimary line-clamp-1">
           {data.name}
         </h3>
 
+        {/* Rating */}
         {data.avg_rating > 0 && (
           <div className="flex items-center gap-1 text-xs">
             {[...Array(5)].map((_, i) => (
@@ -71,24 +65,34 @@ const Card = ({ data, href }) => {
           </div>
         )}
 
-        <div className="mt-1">
+        {/* Price + Sold */}
+        <div className="mt-1 space-y-1">
           {isITProduct ? (
             <span className="text-sm font-semibold text-main">
               Call for Price
             </span>
           ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-main flex items-center">
-                <TbCurrencyTaka size={18} />
-                {displayPrice}
-              </span>
-
-              {originalPrice && (
-                <span className="text-xs text-textSecondary line-through">
-                  ৳{originalPrice.toLocaleString("en-BD")}
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-main flex items-center">
+                  <TbCurrencyTaka size={18} />
+                  {displayPrice}
                 </span>
+
+                {originalPrice && (
+                  <span className="text-xs text-textSecondary line-through">
+                    ৳{originalPrice.toLocaleString("en-BD")}
+                  </span>
+                )}
+              </div>
+
+              {showSoldCount && soldCount && (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 text-[11px] font-medium w-fit">
+                  <Flame size={12} />
+                  <span>{soldCount}+ sold</span>
+                </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>
