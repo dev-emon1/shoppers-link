@@ -10,6 +10,7 @@ const TopRating = () => (
     title="Top Rated Products"
     subtitle="Highly rated by customers across all categories"
     viewAllHref="/products?type=top-rating"
+    showSoldCount={false}
   />
 );
 

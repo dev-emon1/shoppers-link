@@ -33,7 +33,11 @@ function parseAttributes(str) {
 /* ----------------------------------
    Component
 ---------------------------------- */
-export default function ProductSummary({ product, onVariantSelect } = {}) {
+export default function ProductSummary({
+  product,
+  selectedVariant,
+  onVariantSelect,
+}) {
   if (!product) return null;
 
   const { add, cart } = useCart();
@@ -68,7 +72,7 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
   }, [variants]);
 
   /* ----------------------------------
-     UI State
+     UI State (controlled by variant)
   ---------------------------------- */
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -76,36 +80,29 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
   const [isAdding, setIsAdding] = useState(false);
 
   /* ----------------------------------
+     Sync UI from parent variant
+  ---------------------------------- */
+  useEffect(() => {
+    if (selectedVariant?.attr?.Color) {
+      setSelectedColor(selectedVariant.attr.Color);
+    }
+    if (selectedVariant?.attr?.Size) {
+      setSelectedSize(selectedVariant.attr.Size);
+    }
+  }, [selectedVariant?.id]);
+
+  /* ----------------------------------
      Default selection (first load only)
   ---------------------------------- */
   useEffect(() => {
-    if (!selectedColor && colors.length) setSelectedColor(colors[0]);
-    if (!selectedSize && sizes.length) setSelectedSize(sizes[0]);
-  }, [colors, sizes]);
-
-  /* ----------------------------------
-     Resolve selected variant
-  ---------------------------------- */
-  const selectedVariant = useMemo(() => {
-    if (!variants.length) return null;
-
-    return (
-      variants.find((v) => {
-        const colorOk = selectedColor ? v.attr?.Color === selectedColor : true;
-        const sizeOk = selectedSize ? v.attr?.Size === selectedSize : true;
-        return colorOk && sizeOk;
-      }) ?? null
-    );
-  }, [variants, selectedColor, selectedSize]);
-
-  /* ----------------------------------
-     Notify parent (gallery sync)
-  ---------------------------------- */
-  useEffect(() => {
-    if (typeof onVariantSelect === "function") {
-      onVariantSelect(selectedVariant);
+    if (
+      !selectedVariant &&
+      variants.length &&
+      typeof onVariantSelect === "function"
+    ) {
+      onVariantSelect(variants[0]);
     }
-  }, [selectedVariant?.id]);
+  }, [variants.length]);
 
   /* ----------------------------------
      Stock & Quantity safety
@@ -150,12 +147,14 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
       );
     }
 
+    // 🔥 THIS IS THE IMPORTANT CHANGE
     const item = buildCartItemFromProduct({
       product,
       variantId: selectedVariant?.id ?? null,
       quantity: qty,
       vendorId,
       vendorName: product?.vendor?.shop_name ?? product?.vendor?.name ?? null,
+      cartItems, // ✅ MUST PASS THIS
     });
 
     if (!item) return showToast("Could not add product to cart");
@@ -200,24 +199,20 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
   ---------------------------------- */
   return (
     <div className="space-y-4">
-      {/* Brand */}
       {product.brand && (
         <div className="text-sm text-textLight font-semibold">
           {product.brand}
         </div>
       )}
 
-      {/* Title */}
       <h1 className="text-2xl font-semibold text-textPrimary">
         {product.name}
       </h1>
 
-      {/* Short Description */}
       {product.short_description && (
         <p className="text-sm text-gray-500">{product.short_description}</p>
       )}
 
-      {/* Rating */}
       {categoryId !== 8 && (
         <div className="flex items-center gap-2 text-sm">
           {[...Array(5)].map((_, i) => (
@@ -238,10 +233,8 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
         </div>
       )}
 
-      {/* Price */}
       <ProductPriceBlock product={product} selectedVariant={selectedVariant} />
 
-      {/* Color */}
       {colors.length > 0 && (
         <div>
           <h4 className="font-medium mb-2">Color</h4>
@@ -251,14 +244,21 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
                 key={c}
                 value={c}
                 selected={c === selectedColor}
-                onClick={() => setSelectedColor(c)}
+                onClick={() => {
+                  setSelectedColor(c);
+                  const v = variants.find(
+                    (x) =>
+                      x.attr?.Color === c &&
+                      (!selectedSize || x.attr?.Size === selectedSize)
+                  );
+                  if (v) onVariantSelect?.(v);
+                }}
               />
             ))}
           </div>
         </div>
       )}
 
-      {/* Size */}
       {sizes.length > 0 && (
         <div>
           <h4 className="font-medium mb-2">Size</h4>
@@ -266,7 +266,15 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
             {sizes.map((s) => (
               <button
                 key={s}
-                onClick={() => setSelectedSize(s)}
+                onClick={() => {
+                  setSelectedSize(s);
+                  const v = variants.find(
+                    (x) =>
+                      x.attr?.Size === s &&
+                      (!selectedColor || x.attr?.Color === selectedColor)
+                  );
+                  if (v) onVariantSelect?.(v);
+                }}
                 className={`px-3 py-1 text-sm rounded border ${
                   s === selectedSize
                     ? "bg-main text-white border-main"
@@ -280,7 +288,6 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
         </div>
       )}
 
-      {/* Quantity & Actions */}
       {categoryId !== 8 ? (
         <>
           <div className="flex items-center gap-4">
@@ -339,7 +346,6 @@ export default function ProductSummary({ product, onVariantSelect } = {}) {
         </button>
       )}
 
-      {/* Extra */}
       <ProductVendorInfo vendor={product.vendor} />
       <ProductWarranty warranty={product.warranty} />
       <ProductReturnPolicy returnPolicy={product.returnPolicy} />

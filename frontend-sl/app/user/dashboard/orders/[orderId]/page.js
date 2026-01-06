@@ -38,7 +38,6 @@ export default function OrderDetailRoutePage() {
 
   // use storeOrder if available, else immediateOrder
   const finalOrder = storeOrder ?? immediateOrder;
-
   if (!finalOrder) {
     return (
       <div className="p-4">

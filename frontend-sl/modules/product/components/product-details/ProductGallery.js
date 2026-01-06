@@ -53,7 +53,6 @@ export default function ProductGallery({
   selectedColor = null,
   heroHeight = 520,
 }) {
-  console.log(variants);
   const [activeIdx, setActiveIdx] = useState(0);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const mainSwiperRef = useRef(null);
@@ -188,9 +187,10 @@ export default function ProductGallery({
       // Switch variant if different
       if (typeof onSelectVariant === "function") {
         onSelectVariant(clickedVariantId);
+        setTargetImageSrc(clickedImg.src);
       }
       // Set target to slide to this image after switch
-      setTargetImageSrc(clickedImg.src);
+      // setTargetImageSrc(clickedImg.src);
     } else {
       // Same variant, just slide to the image
       const idxInMain = mainDisplayImages.findIndex(
