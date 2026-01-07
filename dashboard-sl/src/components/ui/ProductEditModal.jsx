@@ -4,6 +4,9 @@ import { RiCloseLine } from "react-icons/ri";
 import API from "../../utils/api";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+// 1. Import Toastify
+import { toast } from "react-toastify";
+
 const ProductEditModal = ({ product, onClose, onSuccess }) => {
     const MAX_TITLE = 60;
     const MAX_DESC = 160;
@@ -84,12 +87,20 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
 
         try {
             await API.patch(`/products/${product.id}`, formData);
-            alert("Product updated successfully!");
+            // alert("Product updated successfully!");
+            // 2. Use toast.success instead of alert
+            toast.success("Product updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+            });
             onSuccess?.();
             onClose();
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.message || "Failed to update product");
+            // alert(err.response?.data?.message || "Failed to update product");
+            // 3. Use toast.error for failures
+            const errorMsg = err.response?.data?.message || "Failed to update product";
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -98,12 +109,12 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
     if (!product) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
-            <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh] mx-auto top-10">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
+            <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh] mx-auto">
                 <div className="px-6">
                     <div className="flex justify-between items-center mb-2">
                         <h2 className="text-xl font-bold">Edit Product</h2>
-                        <button onClick={onClose} className="text-gray-500 hover:text-red-600">
+                        <button onClick={onClose} className="text-main hover:text-mainHover fixed left-auto right-4 top-4">
                             <RiCloseLine size={28} />
                         </button>
                     </div>

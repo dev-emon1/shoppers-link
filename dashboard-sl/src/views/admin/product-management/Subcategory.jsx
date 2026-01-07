@@ -8,6 +8,7 @@ import Pagination from "../../../components/Pagination";
 import axios from "axios";
 import FilterBar from "../../../components/common/FilterBar";
 import API, { IMAGE_URL } from "../../../utils/api";
+import { toast } from "react-toastify";
 
 const Subcategory = () => {
   const [subcategories, setSubcategories] = useState([]);
@@ -34,7 +35,7 @@ const Subcategory = () => {
       const res = await API.get("/categories");
       setCategories(res.data.data || res.data);
     } catch (err) {
-      console.error("Failed to fetch categories:", err);
+      toast.error("Failed to fetch categories:", err);
     }
   }, []);
 
@@ -45,7 +46,7 @@ const Subcategory = () => {
       const res = await API.get("/subCategories");
       setSubcategories(res.data.data || res.data);
     } catch (error) {
-      console.error("❌ Failed to fetch sub categories", error);
+      toast.error("❌ Failed to fetch sub categories", error);
     } finally {
       setLoading(false);
     }
@@ -60,8 +61,8 @@ const Subcategory = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedCategory) return alert("⚠️ Please select a category!");
-    if (!subCategoryName.trim()) return alert("⚠️ Subcategory name is required!");
+    if (!selectedCategory) return toast.error("⚠️ Please select a category!");
+    if (!subCategoryName.trim()) return toast.error("⚠️ Subcategory name is required!");
 
     try {
       const formData = new FormData();
@@ -90,7 +91,7 @@ const Subcategory = () => {
       // console.log("Response:", res.data);
       const { success, data, message } = res.data;
       if (success) {
-        alert(message || "Subcategory saved successfully!");
+        toast.success(message || "Subcategory saved successfully!");
         setShow(false);
         setEditingSubcategory(null);
         setSelectedCategory("");
@@ -101,15 +102,15 @@ const Subcategory = () => {
         fetchSubcategories();
         setImagePreview(null);
       } else {
-        alert(message || "Something went wrong!");
+        toast.error(message || "Something went wrong!");
       }
     } catch (err) {
       console.error("Error saving subcategory:", err.response?.data || err);
       const errors = err.response?.data?.errors;
       if (errors) {
-        alert(Object.values(errors)[0][0]);
+        toast.error(Object.values(errors)[0][0]);
       } else {
-        alert(err.response?.data?.message || "Server error!");
+        toast.error(err.response?.data?.message || "Server error!");
       }
     }
   };
@@ -158,19 +159,19 @@ const Subcategory = () => {
         status: newStatus,
         _method: 'PATCH'
       });
-
+      toast.success("✅ Status updated successfully!");
       if (!res.data.success) {
         throw new Error("Failed to update status");
       }
     } catch (error) {
-      console.error("❌ Status update failed:", error);
+      toast.error("❌ Status update failed:", error);
 
       // Rollback: Revert the UI if the API call fails
       setSubcategories((prev) =>
         prev.map((sub) => (sub.id === id ? { ...sub, status: currentStatus } : sub))
       );
 
-      alert("⚠️ Failed to update status on server.");
+      toast.error("⚠️ Failed to update status on server.");
     }
   }, []);
   const columns = [

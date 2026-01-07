@@ -8,17 +8,17 @@ const OrderDetailsModal = ({ order, onClose }) => {
     const { parsedData, items, unid, subtotal, vendor_earning, order: orderInfo } = order;
 
     return (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn mt-10">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
             {/* Scrollable Modal Container */}
             <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh]">
                 {/* Sticky Header */}
-                <div className="sticky top-0 bg-white border-b border-gray-200 px-2 py-2 flex justify-between items-center z-10 rounded-t-2xl">
+                <div className="bg-white border-b border-gray-200 px-2 py-2 flex justify-between items-center z-10 rounded-t-2xl">
                     <h2 className="text-lg font-bold text-gray-800">
                         Order Details - {unid}
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 transition font-light"
+                        className="text-main hover:text-mainHover transition font-light fixed left-auto right-4 top-4"
                         aria-label="Close modal"
                     >
                         <X size={24} />

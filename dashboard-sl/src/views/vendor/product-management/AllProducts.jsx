@@ -14,6 +14,7 @@ import API from "../../../../src/utils/api";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { useAuth } from "../../../utils/AuthContext";
+import { toast } from "react-toastify";
 
 const AllProducts = () => {
   const { user } = useAuth();
@@ -86,7 +87,7 @@ const AllProducts = () => {
 
   // Export functions (এগুলো ঠিক আছে)
   const handleExport = () => {
-    if (!products.length) return alert("No data to export!");
+    if (!products.length) return toast.error("No data to export!");
 
     const exportData = products.map((p, index) => {
       const variantList = p.variants
@@ -112,10 +113,11 @@ const AllProducts = () => {
     });
 
     exportToExcel(exportData, "products_export", "Products", "xlsx");
+    toast.success("Products exported to Excel successfully!");
   };
 
   const exportToPDF = () => {
-    if (!products.length) return alert("No data to export!");
+    if (!products.length) return toast.error("No data to export!");
 
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
@@ -206,6 +208,7 @@ const AllProducts = () => {
     });
 
     doc.save(`products-export-${new Date().toISOString().slice(0, 10)}.pdf`);
+    toast.success("Products exported to PDF successfully!");
   };
 
   // Table Columns - No কলামে label যোগ করা হয়েছে

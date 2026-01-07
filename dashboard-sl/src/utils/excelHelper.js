@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 
 /**
@@ -14,7 +15,8 @@ export const exportToExcel = (
   format = "xlsx"
 ) => {
   if (!Array.isArray(data) || data.length === 0) {
-    alert("⚠️ No data available to export!");
+    // alert("⚠️ No data available to export!");
+    toast.error("No data available to export!");
     return;
   }
 
@@ -29,10 +31,12 @@ export const exportToExcel = (
       XLSX.writeFile(wb, `${fileName}.xlsx`, { bookType: "xlsx" });
     }
 
-    console.log(`✅ Exported ${data.length} rows successfully.`);
+    // console.log(`✅ Exported ${data.length} rows successfully.`);
+    toast.success(`Exported ${data.length} rows successfully.`);
   } catch (err) {
     console.error("❌ Export failed:", err);
-    alert("Export failed! Please try again.");
+    // alert("Export failed! Please try again.");
+    toast.error("Export failed! Please try again.");
   }
 };
 
@@ -44,7 +48,8 @@ export const exportToExcel = (
 export const importFromExcel = (file) => {
   return new Promise((resolve, reject) => {
     if (!file) {
-      alert("⚠️ Please select a file to import!");
+      // alert("⚠️ Please select a file to import!");
+      toast.error("Please select a file to import!");
       return reject("No file selected");
     }
 
@@ -62,7 +67,8 @@ export const importFromExcel = (file) => {
       };
       reader.onerror = (error) => {
         console.error("❌ File read error:", error);
-        alert("Failed to read file.");
+        // alert("Failed to read file.");
+        toast.error("Failed to read file.");
         reject(error);
       };
       reader.readAsArrayBuffer(file);

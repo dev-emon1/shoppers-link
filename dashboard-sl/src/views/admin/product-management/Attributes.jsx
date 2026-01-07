@@ -9,6 +9,7 @@ import SlidePanel from "../../../components/common/SlidePanel";
 import Pagination from "../../../components/Pagination";
 import FilterBar from "../../../components/common/FilterBar";
 import API from "../../../utils/api";
+import { toast } from "react-toastify";
 
 const Attributes = React.memo(() => {
   // ===== States =====
@@ -29,7 +30,7 @@ const Attributes = React.memo(() => {
       const res = await API.get("/attributes");
       setAttributes(res.data.data || res.data); // handles Laravel resource or direct data
     } catch (error) {
-      console.error("❌ Failed to fetch attributes", error);
+      toast.error("❌ Failed to fetch attributes", error);
     } finally {
       setLoading(false);
     }
@@ -56,13 +57,13 @@ const Attributes = React.memo(() => {
           setAttributes((prev) =>
             prev.map((attr) => (attr.id === updatedAttribute.id ? updatedAttribute : attr))
           );
-          alert("✅ Attribute updated successfully!");
+          toast.success("✅ Attribute updated successfully!");
         } else {
           // ✅ Create new attribute
           const res = await API.post("attributes", payload);
           const newAttribute = res.data.data || res.data;
           setAttributes((prev) => [...prev, newAttribute]);
-          alert("✅ Attribute added successfully!");
+          toast.success("✅ Attribute added successfully!");
         }
 
         // Reset form
@@ -71,8 +72,8 @@ const Attributes = React.memo(() => {
         setEditingAttribute(null);
         setShow(false);
       } catch (error) {
-        console.error("❌ Failed:", error.response?.data || error.message);
-        alert("⚠️ " + (error.response?.data?.message || "Validation failed!"));
+        // console.error("❌ Failed:", error.response?.data || error.message);
+        toast.error("⚠️ " + (error.response?.data?.message || "Validation failed!"));
       }
     },
     [attributeName, status, editingAttribute]
