@@ -1,7 +1,8 @@
 "use client";
+
 import React, { useState } from "react";
-import { Heart, ShoppingBag, Eye } from "lucide-react";
-import Link from "next/link";
+import { Heart, ShoppingBag } from "lucide-react";
+
 import { showToast } from "@/lib/utils/toast";
 import useCart from "@/modules/cart/hooks/useCart";
 import useWishlist from "@/modules/wishlist/hooks/useWishlist";
@@ -9,45 +10,42 @@ import buildCartItemFromProduct from "@/modules/cart/utils/buildCartItemFromProd
 
 const ProductActions = ({
   product,
-  href,
+  isHovered = false,
   selectedVariantId = null,
   vendorId: passedVendorId = null,
   vendorName: passedVendorName = null,
 }) => {
-  const { add } = useCart();
+  const { add, cart } = useCart();
+
   const { wishlist = [], toggle } = useWishlist();
   const [isAdding, setIsAdding] = useState(false);
 
-  // Wishlist active check (by product id)
   const active = Boolean(
     product && wishlist.some((p) => p?.id === product?.id)
   );
 
   const handleAddToCart = async () => {
     if (!product) return showToast("Product missing");
-    if (!product.variants?.length) return showToast("No variants available"); // New check
-
+    if (!product.variants?.length) return showToast("No variants available");
     if (isAdding) return;
 
+    const cartItems = Object.values(cart || {}).flatMap((v) => v.items || []);
 
-    // Build normalized cart item with fallbacks
     const item = buildCartItemFromProduct({
       product,
-      variantId: selectedVariantId ?? product.variants[0]?.id ?? null, // Fallback to first variant
+      variantId: selectedVariantId,
       quantity: 1,
-      vendorId: passedVendorId ?? product?.vendor?.id ?? "default", // Fallback vendor ID
+      cartItems,
+      vendorId: passedVendorId ?? product?.vendor?.id ?? "default",
       vendorName:
         passedVendorName ??
         product?.vendor?.shop_name ??
         product?.vendor?.name ??
-        "Unknown Vendor", // Enhanced fallback
+        "Unknown Vendor",
     });
 
-    if (!item) {
-      return showToast("Could not add product to cart");
-    }
+    if (!item) return showToast("Could not add product to cart");
 
-    // Enhanced stock check: if defined and <=0, or null (assume out of stock)
     if (
       item.stock !== null &&
       (typeof item.stock === "number" ? item.stock <= 0 : true)
@@ -55,19 +53,15 @@ const ProductActions = ({
       return showToast("This product is out of stock");
     }
 
-    // Prepare payload
-    const payload = {
-      vendorId: item.vendorId,
-      vendorName: item.vendorName,
-      ...item,
-    };
-
     try {
       setIsAdding(true);
-      await add(payload);
+      await add({
+        vendorId: item.vendorId,
+        vendorName: item.vendorName,
+        ...item,
+      });
       showToast(`${product.name} added to cart`);
-    } catch (err) {
-      console.error("Add to cart failed:", err);
+    } catch {
       showToast("Failed to add to cart");
     } finally {
       setIsAdding(false);
@@ -81,37 +75,56 @@ const ProductActions = ({
   };
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/0 group-hover:bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300">
-      {product.category.id !== 8 && (
-        <>
-          <button
-            onClick={handleWishlist}
-            className={`bg-white p-2 rounded-full shadow ${active ? "text-red-500" : ""
-              }`}
-            aria-label="Toggle wishlist"
-          >
-            <Heart size={16} fill={active ? "currentColor" : "none"} />
-          </button>
+    <div>
+      <div
+        className={`
+        absolute z-10
+        top-1/2 right-2 -translate-y-1/2
+        flex flex-col gap-2
+        transition-all duration-200 ease-out
 
-          <button
-            onClick={handleAddToCart}
-            className={`bg-white p-2 rounded-full shadow hover:bg-main hover:text-white transition ${isAdding ? "opacity-60 cursor-wait" : ""
-              }`}
-            aria-label="Add to cart"
-            disabled={isAdding}
-            title={isAdding ? "Adding..." : "Add to cart"}
-          >
-            <ShoppingBag size={16} />
-          </button>
-        </>
-      )}
-      <Link
-        href={href || "#"}
-        className="bg-white p-2 rounded-full shadow hover:bg-main hover:text-white transition"
-        aria-label="View product"
+        ${
+          isHovered
+            ? "opacity-100 translate-x-0"
+            : "opacity-0 translate-x-1 pointer-events-none"
+        }
+      `}
       >
-        <Eye size={16} />
-      </Link>
+        {product.category.id !== 8 && (
+          <>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleWishlist();
+              }}
+              className={`flex items-center gap-1 bg-white px-2 py-1.5 rounded-full shadow text-xs ${
+                active ? "text-red-500" : "text-textPrimary"
+              }`}
+              aria-label="Wishlist"
+            >
+              <Heart size={14} fill={active ? "currentColor" : "none"} />
+              <span>Save</span>
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+              disabled={isAdding}
+              className={`flex items-center gap-1 bg-white px-2 py-1.5 rounded-full shadow text-xs ${
+                isAdding ? "opacity-60 cursor-wait" : ""
+              }`}
+              aria-label="Add to cart"
+            >
+              <ShoppingBag size={14} />
+              <span>Buy</span>
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };

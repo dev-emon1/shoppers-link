@@ -8,6 +8,7 @@ import ProductReviews from "./reviews/ProductReviews";
 import ProductHeader from "../ProductHeader";
 
 export default function ProductDetails({ product, breadcrumb = [] }) {
+  console.log(product);
   if (!product) {
     return (
       <div className="container py-20 text-center text-gray-500">
@@ -54,7 +55,7 @@ export default function ProductDetails({ product, breadcrumb = [] }) {
   return (
     <>
       <ProductHeader title={product.name} breadcrumb={finalBreadcrumb} />
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
+      <div className="container px-4 py-4 md:py-6 max-w-7xl">
         {/* Mobile & Tablet: Stacked Layout | Desktop: Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Gallery - Full width on mobile, 2 columns on lg+ */}
@@ -63,6 +64,7 @@ export default function ProductDetails({ product, breadcrumb = [] }) {
               images={product.images}
               variants={product.variants}
               selectedVariant={selectedVariant}
+              selectedColor={selectedVariant?.attr?.Color ?? null}
               onSelectVariant={(variantId) => {
                 const v = product.variants?.find(
                   (x) => String(x.id) === String(variantId)

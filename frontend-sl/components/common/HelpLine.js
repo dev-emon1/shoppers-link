@@ -1,23 +1,21 @@
 "use client";
 
-import React from "react";
+import { FaWhatsapp } from "react-icons/fa";
 
 export default function HelpLine() {
   return (
     <a
-      href="https://wa.me/+8801401446644"
+      href="https://wa.me/8801401446644"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-3 right-0 z-50"
+      className="fixed bottom-3 right-3 z-50
+                 w-11 h-11 rounded-full
+                 bg-[#25D366] text-white
+                 flex items-center justify-center
+                 shadow-lg hover:scale-110 transition"
     >
-      <img
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/1200px-WhatsApp.svg.png"
-        alt="WhatsApp"
-        width={40}
-        height={40}
-        className=" hover:scale-110 transition-transform duration-300"
-      />
+      <FaWhatsapp size={24} />
     </a>
   );
 }

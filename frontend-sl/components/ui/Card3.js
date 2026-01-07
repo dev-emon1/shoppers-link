@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import ProductActions from "../product/ProductActions";
 import Link from "next/link";
+import { makeImageUrl } from "@/lib/utils/image";
 
 const Card3 = ({
   product: fullProduct,
@@ -23,6 +24,8 @@ const Card3 = ({
   const hasBadge = isNew || Number(discount) > 0;
   const badgeText = isNew ? "NEW" : Number(discount) > 0 ? `-${discount}%` : "";
   const badgeClass = isNew ? "bg-green" : Number(discount) > 0 ? "bg-red" : "";
+
+  const isITProduct = fullProduct?.category?.id === 8;
 
   // numeric safe conversion
   const numericPrice =
@@ -54,15 +57,16 @@ const Card3 = ({
 
       <div className="relative w-full h-64 overflow-hidden">
         <Image
-          src={imageSrc}
+          src={makeImageUrl(imageSrc)}
           alt={name || "Product"}
           fill
           sizes="(max-width: 768px) 50vw, 33vw"
           className="object-contain p-2 group-hover:scale-110 transition-transform duration-500"
-          loading="lazy" // Built-in lazy loading
+          loading="lazy"
           placeholder="blur"
-          blurDataURL="/images/placeholder-blur.png" // Optional: create a low-res blur placeholder
+          blurDataURL="/images/placeholder-blur.png"
           priority={false}
+          unoptimized
         />
 
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-all duration-300">
@@ -83,28 +87,27 @@ const Card3 = ({
 
         {category && <p className="text-textLight text-xs mt-1">{category}</p>}
 
-        {numericPrice !== null ? (
-          <div className="mt-3">
-            <span className="text-lg font-bold text-main">
-              ৳
-              {numericPrice.toLocaleString(undefined, {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2,
-              })}
+        <div className="mt-3">
+          {isITProduct ? (
+            <span className="text-sm font-semibold text-main">
+              Call for Price
             </span>
-            {numericOldPrice !== null && (
-              <span className="text-xs text-textLight line-through ml-2">
-                ৳
-                {numericOldPrice.toLocaleString(undefined, {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 2,
-                })}
+          ) : numericPrice !== null ? (
+            <>
+              <span className="text-lg font-bold text-main">
+                ৳{numericPrice.toLocaleString()}
               </span>
-            )}
-          </div>
-        ) : (
-          <div className="mt-3 text-textLight">—</div>
-        )}
+
+              {numericOldPrice !== null && (
+                <span className="text-xs text-textLight line-through ml-2">
+                  ৳{numericOldPrice.toLocaleString()}
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="text-textLight">—</span>
+          )}
+        </div>
       </Link>
     </div>
   );
