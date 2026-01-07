@@ -349,15 +349,6 @@ const Category = React.memo(() => {
                 rows={3}
               />
             </div>
-            {/* Status */}
-            {/* <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Select Status</label>
-              <select className="px-2 py-2 border rounded-md" value={status} onChange={(e) => setStatus(Number(e.target.value))}>
-                <option value="">-- Choose Status --</option>
-                <option value={1}>Active</option>
-                <option value={0}>Inactive</option>
-              </select>
-            </div> */}
 
             {/* Image Upload */}
             <div className="max-w-md mx-auto mt-6">
