@@ -4,7 +4,7 @@ import { format } from "date-fns";
 
 const OrderDetailsModal = ({ order, onClose }) => {
     if (!order) return null;
-
+    // console.log(order);
     const { parsedData, items, unid, subtotal, vendor_earning, order: orderInfo } = order;
 
     return (
@@ -13,15 +13,15 @@ const OrderDetailsModal = ({ order, onClose }) => {
             <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh]">
                 {/* Sticky Header */}
                 <div className="sticky top-0 bg-white border-b border-gray-200 px-2 py-2 flex justify-between items-center z-10 rounded-t-2xl">
-                    <h2 className="text-xl font-bold text-gray-800">
+                    <h2 className="text-lg font-bold text-gray-800">
                         Order Details - {unid}
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 transition text-3xl font-light"
+                        className="text-gray-500 hover:text-gray-700 transition font-light"
                         aria-label="Close modal"
                     >
-                        <X size={28} />
+                        <X size={24} />
                     </button>
                 </div>
 
@@ -71,7 +71,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
 
                     {/* Order Summary */}
                     <div className="px-2">
-                        <h3 className="font-bold text-xl mb-2 text-gray-800">Order Summary</h3>
+                        <h3 className="font-bold text-md mb-2 text-gray-800">Order Summary</h3>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="bg-white rounded-xl p-3 text-center shadow">
                                 <p className="text-gray-600 text-sm">Subtotal</p>
@@ -102,7 +102,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
 
                     {/* Ordered Items */}
                     <div className="px-2">
-                        <h3 className="font-bold text-xl mb-2 text-gray-800">Ordered Items</h3>
+                        <h3 className="font-bold text-md mb-2 text-gray-800">Ordered Items</h3>
                         <div className="space-y-4">
                             {items.map((item, idx) => (
                                 <div
@@ -111,27 +111,29 @@ const OrderDetailsModal = ({ order, onClose }) => {
                                 >
                                     <img
                                         src={
-                                            item.product.images?.[0]?.image_path
-                                                ? `${import.meta.env.VITE_IMAGE_URL}/${item.product.images[0].image_path}`
+                                            item.image?.image_path
+                                                ? `${import.meta.env.VITE_IMAGE_URL}/${item.image.image_path}`
                                                 : "/placeholder.png"
                                         }
                                         alt={item.product.name}
                                         className="w-full md:w-20 md:h-20 object-cover rounded-lg shadow-sm border"
                                     />
 
-                                    <div className="flex-1 space-y-2">
-                                        <h4 className="font-bold text-md text-gray-900">
-                                            {item.product.name}
-                                        </h4>
-                                        <p className="text-xs text-gray-600">SKU: {item.variant.sku}</p>
+                                    <div className="flex space-y-2 justify-between w-full md:items-center md:flex-row flex-col">
+                                        <div>
+                                            <h4 className="font-bold text-sm text-gray-900">
+                                                {item.product.name}
+                                            </h4>
+                                            <p className="text-xs text-gray-600">SKU: {item.variant.sku}</p>
 
-                                        {item.variant.attributes && (
-                                            <p className="text-xs text-gray-500 bg-white rounded-full inline-block">
-                                                {Object.values(JSON.parse(item.variant.attributes)).join(" • ")}
-                                            </p>
-                                        )}
+                                            {item.variant.attributes && (
+                                                <p className="text-xs text-gray-500 bg-white rounded-full inline-block">
+                                                    {Object.values(JSON.parse(item.variant.attributes)).join(" • ")}
+                                                </p>
+                                            )}
+                                        </div>
 
-                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+                                        <div className="flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
                                             <div className="text-xl font-bold text-blue-600">
                                                 ৳ {Number(item.total).toLocaleString()}
                                             </div>
