@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Package, Zap, Shield, Star, Truck, Clock } from "lucide-react"; // ইচ্ছা না থাকলে এই লাইনটা ডিলিট করো
+import { Package, Zap, Shield, Star, Truck, Clock } from "lucide-react";
 
 // Helper function
 const toNumber = (value) => {
@@ -50,6 +50,8 @@ const SmartBadge = ({ product }) => {
     },
   ];
 
+  const isITProduct = product?.category?.id === 8;
+
   const active = badges.find((b) => b.show);
 
   if (!active) {
@@ -71,8 +73,77 @@ const SmartBadge = ({ product }) => {
 };
 
 // Main Component
+// export default function ProductPriceBlock({ product, selectedVariant }) {
+//   // Get price & old price
+//   let price = null;
+//   let oldPrice = null;
+
+//   if (selectedVariant) {
+//     price = toNumber(selectedVariant.price);
+//     oldPrice = toNumber(selectedVariant.old_price);
+//   } else if (product.variants && product.variants.length > 0) {
+//     const v = product.variants[0];
+//     price = toNumber(v.price);
+//     oldPrice = toNumber(v.old_price);
+//   } else {
+//     price = toNumber(product.base_price);
+//     oldPrice = toNumber(product.old_price);
+//   }
+
+//   // Calculate discount
+//   const discount =
+//     oldPrice && price && oldPrice > price
+//       ? Math.round(((oldPrice - price) / oldPrice) * 100)
+//       : 0;
+
+//   // Format prices
+//   const formattedPrice =
+//     price != null ? `৳${price.toLocaleString("en-IN")}` : "—";
+
+//   const formattedOldPrice =
+//     oldPrice != null ? `৳${oldPrice.toLocaleString("en-IN")}` : null;
+
+//   return (
+//     <div className="flex flex-wrap items-center gap-3 mt-2">
+//       {/* Main Price */}
+//       <span className="text-3xl font-bold text-main whitespace-nowrap">
+//         {formattedPrice}
+//       </span>
+
+//       {/* Old Price (strikethrough) */}
+//       {formattedOldPrice && (
+//         <span className="text-lg text-gray-500 line-through">
+//           {formattedOldPrice}
+//         </span>
+//       )}
+
+//       {/* Discount Badge or Smart Badge */}
+//       {discount > 0 ? (
+//         <span className="inline-flex items-center font-bold text-green-600 bg-green-50 px-4 py-2 rounded-full text-sm border border-green-200">
+//           -{discount}% OFF
+//         </span>
+//       ) : (
+//         <SmartBadge product={product} />
+//       )}
+//     </div>
+//   );
+// }
+
 export default function ProductPriceBlock({ product, selectedVariant }) {
-  // Get price & old price
+  const isITProduct = product?.category?.id === 8;
+
+  // 🚫 IT Product → override everything
+  if (isITProduct) {
+    return (
+      <div className="flex flex-wrap items-center gap-3 mt-2">
+        <span className="text-2xl font-semibold text-main">Call for Price</span>
+
+        <SmartBadge product={product} />
+      </div>
+    );
+  }
+
+  // ---------------- NORMAL PRODUCTS ----------------
   let price = null;
   let oldPrice = null;
 
@@ -88,13 +159,11 @@ export default function ProductPriceBlock({ product, selectedVariant }) {
     oldPrice = toNumber(product.old_price);
   }
 
-  // Calculate discount
   const discount =
     oldPrice && price && oldPrice > price
       ? Math.round(((oldPrice - price) / oldPrice) * 100)
       : 0;
 
-  // Format prices (৳5,000 - কোনো extra 0 আসবে না)
   const formattedPrice =
     price != null ? `৳${price.toLocaleString("en-IN")}` : "—";
 
@@ -103,19 +172,16 @@ export default function ProductPriceBlock({ product, selectedVariant }) {
 
   return (
     <div className="flex flex-wrap items-center gap-3 mt-2">
-      {/* Main Price */}
       <span className="text-3xl font-bold text-main whitespace-nowrap">
         {formattedPrice}
       </span>
 
-      {/* Old Price (strikethrough) */}
       {formattedOldPrice && (
         <span className="text-lg text-gray-500 line-through">
           {formattedOldPrice}
         </span>
       )}
 
-      {/* Discount Badge or Smart Badge */}
       {discount > 0 ? (
         <span className="inline-flex items-center font-bold text-green-600 bg-green-50 px-4 py-2 rounded-full text-sm border border-green-200">
           -{discount}% OFF

@@ -139,7 +139,7 @@ export default function CategoryPage({ params }) {
       .slice(0, 8);
 
     return (
-      <div className="mt-6">
+      <div className="mt-12">
         <ProductDetails product={product} breadcrumb={breadcrumb} />
         <RelatedProducts product={product} products={related} />
       </div>
@@ -161,8 +161,8 @@ export default function CategoryPage({ params }) {
       <div className="mt-6">
         <ListingHeader title={cat.name} breadcrumb={breadcrumb} />
 
-        <div className="container grid grid-cols-1 md:grid-cols-12 gap-6 py-10">
-          <aside className="md:col-span-3">
+        <div className="container grid grid-cols-1 lg:grid-cols-12 gap-6 py-10">
+          <aside className="lg:col-span-3">
             <ListingSidebar
               mode="tree"
               category={cat}
@@ -194,8 +194,8 @@ export default function CategoryPage({ params }) {
       <div className="mt-6">
         <ListingHeader title={sub.name} breadcrumb={breadcrumb} />
 
-        <div className="container grid grid-cols-1 md:grid-cols-12 gap-6 py-10">
-          <aside className="md:col-span-3">
+        <div className="container grid grid-cols-1 lg:grid-cols-12 gap-6 py-10">
+          <aside className="lg:col-span-3">
             <ListingSidebar
               mode="tree"
               category={cat}

@@ -20,7 +20,13 @@ import Card from "../ui/Card";
 import ViewAllButton from "../common/ViewAllButton";
 // Reusable "View All" button component
 
-const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
+const ProductSection = ({
+  useProductsHook,
+  title,
+  subtitle,
+  viewAllHref,
+  showSoldCount = false,
+}) => {
   // Reference to Swiper instance (for manual navigation)
   const swiperRef = useRef(null);
 
@@ -172,7 +178,11 @@ const ProductSection = ({ useProductsHook, title, subtitle, viewAllHref }) => {
             {displayProducts.map((item) => (
               <SwiperSlide key={item.id}>
                 <div className="transition-transform duration-500 hover:-translate-y-1">
-                  <Card data={item} href={generateProductHref(item)} />
+                  <Card
+                    data={item}
+                    href={generateProductHref(item)}
+                    showSoldCount={showSoldCount}
+                  />
                 </div>
               </SwiperSlide>
             ))}

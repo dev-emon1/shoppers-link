@@ -16,29 +16,7 @@ const formatPrice = (v) => {
   return n.toFixed(2);
 };
 
-const getImageSrc = (item) => {
-  const first = item?.images?.[0] ?? item?.image ?? "";
-  if (!first) return "/images/placeholder.png";
-  if (typeof first === "string") {
-    if (/^https?:\/\//i.test(first)) return first;
-    if (first.startsWith("http:/") || first.startsWith("http:")) {
-      return first.replace("http:/", "http://");
-    }
-    if (first.startsWith("/")) return first;
-    return `${
-      process.env.NEXT_PUBLIC_MEDIA_BASE ?? "http://localhost:8000"
-    }/storage/${first.replace(/^\/+/, "")}`;
-  }
-  if (typeof first === "object") {
-    if (first?.src) return first.src;
-    if (first?.image_path) {
-      return `${
-        process.env.NEXT_PUBLIC_MEDIA_BASE ?? "http://localhost:8000"
-      }/storage/${String(first.image_path).replace(/^\/+/, "")}`;
-    }
-  }
-  return "/images/placeholder.png";
-};
+const getImageSrc = (item) => item?.image || "/images/placeholder.png";
 
 const MiniCartDrawer = ({ open, onClose }) => {
   const {
@@ -72,7 +50,6 @@ const MiniCartDrawer = ({ open, onClose }) => {
   const totalItemsForRender = mounted ? toNumber(totalItems) : 0;
   const subtotalForRender = mounted ? subtotalNumber : 0;
   // console.log(cart);
-
 
   return (
     <>
@@ -179,7 +156,7 @@ const MiniCartDrawer = ({ open, onClose }) => {
                         <div className="flex items-center gap-3 w-[70%]">
                           <div className="relative w-12 h-12 flex-shrink-0">
                             <Image
-                              src={imageSrc}
+                              src={getImageSrc(item)}
                               alt={item.name}
                               fill
                               className="object-contain rounded-md"

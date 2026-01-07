@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 // Redux async action to fetch all categories from API
 import { loadAllCategories } from "@/modules/category/store/categoryReducer";
+import { makeImageUrl } from "@/lib/utils/image";
 
 const CategoryGrid = () => {
   // Initialize Redux dispatch function
@@ -68,17 +69,14 @@ const CategoryGrid = () => {
               <div className="relative flex justify-center items-center aspect-square w-full overflow-hidden rounded-md">
                 {/* Category image */}
                 <Image
-                  src={
-                    cat?.image
-                      ? `${process.env.NEXT_PUBLIC_API_IMAGE_URL}/${cat.image}` // API image URL
-                      : "/images/placeholder.png" // Fallback image
-                  }
-                  alt={cat.name} // Accessible alt text
+                  src={makeImageUrl(cat?.image)}
+                  alt={cat.name}
                   width={200}
                   height={200}
-                  placeholder="blur" // Blur-up loading effect
+                  placeholder="blur"
                   blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/OhPPQAJJAPX8L9BHgAAAABJRU5ErkJggg=="
                   className="object-contain w-[80%] transition-transform duration-300 group-hover:scale-110 rounded-lg bg-gray-100"
+                  unoptimized
                 />
 
                 {/* Hover overlay effect */}
