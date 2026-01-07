@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, Edit2, Save, X, AlertTriangle, RefreshCw } from "lucide-react";
 import { useAuth } from "../../../utils/AuthContext";
 import API, { IMAGE_URL } from "../../../utils/api";
+import { toast } from "react-toastify";
 
 const AllProductsVariantStockPage = () => {
     const { user } = useAuth();
@@ -51,7 +52,8 @@ const AllProductsVariantStockPage = () => {
             setCurrentPage(payload.meta?.current_page || 1);
 
         } catch (err) {
-            console.error("API Error:", err);
+            // console.error("API Error:", err);
+            toast.error("Failed to load products. Please try again.");
             setError("Failed to load products. Please try again.");
         } finally {
             setLoading(false);
@@ -77,7 +79,8 @@ const AllProductsVariantStockPage = () => {
 
     const saveStock = async () => {
         if (!editingVariantId || editStockValue === "" || isNaN(editStockValue) || editStockValue < 0) {
-            alert("Please enter a valid stock number");
+            // alert("Please enter a valid stock number");
+            toast.error("Please enter a valid stock number");
             return;
         }
 
@@ -86,7 +89,7 @@ const AllProductsVariantStockPage = () => {
                 variant_id: editingVariantId,
                 qty: parseInt(editStockValue),
             });
-
+            toast.success("Stock updated successfully");
             if (res.data.success || res.data.new_stock !== undefined) {
                 setProducts(prev =>
                     prev.map(p => ({
@@ -104,8 +107,9 @@ const AllProductsVariantStockPage = () => {
                 setShowSuccess(true);
             }
         } catch (err) {
-            alert("Failed to update stock");
-            console.error(err);
+            // alert("Failed to update stock");
+            // console.error(err);
+            toast.error("Failed to update stock");
         }
     };
 
@@ -138,13 +142,6 @@ const AllProductsVariantStockPage = () => {
 
     return (
         <div className="px-6 bg-gray-50 min-h-screen">
-            {/* Success Alert */}
-            {showSuccess && (
-                <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse">
-                    Stock updated successfully!
-                </div>
-            )}
-
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">

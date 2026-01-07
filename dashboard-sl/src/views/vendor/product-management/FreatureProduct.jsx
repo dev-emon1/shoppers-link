@@ -12,6 +12,7 @@ import { autoTable } from "jspdf-autotable";
 import { useAuth } from "../../../utils/AuthContext";
 import { format } from "date-fns";
 import FeatureProductQuickView from "../../../components/ui/FeatureProductQuickView";
+import { toast } from "react-toastify";
 
 const AllFeaturedProducts = () => {
   const { user } = useAuth();
@@ -92,7 +93,7 @@ const AllFeaturedProducts = () => {
 
   // PDF Export
   const exportToPDF = () => {
-    if (!currentData.length) return alert("No data to export!");
+    if (!currentData.length) return toast.error("No data to export!");
 
     const doc = new jsPDF({ orientation: "landscape" });
     doc.setFontSize(20);
@@ -141,6 +142,7 @@ const AllFeaturedProducts = () => {
     });
 
     doc.save("my-featured-products.pdf");
+    toast.success("Featured products exported to PDF successfully!");
   };
 
   // Remove from Featured

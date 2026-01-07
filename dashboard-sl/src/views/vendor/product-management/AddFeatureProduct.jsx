@@ -1,7 +1,7 @@
 // src/pages/admin/AddFeaturedProducts.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import API from "../../../utils/api";
 import { Search, X, Sparkles, Tag, Palette, Clock } from "lucide-react";
 import { useAuth } from "../../../utils/AuthContext";
@@ -75,15 +75,7 @@ const AddFeaturedProducts = () => {
 
     try {
       await API.post("/featuredProducts", payload);
-      toast.success(
-        <div className="flex items-center gap-3">
-          <Sparkles className="text-yellow-400" />
-          <span>
-            <strong>{selectedProduct.name}</strong> added to Featured!
-          </span>
-        </div>,
-        { style: { background: "#10b981", color: "white" } }
-      );
+      toast.success("added to Featured!");
       setShowModal(false);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to add");

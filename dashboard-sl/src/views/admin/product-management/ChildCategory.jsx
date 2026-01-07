@@ -8,6 +8,7 @@ import Pagination from "../../../components/Pagination";
 import axios from "axios";
 import FilterBar from "../../../components/common/FilterBar";
 import API, { IMAGE_URL } from "../../../utils/api";
+import { toast } from "react-toastify";
 
 const ChildCategory = () => {
   // ===== States =====
@@ -36,7 +37,7 @@ const ChildCategory = () => {
       const res = await API.get("/subCategories");
       setSubcategories(res.data.data || []);
     } catch (err) {
-      console.error("Failed to fetch subcategories:", err);
+      toast.error("❌ Failed to fetch subcategories:", err);
     }
   }, []);
 
@@ -47,7 +48,7 @@ const ChildCategory = () => {
       const res = await API.get("/childCategories");
       setChildCats(res.data.data || res.data);
     } catch (error) {
-      console.error("❌ Failed to fetch child categories", error);
+      toast.error("❌ Failed to fetch child categories", error);
     } finally {
       setLoading(false);
     }
@@ -61,9 +62,9 @@ const ChildCategory = () => {
   // ===== Add / Update Child Category =====
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedSubcategory) return alert("⚠️ Please select a subcategory!");
+    if (!selectedSubcategory) return toast.error("⚠️ Please select a subcategory!");
     if (!childCategoryName.trim())
-      return alert("⚠️ Child category name is required!");
+      return toast.error("⚠️ Child category name is required!");
 
     try {
       const formData = new FormData();
@@ -90,7 +91,7 @@ const ChildCategory = () => {
 
       const { success, data, message } = res.data;
       if (success) {
-        alert(message || "Child category saved successfully!");
+        toast.success(message || "Child category saved successfully!");
         setShow(false);
         setEditingChild(null);
         setSelectedSubcategory("");
@@ -101,15 +102,15 @@ const ChildCategory = () => {
         setImagePreview(null);
         fetchChildCategories();
       } else {
-        alert(message || "Something went wrong!");
+        toast.error(message || "Something went wrong!");
       }
     } catch (err) {
       console.error("Error saving child category:", err.response?.data || err);
       const errors = err.response?.data?.errors;
       if (errors) {
-        alert(Object.values(errors)[0][0]);
+        toast.error(Object.values(errors)[0][0]);
       } else {
-        alert(err.response?.data?.message || "Server error!");
+        toast.error(err.response?.data?.message || "Server error!");
       }
     }
   };
@@ -152,19 +153,19 @@ const ChildCategory = () => {
         status: newStatus,
         _method: 'PATCH'
       });
-
+      toast.success("✅ Status updated successfully!");
       if (!res.data.success) {
         throw new Error("Failed to update status");
       }
     } catch (error) {
-      console.error("❌ Status update failed:", error);
+      toast.error("❌ Status update failed:", error);
 
       // Rollback: Revert the UI if the API call fails
       setChildCats((prev) =>
         prev.map((cat) => (cat.id === id ? { ...cat, status: currentStatus } : cat))
       );
 
-      alert("⚠️ Failed to update status on server.");
+      toast.error("⚠️ Failed to update status on server.");
     }
   }, []);
   // ===== Table Columns =====

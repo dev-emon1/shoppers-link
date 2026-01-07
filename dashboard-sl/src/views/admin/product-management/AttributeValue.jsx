@@ -7,6 +7,7 @@ import SlidePanel from "../../../components/common/SlidePanel";
 import Pagination from "../../../components/Pagination";
 import FilterBar from "../../../components/common/FilterBar";
 import API from "../../../utils/api";
+import { toast } from "react-toastify";
 
 
 const AttributeValue = () => {
@@ -31,7 +32,7 @@ const AttributeValue = () => {
       const res = await API.get("/attributes");
       setAttributes(res.data.data || res.data);
     } catch (error) {
-      console.error("❌ Failed to fetch attributes:", error);
+      toast.error("❌ Failed to fetch attributes:", error);
     }
   }, []);
 
@@ -41,7 +42,7 @@ const AttributeValue = () => {
       const res = await API.get("/attributeValues");
       setValues(res.data.data || []);
     } catch (error) {
-      console.error("❌ Failed to fetch attribute values:", error);
+      toast.error("❌ Failed to fetch attribute values:", error);
     }
   }, []);
 
@@ -74,8 +75,8 @@ const AttributeValue = () => {
   // ==== Add / Update ====
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedAttribute) return alert("⚠️ Please select an attribute!");
-    if (!valueName.trim()) return alert("⚠️ Enter attribute value!");
+    if (!selectedAttribute) return toast.error("⚠️ Please select an attribute!");
+    if (!valueName.trim()) return toast.error("⚠️ Enter attribute value!");
 
     const payload = {
       attribute_id: selectedAttribute,
@@ -87,10 +88,10 @@ const AttributeValue = () => {
     try {
       if (editingValue) {
         await API.put(`attributeValues/${editingValue.id}`, payload);
-        alert("✅ Attribute Value updated successfully!");
+        toast.success("✅ Attribute Value updated successfully!");
       } else {
         await API.post("attributeValues", payload);
-        alert("✅ Attribute Value added successfully!");
+        toast.success("✅ Attribute Value added successfully!");
       }
 
       // Reset form
@@ -103,8 +104,8 @@ const AttributeValue = () => {
       // Refresh values
       fetchValues();
     } catch (error) {
-      console.error("❌ Failed to save:", error.response?.data || error.message);
-      alert("⚠️ " + (error.response?.data?.message || "Operation failed!"));
+      // console.error("❌ Failed to save:", error.response?.data || error.message);
+      toast.error("⚠️ " + (error.response?.data?.message || "Operation failed!"));
     }
   };
 
