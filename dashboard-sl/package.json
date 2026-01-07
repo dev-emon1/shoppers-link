@@ -26,6 +26,7 @@
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",
     "react-apexcharts": "^1.7.0",
+    "react-datepicker": "^9.1.0",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.65.0",
     "react-hot-toast": "^2.6.0",

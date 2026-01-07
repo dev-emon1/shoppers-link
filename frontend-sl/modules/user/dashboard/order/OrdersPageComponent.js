@@ -17,7 +17,7 @@ export default function OrdersPageComponent() {
 
   /* INITIAL LOAD */
   useEffect(() => {
-    fetchOrders({ page: 1, per_page: 10 }).catch(() => {});
+    fetchOrders({ page: 1, per_page: 10 }).catch(() => { });
   }, [fetchOrders]);
 
   /* FILTER + SORT */
@@ -96,7 +96,7 @@ export default function OrdersPageComponent() {
       {/* PAGINATION */}
       {meta &&
         (meta.current_page ?? meta.currentPage) <
-          (meta.last_page ?? meta.lastPage) && (
+        (meta.last_page ?? meta.lastPage) && (
           <div className="flex justify-center pt-4">
             <button
               onClick={() =>
