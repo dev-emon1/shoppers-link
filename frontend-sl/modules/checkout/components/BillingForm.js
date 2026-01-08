@@ -2,9 +2,9 @@
 
 import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
-import { validateBilling } from "../utils/validation";
-import { getAddressesApi } from "@/modules/user/services/address.service";
 import { useSelector } from "react-redux";
+import { getAddressesApi } from "@/modules/user/services/address.service";
+import { validateBilling } from "../utils/validation";
 
 export default function BillingForm({
   value = {},
@@ -15,12 +15,12 @@ export default function BillingForm({
   registerValidate,
 }) {
   const { user } = useSelector((state) => state.auth);
+
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [localErrors, setLocalErrors] = useState(errors || {});
 
-  // ফর্ম স্টেট ইনিশিয়ালাইজেশন
-
+  // 🔹 local controlled form (single source for inputs)
   const [form, setForm] = useState({
     fullName: value.fullName || "",
     phone: value.phone || "",
@@ -28,31 +28,45 @@ export default function BillingForm({
     area: value.area || "",
     line1: value.line1 || "",
     city: value.city || "",
-    postalCode: value.postalCode || value.postcode || "",
+    postalCode: value.postalCode || "",
     notes: value.notes || "",
   });
 
-  // Logic to auto-fill when Redux User data arrives
+  // 🔹 register validation with Stepper
   useEffect(() => {
-    if (user && !form.fullName && !form.phone) {
-      setForm(prev => ({
-        ...prev,
-        fullName: user?.customer?.full_name || "",
-        phone: user?.customer?.contact_number || "",
-        email: user?.email || "",
-      }));
-    }
-  }, [user]);
+    if (!registerValidate) return;
 
-  // ... rest of the component
-  // ১. অ্যাড্রেস লিস্ট ফেচ করা
+    registerValidate(() => {
+      const vErrors = validateBilling(form);
+      setLocalErrors(vErrors);
+
+      // ✅ Stepper-compatible return
+      if (Object.keys(vErrors).length > 0) {
+        return { valid: false };
+      }
+
+      return { valid: true };
+    });
+  }, [registerValidate, form]);
+
+  // 🔹 local → redux (ONLY direction)
+  useEffect(() => {
+    onChange && onChange(form);
+  }, [form]);
+
+  // 🔹 sync errors from parent (redux / middleware)
+  useEffect(() => {
+    setLocalErrors(errors || {});
+  }, [errors]);
+
+  // 🔹 Fetch saved addresses
   useEffect(() => {
     const fetchAddresses = async () => {
       if (!user?.customer?.id) return;
       try {
         setLoading(true);
         const res = await getAddressesApi(user.customer.id);
-        setAddresses(res.data || []);
+        setAddresses(res?.data || []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -62,33 +76,42 @@ export default function BillingForm({
     fetchAddresses();
   }, [user?.customer?.id]);
 
-  // ২. ফর্ম চেঞ্জ হ্যান্ডলার
-  useEffect(() => {
-    onChange && onChange(form);
-  }, [form]);
-
-  useEffect(() => {
-    setLocalErrors(errors || {});
-  }, [errors]);
-
-  // ৩. অ্যাড্রেস বাটন ক্লিক করলে ফর্ম ফিল করা
+  // 🔹 Address select → fill form
   const handleAddressSelect = (addr) => {
     setForm((prev) => ({
       ...prev,
-      address_line1: addr.address_line1,
-      line1: addr.address_line2,
-      city: addr.city,
-      postalCode: addr.postal_code,
-      area: addr.state,
+      line1: addr.address_line1 || "",
+      city: addr.city || "",
+      area: addr.area || "",
+      postalCode: addr.postal_code || "",
     }));
   };
 
   const handleChange = (field) => (e) => {
-    setForm((p) => ({ ...p, [field]: e.target.value }));
+    const value = e.target.value;
+
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+    // 🔥 clear error for this field if valid now
+    if (localErrors[field]) {
+      const fieldErrors = validateBilling({
+        ...form,
+        [field]: value,
+      });
+
+      if (!fieldErrors[field]) {
+        setLocalErrors((prev) => {
+          const next = { ...prev };
+          delete next[field];
+          return next;
+        });
+      }
+    }
   };
 
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
@@ -99,6 +122,7 @@ export default function BillingForm({
             Both the invoice and the delivery will be sent to this address.
           </p>
         </div>
+
         <div className="flex flex-wrap gap-2 items-center">
           <span className="text-xs text-textSecondary">Address type:</span>
           {addresses.length > 0 ? (
@@ -107,16 +131,19 @@ export default function BillingForm({
                 key={a.id}
                 type="button"
                 onClick={() => handleAddressSelect(a)}
-                className={`px-3 py-1 text-xs font-medium rounded-full border transition-all ${form.address_line1 === a.address_line1
-                  ? "bg-main text-white border-main shadow-sm"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-main"
-                  }`}
+                className={`px-3 py-1 text-xs font-medium rounded-full border transition-all ${
+                  form.line1 === a.address_line1
+                    ? "bg-main text-white border-main"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-main"
+                }`}
               >
                 {a.address_line1}
               </button>
             ))
           ) : (
-            <span className="text-xs font-medium text-gray-400">No saved address</span>
+            <span className="text-xs font-medium text-gray-400">
+              No saved address
+            </span>
           )}
         </div>
 
@@ -131,148 +158,98 @@ export default function BillingForm({
         )}
       </div>
 
+      {/* Form */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* full name */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Full name *
-          </label>
-          <input
-            name="fullName"
-            type="text"
-            value={user?.customer?.full_name || ""}
-            onChange={handleChange("fullName")}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
-            placeholder="e.g. Shahariar Emon"
-          />
-          {localErrors.fullName && (
-            <p className="mt-1 text-xs text-red">{localErrors.fullName}</p>
-          )}
-        </div>
+        <Input
+          label="Full name *"
+          placeholder="e.g. Hossen Emon"
+          value={form.fullName}
+          onChange={handleChange("fullName")}
+          error={localErrors.fullName}
+        />
 
-        {/* phone */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Phone number *
-          </label>
-          <input
-            name="phone"
-            type="tel"
-            value={user?.customer?.contact_number || ""}
-            onChange={handleChange("phone")}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
-            placeholder="01XXXXXXXXX"
-          />
-          {localErrors.phone && (
-            <p className="mt-1 text-xs text-red">{localErrors.phone}</p>
-          )}
-        </div>
+        <Input
+          label="Phone number *"
+          placeholder="01XXXXXXXXX"
+          value={form.phone}
+          onChange={handleChange("phone")}
+          error={localErrors.phone}
+        />
 
-        {/* email */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Email (optional)
-          </label>
-          <input
-            name="email"
-            type="email"
-            value={user?.email || ""}
-            onChange={handleChange("email")}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
-            placeholder="you@example.com"
-          />
-          {localErrors.email && (
-            <p className="mt-1 text-xs text-red">{localErrors.email}</p>
-          )}
-        </div>
+        <Input
+          label="Email (optional)"
+          placeholder="you@example.com"
+          value={form.email}
+          onChange={handleChange("email")}
+          error={localErrors.email}
+        />
 
-        {/* area */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Area / Thana *
-          </label>
-          <input
-            name="area"
-            type="text"
-            value={form.area || ""}
-            onChange={handleChange("area")}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
-            placeholder="e.g. Mirpur 10"
-          />
-          {localErrors.area && (
-            <p className="mt-1 text-xs text-red">{localErrors.area}</p>
-          )}
-        </div>
+        <Input
+          label="Area / Thana *"
+          placeholder="e.g. Mirpur 14"
+          value={form.area}
+          onChange={handleChange("area")}
+          error={localErrors.area}
+        />
 
-        {/* line1 */}
-        <div className="md:col-span-2">
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Address line *
-          </label>
-          <input
-            name="line1"
-            type="text"
-            value={form.line1 || ""}
-            onChange={handleChange("line1")}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
-            placeholder="House, road, block, etc."
-          />
-          {localErrors.line1 && (
-            <p className="mt-1 text-xs text-red">{localErrors.line1}</p>
-          )}
-        </div>
+        <Input
+          label="Address line *"
+          placeholder="House, Road, Block, Area"
+          value={form.line1}
+          onChange={handleChange("line1")}
+          error={localErrors.line1}
+          colSpan
+        />
 
-        {/* city */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            City / District *
-          </label>
-          <input
-            name="city"
-            type="text"
-            value={form.city || ""}
-            onChange={handleChange("city")}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
-            placeholder="e.g. Dhaka"
-          />
-          {localErrors.city && (
-            <p className="mt-1 text-xs text-red">{localErrors.city}</p>
-          )}
-        </div>
+        <Input
+          label="City / District *"
+          placeholder="e.g. Dhaka"
+          value={form.city}
+          onChange={handleChange("city")}
+          error={localErrors.city}
+        />
 
-        {/* postcode */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Postcode (optional)
-          </label>
-          <input
-            name="postalCode"
-            type="text"
-            value={form.postalCode || form.postcode || ""}
-            onChange={handleChange("postalCode")}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40"
-            placeholder="e.g. 1216"
-          />
-          {localErrors.postalCode && (
-            <p className="mt-1 text-xs text-red">{localErrors.postalCode}</p>
-          )}
-        </div>
+        <Input
+          label="Postcode (optional)"
+          placeholder="e.g. 1211"
+          value={form.postalCode}
+          onChange={handleChange("postalCode")}
+          error={localErrors.postalCode}
+        />
 
-        {/* notes */}
         <div className="md:col-span-2">
           <label className="block text-xs font-medium text-gray-700 mb-1">
             Order notes (optional)
           </label>
           <textarea
-            name="notes"
-            value={form.notes || ""}
-            onChange={handleChange("notes")}
             rows={3}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-main/40 resize-none"
             placeholder="Any special instructions for delivery…"
+            value={form.notes}
+            onChange={handleChange("notes")}
+            className="w-full rounded-lg border px-3 py-2 text-sm"
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+/* 🔹 Reusable Input */
+function Input({ label, value, onChange, error, placeholder, colSpan }) {
+  return (
+    <div className={colSpan ? "md:col-span-2" : ""}>
+      <label className="block text-xs font-medium text-gray-700 mb-1">
+        {label}
+      </label>
+      <input
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
+          error ? "border-red-500 focus:ring-red-200" : "border-border"
+        }`}
+      />
+      {error && <p className="mt-1 text-xs text-red">{error}</p>}
     </div>
   );
 }

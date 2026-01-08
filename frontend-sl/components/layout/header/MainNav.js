@@ -17,11 +17,11 @@ import SearchDropdown from "@/modules/search/components/SearchDropdown";
 import banglalinkLogo from "@/public/svg/banglalink.svg";
 import fingertipsLogo from "@/public/svg/fingertips.svg";
 
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "@/modules/user/store/authReducer";
+import { useSelector } from "react-redux";
 import { useOutsideClick } from "@/lib/utils/useOutSideClick";
 import { makeImageUrl } from "@/lib/utils/image";
 import useMediaQuery from "@/core/hooks/useMediaQuery";
+import useLogout from "@/modules/user/hooks/useLogout";
 
 const BRAND_SEQUENCE = [
   { text: "A concern of", logo: fingertipsLogo, alt: "Fingertips" },
@@ -34,8 +34,8 @@ const MainNav = ({
   showSidebar,
   setShowSidebar,
 }) => {
-  const dispatch = useDispatch();
   const router = useRouter();
+  const { logout } = useLogout();
 
   const { user } = useSelector((state) => state.auth || {});
   const [searchQuery, setSearchQuery] = useState("");
@@ -123,7 +123,7 @@ const MainNav = ({
             <div
               ref={dropdownRef}
               onMouseEnter={
-                isDesktop
+                isDesktop && user
                   ? () => {
                       clearTimeout(closeTimer.current);
                       openTimer.current = setTimeout(
@@ -134,7 +134,7 @@ const MainNav = ({
                   : undefined
               }
               onMouseLeave={
-                isDesktop
+                isDesktop && user
                   ? () => {
                       clearTimeout(openTimer.current);
                       closeTimer.current = setTimeout(
@@ -148,19 +148,23 @@ const MainNav = ({
             >
               <button
                 onClick={() => {
-                  if (!isDesktop) {
-                    router.push(user ? "/user/dashboard" : "/user/login");
+                  // ✅ logged out → always go to login
+                  if (!user) {
+                    router.push("/user/login");
+                    return;
                   }
+
+                  // ✅ logged in + mobile → dashboard
+                  if (!isDesktop) {
+                    router.push("/user/dashboard");
+                  }
+                  // logged in + desktop → hover handles dropdown
                 }}
                 className="flex items-center gap-2"
               >
                 {user?.customer?.profile_picture ? (
                   <Image
-                    src={
-                      user?.customer?.profile_picture
-                        ? imageSrc
-                        : "/avatar-placeholder.png"
-                    }
+                    src={makeImageUrl(user.customer.profile_picture)}
                     alt={user?.user_name || "User"}
                     width={28}
                     height={28}
@@ -188,7 +192,7 @@ const MainNav = ({
               </button>
 
               <AnimatePresence>
-                {isDesktop && openDropdown && (
+                {isDesktop && user && openDropdown && (
                   <motion.div
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -201,15 +205,18 @@ const MainNav = ({
                     >
                       Dashboard
                     </Link>
+
                     <Link
                       href="/user/dashboard/orders"
                       className="block px-5 py-3 text-sm hover:bg-gray-50"
                     >
                       My Orders
                     </Link>
+
                     <hr />
+
                     <button
-                      onClick={() => dispatch(logout())}
+                      onClick={logout}
                       className="w-full text-left px-5 py-3 text-sm text-red-600 hover:bg-red-50"
                     >
                       Logout

@@ -6,6 +6,7 @@ import {
   fetchTopSellingApi,
   fetchTopRatingApi,
   fetchBannersApi,
+  fetchShopByBrandsApi,
 } from "../services/homeService";
 
 /**
@@ -16,6 +17,7 @@ const FEATURED_TTL = 10 * 60 * 1000;
 const TOP_RATING_TTL = 10 * 60 * 1000;
 const TOP_SELLING_TTL = 5 * 60 * 1000;
 const NEW_ARRIVALS_TTL = 3 * 60 * 1000;
+const SHOP_BY_BRAND_TTL = 60 * 60 * 1000; // 1 hour
 
 export const fetchBanners = createAsyncThunk(
   "home/fetchBanners",
@@ -73,6 +75,17 @@ export const fetchTopSelling = createAsyncThunk(
   }
 );
 
+export const fetchShopByBrands = createAsyncThunk(
+  "home/fetchShopByBrands",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await fetchShopByBrandsApi();
+    } catch {
+      return rejectWithValue("Failed to fetch shop by brands");
+    }
+  }
+);
+
 const homeSlice = createSlice({
   name: "home",
   initialState: {
@@ -105,6 +118,12 @@ const homeSlice = createSlice({
       status: "idle",
       lastFetched: null,
       ttl: TOP_SELLING_TTL,
+    },
+    shopByBrands: {
+      data: [],
+      status: "idle",
+      lastFetched: null,
+      ttl: SHOP_BY_BRAND_TTL,
     },
   },
   reducers: {},
@@ -164,6 +183,17 @@ const homeSlice = createSlice({
       })
       .addCase(fetchTopSelling.rejected, (state) => {
         state.topSelling.status = "error";
+      })
+      .addCase(fetchShopByBrands.pending, (state) => {
+        state.shopByBrands.status = "loading";
+      })
+      .addCase(fetchShopByBrands.fulfilled, (state, action) => {
+        state.shopByBrands.status = "success";
+        state.shopByBrands.data = action.payload;
+        state.shopByBrands.lastFetched = Date.now();
+      })
+      .addCase(fetchShopByBrands.rejected, (state) => {
+        state.shopByBrands.status = "error";
       });
   },
 });

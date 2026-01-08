@@ -74,61 +74,61 @@ export const brandData = [
     logo: radhuni,
     link: "https://www.facebook.com/radhuni.spices/",
   },
-  {
-    id: 9,
-    name: "Feather Doll's By Selina Deepa",
-    logo: feather,
-    link: "https://web.facebook.com/feathersdolls/?_rdc=1&_rdr#",
-  },
-  {
-    id: 10,
-    name: "Karu Shilpo Nozipur",
-    logo: karushilpo,
-    link: "https://www.facebook.com/karushilponozipur",
-  },
-  {
-    id: 11,
-    name: "Mati Fashion House",
-    logo: mati,
-    link: "https://www.facebook.com/matifashionhouse?rdid=0eRASecxa36YkFHg&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17KEXyDbGc%2F#",
-  },
-  {
-    id: 14,
-    name: "Tan",
-    logo: tan,
-    link: "https://www.facebook.com/tanbangladesh?rdid=5GsgIt4HbDjxhopJ&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17VQ5VbYc6%2F#",
-  },
+  // {
+  //   id: 9,
+  //   name: "Feather Doll's By Selina Deepa",
+  //   logo: feather,
+  //   link: "https://web.facebook.com/feathersdolls/?_rdc=1&_rdr#",
+  // },
+  // {
+  //   id: 10,
+  //   name: "Karu Shilpo Nozipur",
+  //   logo: karushilpo,
+  //   link: "https://www.facebook.com/karushilponozipur",
+  // },
+  // {
+  //   id: 11,
+  //   name: "Mati Fashion House",
+  //   logo: mati,
+  //   link: "https://www.facebook.com/matifashionhouse?rdid=0eRASecxa36YkFHg&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17KEXyDbGc%2F#",
+  // },
+  // {
+  //   id: 14,
+  //   name: "Tan",
+  //   logo: tan,
+  //   link: "https://www.facebook.com/tanbangladesh?rdid=5GsgIt4HbDjxhopJ&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17VQ5VbYc6%2F#",
+  // },
 
-  {
-    id: 16,
-    name: "MYTH arts & crafts",
-    logo: myth,
-    link: "https://www.facebook.com/profile.php?id=100057149633273&rdid=QcSnMYxFAZ2RcfXS&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F19hrER23W3%2F#",
-  },
-  {
-    id: 17,
-    name: "Chitra",
-    logo: chitra,
-    link: "https://www.facebook.com/profile.php?id=61568651681534&rdid=9Og9bdxPm80n98Aj&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1D5vajJHBj%2F#",
-  },
-  {
-    id: 18,
-    name: "CMST Charm",
-    logo: cmst,
-    link: "https://www.facebook.com/CMSTCHARM",
-  },
-  {
-    id: 19,
-    name: "Sprezzatura",
-    logo: sprezzatura,
-    link: "https://www.facebook.com/sprezzaturabd/",
-  },
-  {
-    id: 13,
-    name: "Manas",
-    logo: manas,
-    link: "https://www.facebook.com/bd.manas?rdid=FtlTHrQNM5cJGS4i&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1CdAH2BLEh%2F#",
-  },
+  // {
+  //   id: 16,
+  //   name: "MYTH arts & crafts",
+  //   logo: myth,
+  //   link: "https://www.facebook.com/profile.php?id=100057149633273&rdid=QcSnMYxFAZ2RcfXS&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F19hrER23W3%2F#",
+  // },
+  // {
+  //   id: 17,
+  //   name: "Chitra",
+  //   logo: chitra,
+  //   link: "https://www.facebook.com/profile.php?id=61568651681534&rdid=9Og9bdxPm80n98Aj&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1D5vajJHBj%2F#",
+  // },
+  // {
+  //   id: 18,
+  //   name: "CMST Charm",
+  //   logo: cmst,
+  //   link: "https://www.facebook.com/CMSTCHARM",
+  // },
+  // {
+  //   id: 19,
+  //   name: "Sprezzatura",
+  //   logo: sprezzatura,
+  //   link: "https://www.facebook.com/sprezzaturabd/",
+  // },
+  // {
+  //   id: 13,
+  //   name: "Manas",
+  //   logo: manas,
+  //   link: "https://www.facebook.com/bd.manas?rdid=FtlTHrQNM5cJGS4i&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1CdAH2BLEh%2F#",
+  // },
 ];
 
 export const brandVendors = {

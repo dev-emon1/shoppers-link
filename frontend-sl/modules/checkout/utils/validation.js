@@ -49,8 +49,9 @@ export function validateBilling(billing = {}) {
     errors.area = "Area is required";
   }
   if (billing.postalCode) {
-    if (!/^[0-9A-Za-z\-\s]{3,10}$/.test(String(billing.postalCode).trim())) {
-      errors.postalCode = "Invalid postal code";
+    const pc = String(billing.postalCode).trim();
+    if (!/^\d{4}$/.test(pc)) {
+      errors.postalCode = "Postcode must be 4 digits (e.g. 1211)";
     }
   }
 
