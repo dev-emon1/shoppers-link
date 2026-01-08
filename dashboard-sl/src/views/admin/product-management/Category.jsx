@@ -9,6 +9,7 @@ import Pagination from "../../../components/Pagination";
 import axios from "axios";
 import FilterBar from "../../../components/common/FilterBar";
 import API, { IMAGE_URL } from "../../../utils/api";
+import { toast } from "react-toastify";
 
 const Category = React.memo(() => {
   const [categories, setCategories] = useState([]);
@@ -48,7 +49,8 @@ const Category = React.memo(() => {
       e.preventDefault();
 
       if (!categoryName.trim()) {
-        alert("⚠️ Category name is required!");
+        // alert("⚠️ Category name is required!");
+        toast.error("Category name is required!");
         return;
       }
 
@@ -86,10 +88,10 @@ const Category = React.memo(() => {
             setCategories((prev) =>
               prev.map((cat) => (cat.id === data.id ? data : cat))
             );
-            alert("✅ Category updated successfully!");
+            toast.success("✅ Category updated successfully!");
           } else {
             setCategories((prev) => [data, ...prev]);
-            alert("✅ Category added successfully!");
+            toast.success("✅ Category added successfully!");
           }
 
           // Reset everything
@@ -101,7 +103,7 @@ const Category = React.memo(() => {
           setEditingCategory(null);
           setShow(false);
         } else {
-          alert("⚠️ Something went wrong!");
+          toast.warning("Something went wrong!");
         }
       } catch (error) {
         console.error("❌ Error:", error.response?.data || error.message);
@@ -111,9 +113,9 @@ const Category = React.memo(() => {
           const firstError = errors
             ? Object.values(errors)[0][0]
             : "Validation failed!";
-          alert("⚠️ " + firstError);
+          toast.error("⚠️ " + firstError);
         } else {
-          alert("⚠️ " + (error.response?.data?.message || "Server error!"));
+          toast.error("⚠️ " + (error.response?.data?.message || "Server error!"));
         }
       }
     },
@@ -182,7 +184,7 @@ const Category = React.memo(() => {
         status: newStatus,
         _method: 'PATCH' // Many Laravel APIs use POST with _method for partial updates
       });
-
+      toast.success("✅ Status updated successfully!");
       if (!res.data.success) {
         throw new Error("Failed to update status");
       }
@@ -192,7 +194,7 @@ const Category = React.memo(() => {
       setCategories((prev) =>
         prev.map((cat) => (cat.id === id ? { ...cat, status: currentStatus } : cat))
       );
-      alert("⚠️ Failed to update status on server.");
+      toast.error("⚠️ Failed to update status on server.");
     }
   }, []);
   // ===== Table Columns =====

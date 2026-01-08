@@ -228,7 +228,7 @@ export default function ShopProfile({ data }) {
                     {editableField('State', 'state')}
                     {editableField('Postal Code', 'postal_code')}
                     {editableField('Country', 'country')}
-                    {editableField('Facebook', 'link')}
+                    {editableField('Link', 'link')}
                 </div>
 
                 {/* Documents */}

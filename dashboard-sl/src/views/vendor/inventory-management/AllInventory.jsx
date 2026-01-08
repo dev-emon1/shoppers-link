@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Edit2, Save, X, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../../utils/AuthContext';
 import API from '../../../utils/api';
+import { toast } from 'react-toastify';
 
 const AllProductsVariantStockPage = () => {
     const { user } = useAuth();
@@ -72,7 +73,7 @@ const AllProductsVariantStockPage = () => {
 
     const saveStock = async () => {
         if (!editingVariantId || editStockValue === '' || isNaN(editStockValue)) {
-            alert("Please enter a valid stock quantity");
+            toast.error("Please enter a valid stock quantity");
             return;
         }
 
@@ -83,7 +84,7 @@ const AllProductsVariantStockPage = () => {
                 variant_id: editingVariantId,
                 qty: newStock,
             });
-
+            toast.success("Stock updated successfully!");
             if (res.data.success || res.data.message === "Stock increased") {
 
                 const updatedStock = res.data.new_stock;
@@ -105,11 +106,13 @@ const AllProductsVariantStockPage = () => {
                 setShowSuccessMessage(true);
             }
             else {
-                alert("Failed: " + (res.data.message || "Unknown error"));
+                // alert("Failed: " + (res.data.message || "Unknown error"));
+                toast.error("Failed to update stock: " + (res.data.message || "Unknown error"));
             }
         } catch (err) {
-            console.error("Error updating stock:", err);
-            alert("Failed to update stock. Please try again.");
+            // console.error("Error updating stock:", err);
+            // alert("Failed to update stock. Please try again.");
+            toast.error("Failed to update stock. Please try again.");
         }
     };
 

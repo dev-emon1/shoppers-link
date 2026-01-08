@@ -43,8 +43,8 @@ export const allNavigation = {
       role: "vendor",
       children: [
         { name: "Order List", path: "/vendor/orders/order-list" },
-        { name: "Refund Requests", path: "/vendor/orders/refund-requests" },
-        { name: "Return Management", path: "/vendor/orders/return-management" },
+        // { name: "Refund Requests", path: "/vendor/orders/refund-requests" },
+        // { name: "Return Management", path: "/vendor/orders/return-management" },
       ],
     },
     {
@@ -64,11 +64,11 @@ export const allNavigation = {
       role: "vendor",
       children: [
         { name: "Payment Gateways", path: "/vendor/payments/gateways" },
-        { name: "Invoices", path: "/vendor/payments/invoices" },
-        {
-          name: "Transaction",
-          path: "/vendor/payments/transactions",
-        },
+        // { name: "Invoices", path: "/vendor/payments/invoices" },
+        // {
+        //   name: "Transaction",
+        //   path: "/vendor/payments/transactions",
+        // },
         // { name: "Payouts", path: "/vendor/payments/payouts" },
         // { name: "Refunds", path: "/vendor/payments/refunds" },
         // { name: "Commissions Settings", path: "/vendor/payments/commissions" },
@@ -87,7 +87,7 @@ export const allNavigation = {
           path: "/vendor/reports/product-performance",
         },
         // { name: "Customer Reports", path: "/vendor/reports/customers" },
-        { name: "Revenue Reports", path: "/vendor/reports/revenue" },
+        // { name: "Revenue Reports", path: "/vendor/reports/revenue" },
         // {
         //   name: "Traffic & Conversion",
         //   path: "/vendor/reports/traffic-conversion",
@@ -101,7 +101,7 @@ export const allNavigation = {
       role: "vendor",
       children: [
         { name: "Shipping Partners", path: "/vendor/shipping/methods" },
-        { name: "Shipping Zones", path: "/vendor/shipping/zones" },
+        // { name: "Shipping Zones", path: "/vendor/shipping/zones" },
         // { name: "Carriers Integration", path: "/vendor/shipping/carriers" },
         // { name: "Tracking Updates", path: "/vendor/shipping/tracking" },
         // { name: "Shipping Rates", path: "/vendor/shipping/rates" },
@@ -116,7 +116,7 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Overview", path: "/admin/dashboard/overview" },
-        { name: "Sales Analytics", path: "/admin/dashboard/sales-analytics" },
+        // { name: "Sales Analytics", path: "/admin/dashboard/sales-analytics" },
       ],
     },
     {
@@ -131,9 +131,9 @@ export const allNavigation = {
         { name: "Child Category", path: "/admin/products/child-category" },
         { name: "Attributes", path: "/admin/products/attributes" },
         { name: "Attribute Value", path: "/admin/products/attribute-value" },
-        { name: "Brand", path: "/admin/products/brand" },
-        { name: "Reviews", path: "/admin/products/reviews" },
-        { name: "Bulk Upload", path: "/admin/products/bulk-upload" },
+        // { name: "Brand", path: "/admin/products/brand" },
+        // { name: "Reviews", path: "/admin/products/reviews" },
+        // { name: "Bulk Upload", path: "/admin/products/bulk-upload" },
       ],
     },
     {
@@ -143,10 +143,10 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Order List", path: "/admin/orders/order-list" },
-        { name: "Order Tracking", path: "/admin/orders/order-tracking" },
-        { name: "Order History", path: "/admin/orders/order-history" },
-        { name: "Refund Requests", path: "/admin/orders/refund-requests" },
-        { name: "Return Management", path: "/admin/orders/return-management" },
+        // { name: "Order Tracking", path: "/admin/orders/order-tracking" },
+        // { name: "Order History", path: "/admin/orders/order-history" },
+        // { name: "Refund Requests", path: "/admin/orders/refund-requests" },
+        // { name: "Return Management", path: "/admin/orders/return-management" },
       ],
     },
     {
@@ -165,11 +165,11 @@ export const allNavigation = {
           name: "Rejected Partner Request",
           path: "/admin/vendors/rejected-requests",
         },
-        { name: "Partner Payments", path: "/admin/vendors/payments" },
-        {
-          name: "Partner Reviews & Ratings",
-          path: "/admin/vendors/reviews-ratings",
-        },
+        // { name: "Partner Payments", path: "/admin/vendors/payments" },
+        // {
+        //   name: "Partner Reviews & Ratings",
+        //   path: "/admin/vendors/reviews-ratings",
+        // },
       ],
     },
     {
@@ -195,11 +195,11 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Payment Gateways", path: "/admin/payments/gateways" },
-        { name: "Invoices", path: "/admin/payments/invoices" },
-        {
-          name: "Transaction",
-          path: "/admin/payments/transactions",
-        },
+        // { name: "Invoices", path: "/admin/payments/invoices" },
+        // {
+        //   name: "Transaction",
+        //   path: "/admin/payments/transactions",
+        // },
         // { name: "Payouts", path: "/admin/payments/payouts" },
         // { name: "Refunds", path: "/admin/payments/refunds" },
         // { name: "Commissions Settings", path: "/admin/payments/commissions" },
@@ -222,7 +222,7 @@ export const allNavigation = {
           path: "/admin/reports/vendor-performance",
         },
         { name: "Customer Reports", path: "/admin/reports/customers" },
-        { name: "Revenue Reports", path: "/admin/reports/revenue" },
+        // { name: "Revenue Reports", path: "/admin/reports/revenue" },
         // {
         //   name: "Traffic & Conversion",
         //   path: "/admin/reports/traffic-conversion",
@@ -236,57 +236,57 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Shipping Partners", path: "/admin/shipping/methods" },
-        { name: "Shipping Zones", path: "/admin/shipping/zones" },
+        // { name: "Shipping Zones", path: "/admin/shipping/zones" },
         // { name: "Carriers Integration", path: "/admin/shipping/carriers" },
         // { name: "Tracking Updates", path: "/admin/shipping/tracking" },
         // { name: "Shipping Rates", path: "/admin/shipping/rates" },
       ],
     },
-    {
-      name: "Coupons & Offers Management",
-      path: "/admin/coupons",
-      icon: RiCoupon3Fill,
-      role: "admin",
-      children: [
-        { name: "All Coupons", path: "/admin/coupons/all-coupons" },
-        { name: "Create Coupon", path: "/admin/coupons/create" },
-        { name: "Ongoing Offers", path: "/admin/coupons/ongoing-offers" },
-        { name: "Expired Offers", path: "/admin/coupons/expired-offers" },
-        { name: "Coupon Usage Reports", path: "/admin/coupons/usage-reports" },
-        {
-          name: "Discount Campaigns",
-          path: "/admin/coupons/discount-campaigns",
-        },
-        { name: "Flash Sales", path: "/admin/coupons/flash-sales" },
-      ],
-    },
+    // {
+    //   name: "Coupons & Offers Management",
+    //   path: "/admin/coupons",
+    //   icon: RiCoupon3Fill,
+    //   role: "admin",
+    //   children: [
+    //     { name: "All Coupons", path: "/admin/coupons/all-coupons" },
+    //     { name: "Create Coupon", path: "/admin/coupons/create" },
+    //     { name: "Ongoing Offers", path: "/admin/coupons/ongoing-offers" },
+    //     { name: "Expired Offers", path: "/admin/coupons/expired-offers" },
+    //     { name: "Coupon Usage Reports", path: "/admin/coupons/usage-reports" },
+    //     {
+    //       name: "Discount Campaigns",
+    //       path: "/admin/coupons/discount-campaigns",
+    //     },
+    //     { name: "Flash Sales", path: "/admin/coupons/flash-sales" },
+    //   ],
+    // },
 
-    {
-      name: "Communication Center",
-      path: "/admin/communication",
-      icon: IoChatbox,
-      role: "admin",
-      children: [
-        {
-          name: "Support Tickets",
-          path: "/admin/communication/support-tickets",
-        },
-        { name: "Live Chat", path: "/admin/communication/live-chat" },
-        {
-          name: "Contact Messages",
-          path: "/admin/communication/contact-messages",
-        },
-        { name: "Announcements", path: "/admin/communication/announcements" },
-        {
-          name: "Email Templates",
-          path: "/admin/communication/email-templates",
-        },
-        {
-          name: "Push Notifications",
-          path: "/admin/communication/push-notifications",
-        },
-      ],
-    },
+    // {
+    //   name: "Communication Center",
+    //   path: "/admin/communication",
+    //   icon: IoChatbox,
+    //   role: "admin",
+    //   children: [
+    //     {
+    //       name: "Support Tickets",
+    //       path: "/admin/communication/support-tickets",
+    //     },
+    //     { name: "Live Chat", path: "/admin/communication/live-chat" },
+    //     {
+    //       name: "Contact Messages",
+    //       path: "/admin/communication/contact-messages",
+    //     },
+    //     { name: "Announcements", path: "/admin/communication/announcements" },
+    //     {
+    //       name: "Email Templates",
+    //       path: "/admin/communication/email-templates",
+    //     },
+    //     {
+    //       name: "Push Notifications",
+    //       path: "/admin/communication/push-notifications",
+    //     },
+    //   ],
+    // },
     {
       name: "Content Management",
       path: "/admin/content",
@@ -295,50 +295,50 @@ export const allNavigation = {
       children: [
         { name: "Slider", path: "/admin/content/slider" },
         { name: "Banner", path: "/admin/content/banner" },
-        { name: "Home Page", path: "/admin/content/homepage" },
-        { name: "About Us", path: "/admin/content/about-us" },
-        { name: "Contact Page", path: "/admin/content/contact-page" },
-        { name: "Blog Management", path: "/admin/content/blog" },
-        { name: "FAQ Management", path: "/admin/content/faq" },
+        // { name: "Home Page", path: "/admin/content/homepage" },
+        // { name: "About Us", path: "/admin/content/about-us" },
+        // { name: "Contact Page", path: "/admin/content/contact-page" },
+        // { name: "Blog Management", path: "/admin/content/blog" },
+        // { name: "FAQ Management", path: "/admin/content/faq" },
       ],
     },
-    {
-      name: "Settings",
-      path: "/admin/settings",
-      icon: IoIosSettings,
-      role: "admin",
-      children: [
-        { name: "General Settings", path: "/admin/settings/general" },
-        { name: "Payment Settings", path: "/admin/settings/payments" },
-        { name: "Shipping Settings", path: "/admin/settings/shipping" },
-        { name: "Currency & Tax", path: "/admin/settings/currency-tax" },
-        { name: "SEO Settings", path: "/admin/settings/seo" },
-      ],
-    },
-    {
-      name: "System & Security",
-      path: "/admin/system-security",
-      icon: MdOutlineSecurity,
-      role: "admin",
-      children: [
-        {
-          name: "Backup & Restore",
-          path: "/admin/system-security/backup-restore",
-        },
-        { name: "Activity Logs", path: "/admin/system-security/activity-logs" },
-        {
-          name: "Security Settings",
-          path: "/admin/system-security/security-settings",
-        },
-        {
-          name: "API Management",
-          path: "/admin/system-security/api-management",
-        },
-        {
-          name: "Maintenance Mode",
-          path: "/admin/system-security/maintenance-mode",
-        },
-      ],
-    },
+    // {
+    //   name: "Settings",
+    //   path: "/admin/settings",
+    //   icon: IoIosSettings,
+    //   role: "admin",
+    //   children: [
+    //     { name: "General Settings", path: "/admin/settings/general" },
+    //     { name: "Payment Settings", path: "/admin/settings/payments" },
+    //     { name: "Shipping Settings", path: "/admin/settings/shipping" },
+    //     { name: "Currency & Tax", path: "/admin/settings/currency-tax" },
+    //     { name: "SEO Settings", path: "/admin/settings/seo" },
+    //   ],
+    // },
+    // {
+    //   name: "System & Security",
+    //   path: "/admin/system-security",
+    //   icon: MdOutlineSecurity,
+    //   role: "admin",
+    //   children: [
+    //     {
+    //       name: "Backup & Restore",
+    //       path: "/admin/system-security/backup-restore",
+    //     },
+    //     { name: "Activity Logs", path: "/admin/system-security/activity-logs" },
+    //     {
+    //       name: "Security Settings",
+    //       path: "/admin/system-security/security-settings",
+    //     },
+    //     {
+    //       name: "API Management",
+    //       path: "/admin/system-security/api-management",
+    //     },
+    //     {
+    //       name: "Maintenance Mode",
+    //       path: "/admin/system-security/maintenance-mode",
+    //     },
+    //   ],
+    // },
   ]
 };

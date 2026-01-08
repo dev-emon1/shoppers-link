@@ -140,21 +140,21 @@ const AllSalesTable = () => {
             <div className="max-w-7xl mx-auto">
 
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-2">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-800">All Sales Reports</h1>
-                        <p className="text-gray-600 mt-1">
+                        <h1 className="text-xl font-bold text-gray-800">All Sales Reports</h1>
+                        <p className="text-gray-600 mt-1 text-sm">
                             {summary?.date_range || 'Delivered orders history'}
                         </p>
                     </div>
 
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 bg-main text-white px-4 py-2.5 rounded-lg hover:bg-mainHover transition text-sm font-medium">
-                            <Download size={18} />
+                        <button className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium">
+                            <Download size={16} />
                             Export CSV
                         </button>
-                        <button className="flex items-center gap-2 bg-main text-white px-4 py-2.5 rounded-lg hover:bg-mainHover transition text-sm font-medium">
-                            <Download size={18} />
+                        <button className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium">
+                            <Download size={16} />
                             Export PDF
                         </button>
                     </div>
@@ -162,36 +162,36 @@ const AllSalesTable = () => {
 
                 {/* Summary Cards */}
                 {summary && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-2">
                         {/* ... (same as before) */}
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <p className="text-sm text-gray-600">Total Sales</p>
-                            <p className="text-3xl font-bold text-gray-900 mt-2">{summary.total_sales || '৳0.00'}</p>
+                            <p className="text-xl font-bold text-gray-900 mt-2">{summary.total_sales || '৳0.00'}</p>
                         </div>
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <p className="text-sm text-gray-600">Total Orders</p>
-                            <p className="text-3xl font-bold text-gray-900 mt-2">{summary.total_orders?.toLocaleString() || 0}</p>
+                            <p className="text-xl font-bold text-gray-900 mt-2">{summary.total_orders?.toLocaleString() || 0}</p>
                         </div>
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <p className="text-sm text-gray-600">Items Sold</p>
-                            <p className="text-3xl font-bold text-gray-900 mt-2">{summary.total_quantity_sold?.toLocaleString() || 0}</p>
+                            <p className="text-xl font-bold text-gray-900 mt-2">{summary.total_quantity_sold?.toLocaleString() || 0}</p>
                         </div>
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <p className="text-sm text-gray-600">Avg Order Value</p>
-                            <p className="text-3xl font-bold text-gray-900 mt-2">{summary.average_order_value || '৳0.00'}</p>
+                            <p className="text-xl font-bold text-gray-900 mt-2">{summary.average_order_value || '৳0.00'}</p>
                         </div>
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <p className="text-sm text-gray-600">Growth</p>
                             <div className="flex items-end gap-2 mt-2">
                                 <TrendingUp size={28} className="text-green-600" />
-                                <p className="text-3xl font-bold text-green-600">{summary.growth || '0%'}</p>
+                                <p className="text-xl font-bold text-green-600">{summary.growth || '0%'}</p>
                             </div>
                         </div>
                     </div>
                 )}
 
                 {/* Filters & Search */}
-                <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div className="bg-white rounded-xl shadow-sm p-2 mb-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                         {/* Date Range */}
                         <div className="space-y-2">
@@ -203,7 +203,7 @@ const AllSalesTable = () => {
                                 onChange={setStartDate}
                                 dateFormat="dd MMM yyyy"
                                 placeholderText="Select start date"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
                                 isClearable
                             />
                         </div>
@@ -217,7 +217,7 @@ const AllSalesTable = () => {
                                 onChange={setEndDate}
                                 dateFormat="dd MMM yyyy"
                                 placeholderText="Select end date"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
                                 isClearable
                             />
                         </div>
@@ -230,7 +230,7 @@ const AllSalesTable = () => {
                                 placeholder="e.g. 123"
                                 value={productId}
                                 onChange={(e) => setProductId(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
                             />
                         </div>
 
@@ -243,7 +243,7 @@ const AllSalesTable = () => {
                                     placeholder="e.g. 45"
                                     value={vendorId}
                                     onChange={(e) => setVendorId(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                    className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
                                 />
                             </div>
                         )}
@@ -252,11 +252,11 @@ const AllSalesTable = () => {
                     {/* Search + Clear */}
                     <div className="flex flex-col sm:flex-row gap-4 items-end">
                         <div className="flex-1 relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={22} />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input
                                 type="text"
                                 placeholder="Search orders locally..."
-                                className="w-full pl-12 pr-5 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                className="w-full pl-12 pr-5 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -264,7 +264,7 @@ const AllSalesTable = () => {
 
                         <button
                             onClick={clearFilters}
-                            className="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+                            className="px-5 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
                         >
                             Clear Filters
                         </button>
