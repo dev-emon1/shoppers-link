@@ -11,12 +11,11 @@ import {
   Heart,
   Headphones,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { logout } from "@/modules/user/store/authReducer";
+import useLogout from "../hooks/useLogout";
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
-  const dispatch = useDispatch();
+  const { logout } = useLogout();
 
   const menu = [
     {
@@ -76,7 +75,7 @@ export default function DashboardSidebar() {
 
         <li className="pt-4 mt-4 border-t">
           <button
-            onClick={() => dispatch(logout())}
+            onClick={logout}
             className="flex items-center w-full text-left gap-3 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition"
           >
             <LogOut size={18} /> Logout

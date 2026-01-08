@@ -145,7 +145,7 @@ const TopBar = () => {
           </div>
 
           {/* WAYS TO SHOP */}
-          <div
+          {/* <div
             className="relative"
             onMouseEnter={openWays}
             onMouseLeave={() => setIsWayStoreOpen(false)}
@@ -204,7 +204,7 @@ const TopBar = () => {
                 </div>,
                 getPortal()
               )}
-          </div>
+          </div> */}
 
           {/* Our Store */}
           {/* <div className="text-white flex items-center gap-2 cursor-pointer hover:text-secondary">

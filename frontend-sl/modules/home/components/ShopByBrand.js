@@ -1,83 +1,122 @@
 "use client";
-// Marks this component as a Client Component (required for Swiper & hooks)
 
-import React from "react";
-// React core import
-
+import React, { useMemo } from "react";
 import Image from "next/image";
-// Next.js optimized Image component for performance
+import Link from "next/link";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-// Swiper core components
-
 import { Autoplay } from "swiper/modules";
-// Swiper module for automatic sliding
 
-import Link from "next/link";
-// Next.js Link component for navigation
+import { Store } from "lucide-react";
 
-import { brandData } from "@/data/brandData";
-// Static brand data (logo, name, link)
+import useShopByBrands from "@/modules/home/hooks/useShopByBrands";
+import { makeImageUrl } from "@/lib/utils/image";
 
 const ShopByBrand = () => {
+  const { data, status } = useShopByBrands();
+
+  /**
+   * ✅ Filter brands:
+   * - link must exist
+   * - link must be non-empty string
+   */
+  const brandsWithLink = useMemo(() => {
+    if (!Array.isArray(data)) return [];
+    return data.filter(
+      (brand) => typeof brand.link === "string" && brand.link.trim().length > 0
+    );
+  }, [data]);
+
+  /* ================= Loading ================= */
+  if (status === "loading") {
+    return (
+      <section className="py-16 text-center text-sm text-textSecondary">
+        Loading brands...
+      </section>
+    );
+  }
+
+  /* ================= Error / Empty ================= */
+  if (status === "error" || !brandsWithLink.length) {
+    return null;
+  }
+
   return (
-    // Main section wrapper
     <section className="py-16 bg-white border-t border-border">
       <div className="container">
-        {/* ================= Section Header ================= */}
+        {/* ================= Header ================= */}
         <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-textPrimary mb-2">
+          <h2 className="text-2xl md:text-3xl font-bold text-textPrimary">
             Shop by Brand
           </h2>
-
-          <p className="text-textSecondary text-sm max-w-md mx-auto">
+          <p className="text-textSecondary text-sm mt-2">
             Rule the world with your product
           </p>
-
-          {/* Decorative underline */}
-          <div className="mt-3 w-20 h-1 bg-main mx-auto rounded-full"></div>
+          <div className="mt-3 w-20 h-1 bg-main mx-auto rounded-full" />
         </div>
 
         {/* ================= Brand Slider ================= */}
         <Swiper
-          modules={[Autoplay]} // Enable autoplay functionality
-          spaceBetween={30} // Space between slides
-          slidesPerView={2} // Default slides per view (mobile)
+          modules={[Autoplay]}
+          spaceBetween={30}
+          slidesPerView={2}
           breakpoints={{
-            640: { slidesPerView: 3 }, // Tablets
-            1024: { slidesPerView: 6 }, // Desktop
+            640: { slidesPerView: 3 },
+            1024: { slidesPerView: 6 },
           }}
           autoplay={{
-            delay: 2000, // Slide every 2 seconds
-            disableOnInteraction: false, // Continue autoplay after interaction
-            pauseOnMouseEnter: true, // Pause autoplay on hover
+            delay: 2000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
           }}
-          loop={true} // Infinite loop
-          speed={800} // Transition speed
+          loop
+          speed={800}
         >
-          {/* Render each brand */}
-          {brandData.map((brand) => (
-            <SwiperSlide key={brand.id}>
-              {/* Brand item */}
-              <div className="flex flex-col items-center justify-center group cursor-pointer">
-                {/* Brand link */}
-                <Link
-                  href={brand.link} // External brand link
-                  target="_blank"
-                  className="relative w-28 h-28 flex items-center justify-center rounded-full border border-border overflow-hidden bg-bgPage hover:shadow-md transition-all duration-300"
-                >
-                  {/* Brand logo */}
-                  <Image
-                    src={brand.logo}
-                    alt={brand.name} // Accessible brand name
-                    width={80}
-                    height={80}
-                    className="object-contain opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
-                  />
-                </Link>
-              </div>
-            </SwiperSlide>
-          ))}
+          {brandsWithLink.map((brand) => {
+            const hasLogo = Boolean(brand.logo);
+
+            return (
+              <SwiperSlide key={brand.id}>
+                <div className="flex justify-center">
+                  <Link
+                    href={brand.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="
+    group
+    relative
+    w-28 h-28
+    rounded-full
+    border border-border
+    bg-bgPage
+    flex items-center justify-center
+    overflow-hidden        // ✅ KEY FIX
+    hover:shadow-md
+    transition
+  "
+                  >
+                    {/* ================= Logo OR Icon ================= */}
+                    {hasLogo ? (
+                      <Image
+                        src={makeImageUrl(brand.logo)}
+                        alt={brand.shop_name}
+                        width={80}
+                        height={80}
+                        className="object-contain opacity-80 group-hover:opacity-100 transition"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center text-textSecondary group-hover:text-main transition px-2">
+                        <Store size={32} strokeWidth={1.5} />
+                        <span className="mt-1 text-[11px] font-medium text-center line-clamp-2">
+                          {brand.shop_name}
+                        </span>
+                      </div>
+                    )}
+                  </Link>
+                </div>
+              </SwiperSlide>
+            );
+          })}
         </Swiper>
       </div>
     </section>
@@ -85,4 +124,3 @@ const ShopByBrand = () => {
 };
 
 export default ShopByBrand;
-// Export brand showcase component

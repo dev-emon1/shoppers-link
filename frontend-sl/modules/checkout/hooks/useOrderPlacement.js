@@ -1,10 +1,11 @@
-// modules/checkout/hooks/useOrderPlacement.js
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import { showToast } from "@/lib/utils/toast";
 import { orderService } from "../services/order.service";
+import { saveBillingAddress } from "../store/billingReducer";
 
 export default function useOrderPlacement({
   billing,
@@ -15,17 +16,15 @@ export default function useOrderPlacement({
   cart,
   user,
 }) {
-  // console.log(cart);
   const router = useRouter();
+  const dispatch = useDispatch();
   const [isPlacing, setIsPlacing] = useState(false);
-  // console.log(user);
 
   const placeOrder = async () => {
     try {
       setIsPlacing(true);
 
-      // Basic safety checks
-      if (!user?.id) {
+      if (!user?.customer?.id) {
         showToast("Please login to place order.");
         return;
       }
@@ -41,20 +40,14 @@ export default function useOrderPlacement({
         return;
       }
 
-      //  Build vendor-wise items array from cart
       const vendors = vendorEntries
         .map(([vendorId, vendorData]) => {
-          const itemsArray = Array.isArray(vendorData?.items)
-            ? vendorData.items
-            : [];
-
-          if (!itemsArray.length) return null;
-
+          if (!Array.isArray(vendorData?.items)) return null;
           return {
             vendor_id: Number(vendorId),
-            items: itemsArray.map((item) => ({
+            items: vendorData.items.map((item) => ({
               product_id: item.id,
-              variant_id: item.variantId, // must exist in cart items
+              variant_id: item.variantId,
               qty: item.quantity,
               price: item.price,
               total: item.price * item.quantity,
@@ -63,63 +56,45 @@ export default function useOrderPlacement({
         })
         .filter(Boolean);
 
-      if (!vendors.length) {
-        showToast("Your cart is empty.");
-        return;
+      // 🟢 SAVE BILLING ADDRESS (new user / no default)
+      if (!user?.billingAddress && billing?.value?.line1) {
+        await dispatch(
+          saveBillingAddress({
+            billing: billing.value,
+            customerId: user.customer.id,
+          })
+        ).unwrap();
       }
 
-      //  Final payload structure
       const payload = {
-        customer_id: user?.customer?.id,
-        payment_method: payment.value, // "cod", "bkash", etc.
+        customer_id: user.customer.id,
+        payment_method: payment.value,
         shipping_address_id: billing?.value?.address_id || null,
         a_s_a: {
-          billing: billing?.value || null,
-          shipping: shipping?.value || null,
-          totals: totals || null,
+          billing: billing.value,
+          shipping: shipping.value,
+          totals,
         },
         vendors,
       };
 
-      // 🚀 Real API call
-      // console.log(payload);
       const response = await orderService.placeOrder(payload);
 
-      // 🔐 Optional: verify response (basic)
-      if (response?.orders && Array.isArray(response.orders)) {
-        showToast("🎉 Order placed successfully!");
-      } else {
-        showToast("🎉 Order placed (response received).");
-      }
-
-      // 🧹 Clear cart after success
+      showToast("🎉 Order placed successfully!");
       clearCart();
 
-      const successOrderId = response?.order?.unid;
-      if (successOrderId) {
-        router.push(`/checkout/success?ref=${successOrderId}`);
-      } else {
-        router.push(`/checkout/success`);
-      }
+      const ref = response?.order?.unid;
+      router.push(ref ? `/checkout/success?ref=${ref}` : "/checkout/success");
 
       return response;
     } catch (error) {
-      console.error("❌ Order placement error:", error);
-
-      if (error.response?.data?.error) {
-        showToast(`❌ ${error.response.data.error}`);
-      } else {
-        showToast("❌ Failed to place order. Please try again.");
-      }
-
+      console.error(error);
+      showToast("❌ Failed to place order. Please try again.");
       throw error;
     } finally {
       setIsPlacing(false);
     }
   };
 
-  return {
-    placeOrder,
-    isPlacing,
-  };
+  return { placeOrder, isPlacing };
 }
