@@ -155,10 +155,10 @@ const AddFeaturedProducts = () => {
                       </div>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-sm line-clamp-2">
+                      <h3 className="font-bold text-sm line-clamp-2 min-h-10">
                         {p.name}
                       </h3>
-                      <p className="text-xs text-gray-500 mt-1">SKU: {p.sku}</p>
+                      <p className="text-xs text-gray-500 mt-1 min-h-4">SKU: {p.sku}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -202,7 +202,7 @@ const AddFeaturedProducts = () => {
               </div>
 
               {/* Modal Body */}
-              <div className="p-4 space-y-6">
+              <div className="p-4 space-y-2">
                 {/* Product Preview */}
                 <div className="rounded-2xl px-2 text-center">
                   <img
@@ -221,13 +221,13 @@ const AddFeaturedProducts = () => {
                 {/* Variant */}
                 {selectedProduct.variants?.length > 0 && (
                   <div>
-                    <label className="flex items-center gap-2 font-semibold mb-3">
+                    <label className="flex items-center gap-2 font-semibold mb-3 text-sm">
                       <Tag size={20} /> Select Variant (Optional)
                     </label>
                     <select
                       value={selectedVariantId}
                       onChange={(e) => setSelectedVariantId(e.target.value)}
-                      className="w-full px-5 py-1.5 border-2 border-gray-200 rounded-xl focus:border-main outline-none text-sm"
+                      className="w-full px-5 py-1 border-2 border-gray-200 rounded-xl focus:border-main outline-none text-sm"
                     >
                       <option value="">All Variants</option>
                       {selectedProduct.variants.map((v) => {
@@ -247,7 +247,7 @@ const AddFeaturedProducts = () => {
                 )}
 
                 {/* Badge */}
-                <div className="space-y-4">
+                <div className="space-y-4 text-sm">
                   <label className="flex items-center gap-2 font-semibold">
                     <Palette size={20} /> Badge Design
                   </label>
@@ -257,17 +257,17 @@ const AddFeaturedProducts = () => {
                       placeholder="e.g. HOT, SALE, NEW"
                       value={badgeText}
                       onChange={(e) => setBadgeText(e.target.value)}
-                      className="flex-1 px-5 border-2 rounded-xl focus:border-main outline-none text-sm"
+                      className="flex-1 px-5 border-2 rounded-xl focus:border-main outline-none text-sm p-1"
                     />
                     <input
                       type="color"
                       value={badgeColor}
                       onChange={(e) => setBadgeColor(e.target.value)}
-                      className="w-24 h-10 rounded-2xl cursor-pointer shadow-lg"
+                      className="w-24 h-9 rounded-2xl cursor-pointer shadow-lg"
                     />
                   </div>
                   {badgeText && (
-                    <div className="p-2 rounded-2xl text-center">
+                    <div className="rounded-2xl text-center">
                       <span
                         className="inline-block px-8 rounded-full text-white font-bold text-sm shadow-2xl"
                         style={{ backgroundColor: badgeColor }}
@@ -279,7 +279,7 @@ const AddFeaturedProducts = () => {
                 </div>
 
                 {/* Schedule */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                   <div>
                     <label className="flex items-center gap-2 font-semibold mb-3">
                       <Clock size={20} /> Start Time (Optional)
@@ -288,7 +288,7 @@ const AddFeaturedProducts = () => {
                       type="datetime-local"
                       value={startsAt}
                       onChange={(e) => setStartsAt(e.target.value)}
-                      className="w-full px-5 py-2 border-2 rounded-xl"
+                      className="w-full px-5 py-1 border-2 rounded-xl"
                     />
                   </div>
                   <div>
@@ -299,7 +299,7 @@ const AddFeaturedProducts = () => {
                       type="datetime-local"
                       value={endsAt}
                       onChange={(e) => setEndsAt(e.target.value)}
-                      className="w-full px-5 py-2 border-2 rounded-xl"
+                      className="w-full px-5 py-1 border-2 rounded-xl"
                     />
                   </div>
                 </div>
@@ -308,7 +308,7 @@ const AddFeaturedProducts = () => {
                 <div className="bg-main rounded-xl">
                   <button
                     onClick={handleSubmit}
-                    className="w-full bg-white text-transparent bg-clip-text bg-main font-bold text-xl p-1 rounded-xl hover:shadow-2xl transition text-sm"
+                    className="w-full bg-white text-transparent bg-clip-text bg-main font-bold p-1 rounded-xl hover:shadow-2xl transition text-sm"
                   >
                     Add to Featured
                   </button>
