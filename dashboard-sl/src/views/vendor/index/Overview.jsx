@@ -125,7 +125,7 @@ const Overview = () => {
                 <th className="py-3 px-4">Image</th>
                 <th className="py-3 px-4">Name</th>
                 <th className="py-3 px-4 text-center">Price</th>
-                <th className="py-3 px-4 text-center">Stock</th>
+                <th className="py-3 px-4 text-center">Item Sold</th>
                 {/* <th className="py-3 px-4 text-right">Actions</th> */}
               </tr>
             </thead>
@@ -162,9 +162,10 @@ const Overview = () => {
                         ৳{parseFloat(firstVariant.final_price || 0).toLocaleString()}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`text-xs font-medium ${prod.stock_quantity < 10 ? 'text-red-500' : 'text-gray-500'}`}>
-                          {prod.stock_quantity} in stock
+                        <span className={`text-sm font-bold ${prod.stock_quantity < 10 ? 'text-main' : 'text-main'}`}>
+                          {prod.sold_count}
                         </span>
+                        <span className="ml-1 text-xs capitalize">Item</span>
                       </td>
                       {/* <td className="py-3 px-4 text-right">
                         <Link

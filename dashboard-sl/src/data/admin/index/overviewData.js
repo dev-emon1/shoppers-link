@@ -95,7 +95,9 @@ export const statusCardsData = [
     isIncrease: false,
     time: "Last Week",
     roles: ["admin", "vendor"],
-    url: "/vendor/orders/order-list",
+    url: ["admin", "vendor"].includes("admin")
+      ? ""
+      : "/vendor/orders/order-list",
   },
   {
     id: 7,
@@ -106,7 +108,9 @@ export const statusCardsData = [
     isIncrease: false, // Usually false as this is a warning
     time: "Real-time",
     roles: ["admin", "vendor"],
-    url: "/vendor/inventory/inventory-create",
+    url: ["admin", "vendor"].includes("admin")
+      ? ""
+      : "/vendor/inventory/inventory-create",
   }
 ];
 
