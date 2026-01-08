@@ -73,6 +73,9 @@ const CustomerReport = lazy(() =>
 const AllInventory = lazy(() =>
   import("../../views/admin/inventory-management/AllInventory")
 );
+const InventoryReport = lazy(() =>
+  import("../../views/admin/report-management/InventoryReport")
+);
 const RevenueReport = lazy(() =>
   import("../../views/admin/report-management/RevenueReport")
 );
@@ -123,6 +126,7 @@ export const adminRoutes = [
   { path: "/admin/reports/product-performance", element: protectAdmin(ProductPerform) },
   { path: "/admin/reports/vendor-performance", element: protectAdmin(VendorPerform) },
   { path: "/admin/reports/customers", element: protectAdmin(CustomerReport) },
+  { path: "/admin/reports/inventory", element: protectAdmin(InventoryReport) },
   { path: "/admin/reports/revenue", element: protectAdmin(RevenueReport) },
   { path: "/admin/profile", element: protectAdmin(Profile) },
 ];

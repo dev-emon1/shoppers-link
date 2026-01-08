@@ -1,188 +1,255 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Download, User, ShoppingBag, Calendar, TrendingUp, Filter } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Search, Download, Users, Star, DollarSign, Calendar, ChevronLeft, ChevronRight, Mail, Phone } from 'lucide-react';
+import API from '../../../utils/api';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
-const CustomerPerformancePage = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [segmentFilter, setSegmentFilter] = useState('All');
-    const [sortConfig, setSortConfig] = useState({ key: 'ltv', direction: 'desc' });
+// CSV Export Logic
+const downloadCSV = (data, filename = 'customer-report.csv') => {
+    const headers = ['Name', 'Phone', 'Email', 'Total Orders', 'Lifetime Value', 'Avg Order Value', 'First Purchase', 'Last Purchase'];
+    const rows = data.map(item => [
+        item.user_name,
+        item.phone,
+        item.email,
+        item.total_orders,
+        `৳${parseFloat(item.lifetime_value).toFixed(2)}`,
+        `৳${parseFloat(item.avg_order_value).toFixed(2)}`,
+        item.first_purchase,
+        item.last_purchase
+    ]);
 
-    // Realistic Top + Regular Customers - As of November 19, 2025
-    const customers = [
-        { rank: 1, id: "#C9817", name: "Nusrat Jahan", phone: "01655-678901", city: "Dhaka", joinDate: "2023-08-12", totalOrders: 28, totalSpent: 485000, ltv: 485000, aov: 17321, lastPurchase: "2025-11-18", segment: "VIP", growth: "+68%" },
-        { rank: 2, id: "#C9300", name: "Sumaiya Islam", phone: "01712-345678", city: "Dhaka", joinDate: "2023-06-20", totalOrders: 42, totalSpent: 728000, ltv: 728000, aov: 17333, lastPurchase: "2025-11-17", segment: "VIP", growth: "+92%" },
-        { rank: 3, id: "#C9821", name: "Fatema Akter", phone: "01711-234567", city: "Dhaka", joinDate: "2024-01-15", totalOrders: 18, totalSpent: 312500, ltv: 312500, aov: 17361, lastPurchase: "2025-11-19", segment: "Loyal", growth: "+45%" },
-        { rank: 4, id: "#C9819", name: "Ayesha Siddika", phone: "01833-456789", city: "Sylhet", joinDate: "2024-03-22", totalOrders: 15, totalSpent: 268000, ltv: 268000, aov: 17867, lastPurchase: "2025-11-18", segment: "Loyal", growth: "+38%" },
-        { rank: 5, id: "#C9818", name: "Md. Salman Khan", phone: "01544-567890", city: "Dhaka", joinDate: "2024-05-10", totalOrders: 22, totalSpent: 398000, ltv: 398000, aov: 18091, lastPurchase: "2025-11-16", segment: "VIP", growth: "+78%" },
-        { rank: 6, id: "#C9820", name: "Rahim Karim", phone: "01922-345678", city: "Chattogram", joinDate: "2025-09-01", totalOrders: 3, totalSpent: 48500, ltv: 48500, aov: 16167, lastPurchase: "2025-11-19", segment: "New", growth: "N/A" },
-        { rank: 7, id: "#C9815", name: "Tanjila Rahman", phone: "01977-890123", city: "Khulna", joinDate: "2024-07-18", totalOrders: 8, totalSpent: 128000, ltv: 128000, aov: 16000, lastPurchase: "2025-10-22", segment: "Churn Risk", growth: "-12%" },
-        { rank: 8, id: "#C9305", name: "Arif Hossain", phone: "01766-789012", city: "Rajshahi", joinDate: "2023-11-30", totalOrders: 19, totalSpent: 298000, ltv: 298000, aov: 15684, lastPurchase: "2025-11-12", segment: "Loyal", growth: "+22%" },
-    ];
+    const csvContent = [headers, ...rows]
+        .map(row => row.map(cell => `"${cell}"`).join(','))
+        .join('\n');
 
-    // Filtering & Sorting
-    const filtered = useMemo(() => {
-        return customers.filter(c => {
-            const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                c.phone.includes(searchTerm) ||
-                c.id.includes(searchTerm);
-            const matchesSegment = segmentFilter === 'All' || c.segment === segmentFilter;
-            return matchesSearch && matchesSegment;
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+};
+
+// PDF Export Logic
+const downloadPDF = (customers, summary) => {
+    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation
+    let yPos = 20;
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Customer Performance Report', 14, yPos);
+    yPos += 10;
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')}`, 14, yPos);
+    doc.text(`Range: ${summary?.date_range || 'All time'}`, 14, yPos + 5);
+    yPos += 15;
+
+    // Summary Section
+    if (summary) {
+        autoTable(doc, {
+            head: [['Metric', 'Value']],
+            body: [
+                ['Total Customers', summary.total_customers],
+                ['Top Customer', summary.top_customer],
+                ['Highest LTV', summary.highest_ltv],
+                ['Average LTV', summary.average_ltv],
+                ['Total Lifetime Value', summary.total_lifetime_value],
+            ],
+            startY: yPos,
+            theme: 'grid',
+            headStyles: { fillColor: [59, 130, 246] },
+            styles: { fontSize: 10 },
+            tableWidth: 100,
+            margin: { left: 14 }
         });
-    }, [searchTerm, segmentFilter]);
+        yPos = doc.lastAutoTable.finalY + 15;
+    }
 
-    const sorted = useMemo(() => {
-        let sortable = [...filtered];
-        if (sortConfig.key) {
-            sortable.sort((a, b) => {
-                const aVal = a[sortConfig.key];
-                const bVal = b[sortConfig.key];
-                if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-                return 0;
-            });
+    // Detailed Data Table
+    const tableData = customers.map(c => [
+        c.user_name,
+        c.phone,
+        c.email,
+        c.total_orders.toString(),
+        `৳${parseFloat(c.lifetime_value).toLocaleString()}`,
+        `৳${parseFloat(c.avg_order_value).toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+        new Date(c.first_purchase).toLocaleDateString('en-GB'),
+        new Date(c.last_purchase).toLocaleDateString('en-GB')
+    ]);
+
+    autoTable(doc, {
+        head: [['Customer Name', 'Phone', 'Email', 'Orders', 'LTV', 'Avg Order', 'First Buy', 'Last Buy']],
+        body: tableData,
+        startY: yPos,
+        theme: 'striped',
+        headStyles: { fillColor: [79, 70, 229] },
+        styles: { fontSize: 8 },
+        margin: { left: 14, right: 14 }
+    });
+
+    doc.save(`customer-report-${new Date().toISOString().split('T')[0]}.pdf`);
+};
+
+const CustomerReportPage = () => {
+    const [customers, setCustomers] = useState([]);
+    const [summary, setSummary] = useState(null);
+    const [meta, setMeta] = useState({ current_page: 1, total: 0, per_page: 20 });
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const fetchData = useCallback(async (page = 1) => {
+        try {
+            setLoading(true);
+            const res = await API.get("/reports/customer", { params: { page } });
+            const { data = [], summary = null, meta: responseMeta = {} } = res.data || {};
+            setCustomers(data);
+            setSummary(summary);
+            setMeta(responseMeta);
+        } catch (error) {
+            console.error("Failed to fetch customer report:", error);
+        } finally {
+            setLoading(false);
         }
-        return sortable;
-    }, [filtered, sortConfig]);
+    }, []);
 
-    const requestSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
-        setSortConfig({ key, direction });
-    };
+    useEffect(() => { fetchData(currentPage); }, [currentPage, fetchData]);
 
-    const formatCurrency = (amount) => `৳ ${(amount / 1000).toFixed(0)}K`;
+    const filteredCustomers = useMemo(() => {
+        const term = searchTerm.toLowerCase();
+        return customers.filter(c =>
+            c.user_name.toLowerCase().includes(term) ||
+            c.phone.includes(term) ||
+            c.email.toLowerCase().includes(term)
+        );
+    }, [customers, searchTerm]);
+
+    const formatCurrency = (val) => `৳ ${parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+
+    if (loading) return <div className="p-20 text-center text-gray-500">Loading Customer Insights...</div>;
 
     return (
         <div className="px-6 bg-gray-50 min-h-screen">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Customer Performance Report</h1>
-                    <p className="text-gray-600">Lifetime Value, Segments & Behavior • As of November 19, 2025</p>
-                </div>
-                <div className='flex gap-3'>
-                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-sm">
-                        <Download size={16} />
-                        Export CSV
-                    </button>
-                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-sm">
-                        <Download size={16} />
-                        Export PDF
-                    </button>
-                </div>
-            </div>
-
-            {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-2">
-                <div className="bg-white p-5 rounded-lg shadow border-l-4 border-main">
-                    <p className="text-sm text-gray-600">Total Customers</p>
-                    <p className="text-2xl font-bold text-main">12,847</p>
-                </div>
-                <div className="bg-white p-5 rounded-lg shadow border-l-4 border-main">
-                    <p className="text-sm text-gray-600">Total Customer LTV</p>
-                    <p className="text-2xl font-bold text-main">৳ 62.4 Cr</p>
-                </div>
-                <div className="bg-white p-5 rounded-lg shadow border-l-4 border-main">
-                    <p className="text-sm text-gray-600">Avg. Order Value</p>
-                    <p className="text-2xl font-bold text-main">৳ 17,280</p>
-                </div>
-                <div className="bg-white p-5 rounded-lg shadow border-l-4 border-orange-500">
-                    <p className="text-sm text-gray-600">Repeat Rate</p>
-                    <p className="text-2xl font-bold text-orange-600">62%</p>
-                </div>
-            </div>
-
-            {/* Filters */}
-            <div className="bg-white rounded-lg shadow p-5 mb-6 flex flex-col md:flex-row gap-4 text-sm">
-                <div className="flex-1">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search by name, phone or customer ID..."
-                            className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:border-main"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-800">Customer Report</h1>
+                        <p className="text-gray-500 text-sm">Analyze customer lifetime value and purchase behavior</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={() => downloadCSV(filteredCustomers)} className="flex items-center gap-2 bg-white border px-4 py-1.5 rounded-lg hover:bg-gray-50 transition text-xs font-medium">
+                            <Download size={16} /> CSV
+                        </button>
+                        <button onClick={() => downloadPDF(filteredCustomers, summary)} className="flex items-center gap-2 bg-main text-white px-4 py-1.5 rounded-lg hover:bg-mainHover transition text-xs font-medium">
+                            <Download size={16} /> PDF
+                        </button>
                     </div>
                 </div>
-                <select
-                    className="px-4 py-3 border rounded-lg"
-                    value={segmentFilter}
-                    onChange={(e) => setSegmentFilter(e.target.value)}
-                >
-                    <option value="All">All Segments</option>
-                    <option>VIP</option>
-                    <option>Loyal</option>
-                    <option>New</option>
-                    <option>Churn Risk</option>
-                </select>
-            </div>
 
-            {/* Customer Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                            <tr>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('rank')}>Rank</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('name')}>Customer</th>
-                                <th className="py-4 px-6 text-left">City</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('joinDate')}>Joined</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('totalOrders')}>Orders</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('ltv')}>Lifetime Value</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('aov')}>AOV</th>
-                                <th className="py-4 px-6 text-left">Last Purchase</th>
-                                <th className="py-4 px-6 text-left">Segment</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('growth')}>Growth YoY</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {sorted.map((c) => (
-                                <tr key={c.id} className="hover:bg-gray-50 transition">
-                                    <td className="py-2 px-2">
-                                        <span className={`text-2xl font-bold ${c.rank <= 3 ? 'text-main' : 'text-gray-400'}`}>
-                                            #{c.rank}
-                                        </span>
-                                    </td>
-                                    <td className="py-2 px-2">
-                                        <div className="font-medium">{c.name}</div>
-                                        <div className="text-xs text-gray-500">{c.id} • {c.phone}</div>
-                                    </td>
-                                    <td className="py-2 px-2 text-gray-700">{c.city}</td>
-                                    <td className="py-2 px-2 text-gray-600">{c.joinDate}</td>
-                                    <td className="py-2 px-2 text-center font-bold text-main">{c.totalOrders}</td>
-                                    <td className="py-2 px-2 font-bold text-main">{formatCurrency(c.ltv)}</td>
-                                    <td className="py-2 px-2 font-semibold text-secondary">৳ {c.aov.toLocaleString()}</td>
-                                    <td className="py-2 px-2 text-gray-700">{c.lastPurchase}</td>
-                                    <td className="py-2 px-2">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-medium
-                      ${c.segment === 'VIP' ? 'bg-purple-100 text-purple-800' :
-                                                c.segment === 'Loyal' ? 'bg-blue-100 text-blue-800' :
-                                                    c.segment === 'New' ? 'bg-green-100 text-green-800' :
-                                                        'bg-red-100 text-red-800'}`}>
-                                            {c.segment}
-                                        </span>
-                                    </td>
-                                    <td className="py-2 px-2">
-                                        <span className={`font-medium ${c.growth.startsWith('+') ? 'text-main' : 'text-main'}`}>
-                                            {c.growth}
-                                        </span>
-                                    </td>
+                {/* Summary Grid */}
+                {summary && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+                        <SummaryCard icon={<Users className="text-blue-600" />} label="Total Customers" value={summary.total_customers} />
+                        <SummaryCard icon={<Star className="text-yellow-600" />} label="Top Customer" value={summary.top_customer} subValue={`LTV: ${summary.highest_ltv}`} />
+                        <SummaryCard icon={<DollarSign className="text-green-600" />} label="Total Revenue" value={summary.total_lifetime_value} />
+                        <SummaryCard icon={<Calendar className="text-purple-600" />} label="Avg. Order Value" value={summary.average_ltv} />
+                    </div>
+                )}
+
+                {/* Search & Table */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="p-4 border-b border-gray-50">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <input
+                                type="text"
+                                placeholder="Search by name, phone or email..."
+                                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-main outline-none text-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="bg-gray-50 text-gray-600 font-medium">
+                                <tr>
+                                    <th className="px-6 py-4 text-left">Customer Details</th>
+                                    <th className="px-6 py-4 text-center">Orders</th>
+                                    <th className="px-6 py-4 text-right">LTV</th>
+                                    <th className="px-6 py-4 text-right">Avg Order</th>
+                                    <th className="px-6 py-4 text-left">First Purchase</th>
+                                    <th className="px-6 py-4 text-left">Last Purchase</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {filteredCustomers.length > 0 ? (
+                                    filteredCustomers.map((customer) => (
+                                        <tr key={customer.customer_id} className="hover:bg-gray-50 transition">
+                                            <td className="px-6 py-4">
+                                                <div className="font-semibold text-gray-900">{customer.user_name}</div>
+                                                <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                                    <Mail size={10} /> {customer.email}
+                                                </div>
+                                                <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                                    <Phone size={10} /> {customer.phone}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-center font-medium">{customer.total_orders}</td>
+                                            <td className="px-6 py-4 text-right font-bold text-gray-900">{formatCurrency(customer.lifetime_value)}</td>
+                                            <td className="px-6 py-4 text-right text-gray-600">{formatCurrency(customer.avg_order_value)}</td>
+                                            <td className="px-6 py-4 text-xs text-gray-500">{customer.first_purchase}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                                                    {customer.last_purchase}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="6" className="py-10 text-center text-gray-400">No customers found</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
-                <div className="px-6 py-4 bg-gray-50 border-t text-sm text-gray-600">
-                    Total Active Customers: 12,847 •
-                    VIP Customers (Top 5%): 642 •
-                    Churn Risk Customers: 1,128 •
-                    Avg Customer Lifetime Value: ৳ 48,560
+                    {/* Pagination */}
+                    <div className="p-4 bg-gray-50 border-t flex justify-between items-center text-xs text-gray-500">
+                        <span>Showing {filteredCustomers.length} of {meta.total} results</span>
+                        <div className="flex gap-2">
+                            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 border rounded bg-white disabled:opacity-50 hover:bg-gray-50">
+                                <ChevronLeft size={14} />
+                            </button>
+                            <span className="flex items-center px-2 font-medium">Page {currentPage}</span>
+                            <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage >= Math.ceil(meta.total / meta.per_page)} className="p-2 border rounded bg-white disabled:opacity-50 hover:bg-gray-50">
+                                <ChevronRight size={14} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-export default CustomerPerformancePage;
+const SummaryCard = ({ icon, label, value, subValue }) => (
+    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+        <div className="p-3 bg-gray-50 rounded-lg">{icon}</div>
+        <div>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">{label}</p>
+            <p className="text-sm font-bold text-gray-900">{value}</p>
+            {subValue && <p className="text-xs text-indigo-500 font-medium mt-0.5">{subValue}</p>}
+        </div>
+    </div>
+);
+
+export default CustomerReportPage;

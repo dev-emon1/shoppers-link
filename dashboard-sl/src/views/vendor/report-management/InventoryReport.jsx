@@ -1,191 +1,448 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Download, AlertTriangle, Package, TrendingUp, Filter } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { Search, Download, ChevronDown, ChevronUp, Package, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import API from '../../../utils/api';
+// CORRECT IMPORTS
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
-const InventoryReportPage = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [stockFilter, setStockFilter] = useState('All');
-    const [sortConfig, setSortConfig] = useState({ key: 'stock', direction: 'asc' });
+// Helper to download CSV
+const downloadCSV = (data, filename = 'inventory-report.csv') => {
+    // Flatten products with variants for better CSV
+    const rows = [];
+    rows.push(['Product Name', 'Product SKU', 'Total Stock', 'Sold Count', 'Variant SKU', 'Variant Attributes', 'Variant Stock', 'Variant Price']);
 
-    // Realistic Fashion Inventory - November 19, 2025
-    const inventoryData = [
-        { id: "P28471", name: "Cotton Panjabi for Men - White", vendor: "Aarong", category: "Men's Wear", sku: "AAR-PAN-101", stock: 87, soldLast30: 312, price: 2850, totalValue: 247950, velocity: 10.4, status: "Healthy" },
-        { id: "P28473", name: "Katan Benarasi Saree - Red/Gold", vendor: "Kay Kraft", category: "Women's Wear", sku: "KK-BEN-005", stock: 18, soldLast30: 89, price: 18500, totalValue: 333000, velocity: 4.9, status: "Low Stock" },
-        { id: "P28475", name: "Hand-Embroidered Salwar Kameez - Pink", vendor: "Anjan's", category: "Women's Wear", sku: "ANJ-SK-212", stock: 35, soldLast30: 156, price: 6750, totalValue: 236250, velocity: 5.2, status: "Healthy" },
-        { id: "P28472", name: "Block Printed Tangail Sharee", vendor: "Tangail Saree Kuthir", category: "Women's Wear", sku: "TSK-TAN-078", stock: 42, soldLast30: 198, price: 4200, totalValue: 176400, velocity: 6.6, status: "Healthy" },
-        { id: "P28474", name: "Leather Nagra Sandals (Size 40-44)", vendor: "Bata Heritage", category: "Footwear", sku: "BATA-NAG-09", stock: 8, soldLast30: 420, price: 1990, totalValue: 15920, velocity: 14.0, status: "Critical" },
-        { id: "P28476", name: "Kids Frock - Floral Print (Age 5-10)", vendor: "Rang Bangladesh", category: "Kids Wear", sku: "RNG-KID-045", stock: 120, soldLast30: 289, price: 1450, totalValue: 174000, velocity: 9.6, status: "Healthy" },
-        { id: "P28477", name: "Nokshi Katha Cushion Cover Set", vendor: "Sylhet Nakshi House", category: "Accessories", sku: "SNK-NOK-003", stock: 3, soldLast30: 67, price: 890, totalValue: 2670, velocity: 2.2, status: "Out of Stock Soon" },
-        { id: "P28478", name: "Winter Shawl - Kashmiri Embroidery", vendor: "Deshal by Bibiana", category: "Winter Wear", sku: "DB-WIN-112", stock: 56, soldLast30: 378, price: 3200, totalValue: 179200, velocity: 12.6, status: "Healthy" },
-    ];
+    data.forEach(product => {
+        if (!product.variants || product.variants.length === 0) {
+            rows.push([
+                product.name,
+                product.sku,
+                product.stock_quantity,
+                product.sold_count,
+                '',
+                '',
+                '',
+                ''
+            ]);
+        } else {
+            product.variants.forEach(variant => {
+                const attrs = JSON.parse(variant.attributes || '{}');
+                const attrString = Object.entries(attrs)
+                    .map(([k, v]) => `${k}: ${v}`)
+                    .join(' | ');
 
-    // Filtering & Sorting
-    const filteredInventory = useMemo(() => {
-        return inventoryData.filter(item => {
-            const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.sku.includes(searchTerm) ||
-                item.vendor.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesStock = stockFilter === 'All' ||
-                (stockFilter === 'Low' && (item.status === 'Low Stock' || item.status === 'Critical' || item.status === 'Out of Stock Soon')) ||
-                (stockFilter === 'Healthy' && item.status === 'Healthy');
-            return matchesSearch && matchesStock;
-        });
-    }, [searchTerm, stockFilter]);
-
-    const sortedInventory = useMemo(() => {
-        let sortable = [...filteredInventory];
-        if (sortConfig.key) {
-            sortable.sort((a, b) => {
-                let aVal = a[sortConfig.key];
-                let bVal = b[sortConfig.key];
-                if (typeof aVal === 'string') {
-                    aVal = aVal.toLowerCase();
-                    bVal = bVal.toLowerCase();
-                }
-                if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-                return 0;
+                rows.push([
+                    product.name,
+                    product.sku,
+                    product.stock_quantity,
+                    product.sold_count,
+                    variant.sku,
+                    attrString,
+                    variant.stock,
+                    `৳${parseFloat(variant.final_price).toFixed(2)}`
+                ]);
             });
         }
-        return sortable;
-    }, [filteredInventory, sortConfig]);
+    });
 
-    const requestSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
-        setSortConfig({ key, direction });
-    };
+    const csvContent = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
-    const totalStockValue = inventoryData.reduce((sum, item) => sum + item.totalValue, 0);
-    const lowStockItems = inventoryData.filter(i => i.status !== 'Healthy').length;
+// Helper to trigger PDF print
+const downloadPDF = (products, summary) => {
+    const doc = new jsPDF('l', 'mm', 'a4');
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Critical': return 'bg-red-100 text-red-800';
-            case 'Low Stock': return 'bg-orange-100 text-orange-800';
-            case 'Out of Stock Soon': return 'bg-yellow-100 text-yellow-800';
-            default: return 'bg-green-100 text-green-800';
+    let yPosition = 20;
+
+    // 1. Header
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Inventory Report - Variant Wise', 10, yPosition);
+    yPosition += 15;
+
+    // 2. Summary Table
+    if (summary) {
+        // Use the imported autoTable function directly
+        autoTable(doc, {
+            head: [['Metric', 'Value']],
+            body: [
+                ['Total Products', summary.total_products || 0],
+                ['In Stock', summary.in_stock || 0],
+                ['Low Stock', summary.low_stock_items || 0],
+                ['Out of Stock', summary.out_of_stock || 0],
+            ],
+            startY: yPosition,
+            theme: 'grid',
+            headStyles: { fillColor: [59, 130, 246] },
+            margin: { left: 10 },
+            tableWidth: 80
+        });
+        yPosition = doc.lastAutoTable.finalY + 15;
+    }
+
+    // 3. Detailed Table Data Preparation
+    const tableData = [];
+    products.forEach(product => {
+        if (!product.variants || product.variants.length === 0) {
+            tableData.push([product.name, product.sku, product.stock_quantity, product.sold_count, '-', '-', '-', '-']);
+        } else {
+            product.variants.forEach(variant => {
+                let attrString = "";
+                try {
+                    const attrs = typeof variant.attributes === 'string' ? JSON.parse(variant.attributes) : variant.attributes;
+                    attrString = Object.entries(attrs || {}).map(([k, v]) => `${k}: ${v}`).join(' | ');
+                } catch (e) { attrString = "N/A"; }
+
+                tableData.push([
+                    product.name,
+                    product.sku,
+                    product.stock_quantity,
+                    product.sold_count,
+                    variant.sku,
+                    attrString,
+                    variant.stock,
+                    `৳ ${parseFloat(variant.final_price).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                ]);
+            });
         }
+    });
+
+    // 4. Main Inventory Table
+    autoTable(doc, {
+        head: [['Product Name', 'Product SKU', 'Total Stock', 'Sold Count', 'Variant SKU', 'Variant Attributes', 'Variant Stock', 'Variant Price']],
+        body: tableData,
+        startY: yPosition,
+        theme: 'striped',
+        headStyles: { fillColor: [41, 98, 255] },
+        styles: { fontSize: 8 },
+        columnStyles: {
+            0: { cellWidth: 45 },
+            5: { cellWidth: 50 },
+        },
+        margin: { left: 10, right: 10 },
+    });
+
+    doc.save(`inventory-report-${new Date().toISOString().split('T')[0]}.pdf`);
+};
+const InventoryReportPage = () => {
+    const [products, setProducts] = useState([]);
+    const [summary, setSummary] = useState(null);
+    const [meta, setMeta] = useState({ current_page: 1, total: 0, per_page: 50 });
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [expandedRows, setExpandedRows] = useState(new Set());
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const printRef = useRef(); // For better PDF control if needed later
+
+    const fetchData = useCallback(async (page = 1) => {
+        try {
+            setLoading(true);
+            const res = await API.get("/reports/inventory", {
+                params: { page }
+            });
+
+            const { data = [], summary = null, meta: responseMeta = {} } = res.data || {};
+
+            setProducts(Array.isArray(data) ? data : []);
+            setSummary(summary);
+            setMeta({
+                current_page: responseMeta.current_page || 1,
+                total: responseMeta.total || 0,
+                per_page: responseMeta.per_page || 50,
+            });
+            setCurrentPage(responseMeta.current_page || 1);
+        } catch (error) {
+            console.error("Failed to fetch inventory data:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchData(currentPage);
+    }, [currentPage, fetchData]);
+
+    const filteredProducts = useMemo(() => {
+        if (!searchTerm) return products;
+        const term = searchTerm.toLowerCase();
+        return products.filter(product =>
+            product.name?.toLowerCase().includes(term) ||
+            product.sku?.toLowerCase().includes(term)
+        );
+    }, [products, searchTerm]);
+
+    const toggleRow = (productId) => {
+        setExpandedRows(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(productId)) newSet.delete(productId);
+            else newSet.add(productId);
+            return newSet;
+        });
     };
+
+    const getStockStatus = (stock) => {
+        if (stock === 0) return { label: 'Out of Stock', color: 'bg-red-100 text-red-800' };
+        if (stock < 10) return { label: 'Low Stock', color: 'bg-yellow-100 text-yellow-800' };
+        return { label: 'In Stock', color: 'bg-green-100 text-green-800' };
+    };
+
+    const formatCurrency = (value) => {
+        const num = parseFloat(value);
+        return `৳ ${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+
+    const totalPages = Math.ceil(meta.total / meta.per_page);
+
+    const handleExportCSV = () => {
+        const filename = `inventory-report-variant-wise-${new Date().toISOString().split('T')[0]}.csv`;
+        downloadCSV(filteredProducts, filename);
+    };
+
+    const handleExportPDF = () => {
+        downloadPDF(filteredProducts, summary);
+    };
+
+    if (loading) {
+        return (
+            <div className="px-6 py-20 text-center">
+                <p className="text-gray-600 text-lg">Loading inventory...</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="px-6 bg-gray-50 min-h-screen">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Inventory Report</h1>
-                    <p className="text-gray-600">Live Stock Status • As of November 19, 2025, 6:00 PM</p>
-                </div>
-                <div className='flex gap-3'>
-                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-sm">
-                        <Download size={16} />
-                        Export CSV
-                    </button>
-                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-sm">
-                        <Download size={16} />
-                        Export PDF
-                    </button>
-                </div>
-            </div>
+        <>
+            {/* Print-friendly styles */}
+            <style>{`
+    @media print {
+        body * { visibility: hidden; }
+        #print-section, #print-section * { visibility: visible; }
+        #print-section { position: absolute; left: 0; top: 0; width: 100%; }
+        .no-print { display: none !important; }
+        .bg-gray-50 { background: white !important; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc !important; padding: 8px !important; }
+        .shadow-sm, .rounded-xl { box-shadow: none !important; border: 1px solid #ddd; }
+    }
+`}</style>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-2">
-                <div className="bg-white p-5 rounded-lg shadow border-l-4 border-main">
-                    <p className="text-sm text-gray-600">Total Stock Value</p>
-                    <p className="text-2xl font-bold text-main">৳ {(totalStockValue / 100000).toFixed(1)} Lac</p>
-                </div>
-                <div className="bg-white p-5 rounded-lg shadow border-l-4 border-main">
-                    <p className="text-sm text-gray-600">Total SKUs</p>
-                    <p className="text-2xl font-bold text-main">{inventoryData.length}</p>
-                </div>
-                <div className="bg-white p-5 rounded-lg shadow border-l-4 border-main">
-                    <div className="flex items-center justify-between">
+            <div className="px-6 bg-gray-50 min-h-screen" id="print-section">
+                <div className="max-w-7xl mx-auto">
+
+                    {/* Header */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-2 no-print">
                         <div>
-                            <p className="text-sm text-gray-600">Low/Critical Stock</p>
-                            <p className="text-2xl font-bold text-red">{lowStockItems}</p>
+                            <h1 className="text-xl font-bold text-gray-800">Inventory Report</h1>
+                            <p className="text-gray-600 mt-1 text-sm">Current stock levels and variant details</p>
                         </div>
-                        <AlertTriangle className="text-red" size={32} />
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleExportCSV}
+                                className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium"
+                            >
+                                <Download size={16} />
+                                Export CSV
+                            </button>
+                            <button
+                                onClick={handleExportPDF}
+                                className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium"
+                            >
+                                <Download size={16} />
+                                Export PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Summary Cards */}
+                    {summary && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-2">
+                            <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <Package size={32} className="text-blue-600" />
+                                    <div>
+                                        <p className="text-sm text-gray-600">Total Products</p>
+                                        <p className="text-xl font-bold text-gray-900 mt-1">
+                                            {summary.total_products || 0}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <CheckCircle size={32} className="text-green-600" />
+                                    <div>
+                                        <p className="text-sm text-gray-600">In Stock</p>
+                                        <p className="text-xl font-bold text-green-600 mt-1">
+                                            {summary.in_stock || 0}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <AlertTriangle size={32} className="text-yellow-600" />
+                                    <div>
+                                        <p className="text-sm text-gray-600">Low Stock</p>
+                                        <p className="text-xl font-bold text-yellow-700 mt-1">
+                                            {summary.low_stock_items || 0}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <Package size={32} className="text-red-600" />
+                                    <div>
+                                        <p className="text-sm text-gray-600">Out of Stock</p>
+                                        <p className="text-xl font-bold text-red-600 mt-1">
+                                            {summary.out_of_stock || 0}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Search */}
+                    <div className="bg-white rounded-xl shadow-sm p-2 mb-2 no-print">
+                        <div className="relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                            <input
+                                type="text"
+                                placeholder="Search by product name or SKU..."
+                                className="w-full pl-12 pr-5 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main transition"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Table */}
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead className="bg-gray-50 text-xs font-semibold uppercase text-gray-700 border-b border-gray-200">
+                                    <tr>
+                                        <th className="py-4 px-6 text-left">Product</th>
+                                        <th className="py-4 px-6 text-left">SKU</th>
+                                        <th className="py-4 px-6 text-center">Total Stock</th>
+                                        <th className="py-4 px-6 text-center">Sold</th>
+                                        <th className="py-4 px-6 text-center">Status</th>
+                                        <th className="py-4 px-6 text-center">Variants</th>
+                                        <th className="py-4 px-6 text-center no-print">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {filteredProducts.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="7" className="py-16 text-center text-gray-500">
+                                                {searchTerm ? 'No matching products found' : 'No products in inventory'}
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        filteredProducts.map((product) => {
+                                            const status = getStockStatus(product.stock_quantity);
+                                            const isExpanded = expandedRows.has(product.id);
+
+                                            return (
+                                                <React.Fragment key={product.id}>
+                                                    <tr className="hover:bg-gray-50 transition">
+                                                        <td className="py-5 px-6">
+                                                            <p className="font-medium text-gray-900">{product.name}</p>
+                                                        </td>
+                                                        <td className="py-5 px-6 text-gray-600 font-mono text-xs">{product.sku}</td>
+                                                        <td className="py-5 px-6 text-center font-bold text-lg">{product.stock_quantity}</td>
+                                                        <td className="py-5 px-6 text-center text-gray-700">{product.sold_count}</td>
+                                                        <td className="py-5 px-6 text-center">
+                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${status.color}`}>
+                                                                {status.label}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-5 px-6 text-center text-gray-700">{product.variants?.length || 0}</td>
+                                                        <td className="py-5 px-6 text-center no-print">
+                                                            <button
+                                                                onClick={() => toggleRow(product.id)}
+                                                                className="text-main hover:text-mainHover transition"
+                                                            >
+                                                                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+
+                                                    {isExpanded && product.variants?.length > 0 && (
+                                                        <tr>
+                                                            <td colSpan="7" className="bg-gray-50">
+                                                                <div className="p-6">
+                                                                    <h4 className="font-semibold text-gray-800 mb-4">Variants</h4>
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                                        {product.variants.map((variant) => {
+                                                                            const variantAttrs = JSON.parse(variant.attributes || '{}');
+                                                                            const attrText = Object.entries(variantAttrs)
+                                                                                .map(([key, value]) => `${key}: ${value}`)
+                                                                                .join(' | ');
+
+                                                                            const variantStatus = getStockStatus(variant.stock);
+
+                                                                            return (
+                                                                                <div key={variant.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                                                                                    <div className="flex justify-between items-start mb-2">
+                                                                                        <p className="font-mono text-xs text-gray-600">{variant.sku}</p>
+                                                                                        <span className={`px-2 py-1 rounded text-xs font-medium ${variantStatus.color}`}>
+                                                                                            {variant.stock} in stock
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <p className="text-sm text-gray-700 mb-2">{attrText}</p>
+                                                                                    <p className="font-semibold text-main">
+                                                                                        {formatCurrency(variant.final_price)}
+                                                                                    </p>
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </React.Fragment>
+                                            );
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination */}
+                        <div className="px-6 py-4 bg-gray-50 border-t flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-600 no-print">
+                            <div>
+                                Showing {(currentPage - 1) * meta.per_page + 1} to{' '}
+                                {Math.min(currentPage * meta.per_page, meta.total)} of {meta.total} products
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50">
+                                    <ChevronLeft size={18} />
+                                </button>
+                                <span className="px-4 py-2 bg-white rounded-lg border font-medium">
+                                    Page {currentPage} of {totalPages || 1}
+                                </span>
+                                <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50">
+                                    <ChevronRight size={18} />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow border-l-4 border-main">
-                    <p className="text-sm text-gray-600">Avg. Sales Velocity</p>
-                    <p className="text-2xl font-bold text-main">8.1 units/day</p>
-                </div>
             </div>
-
-            {/* Filters */}
-            <div className="bg-white rounded-lg shadow p-5 mb-6 flex flex-col md:flex-row gap-4 text-sm">
-                <div className="flex-1">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search by product name, SKU or vendor..."
-                            className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:border-main"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <select
-                    className="px-4 py-3 border rounded-lg"
-                    value={stockFilter}
-                    onChange={(e) => setStockFilter(e.target.value)}
-                >
-                    <option value="All">All Stock Levels</option>
-                    <option value="Healthy">Healthy Stock</option>
-                    <option value="Low">Low / Critical</option>
-                </select>
-            </div>
-
-            {/* Inventory Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                            <tr>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('id')}>ID</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('name')}>Product Name</th>
-                                <th className="py-4 px-6 text-left">Vendor</th>
-                                <th className="py-4 px-6 text-left">Category</th>
-                                <th className="py-4 px-6 text-left">SKU</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('stock')}>Current Stock</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('soldLast30')}>Sold (30d)</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('velocity')}>Velocity/day</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('totalValue')}>Stock Value</th>
-                                <th className="py-4 px-6 text-left">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {sortedInventory.map((item) => (
-                                <tr key={item.id} className={`hover:bg-gray-50 transition ${item.status !== 'Healthy' ? 'bg-red-50' : ''}`}>
-                                    <td className="py-2 px-2 font-bold text-main">#{item.id}</td>
-                                    <td className="py-2 px-2 font-medium">{item.name}</td>
-                                    <td className="py-2 px-2 text-gray-700">{item.vendor}</td>
-                                    <td className="py-2 px-2 text-gray-600">{item.category}</td>
-                                    <td className="py-2 px-2 font-mono text-xs">{item.sku}</td>
-                                    <td className="py-2 px-2 text-center font-bold text-lg">{item.stock}</td>
-                                    <td className="py-2 px-2 text-center font-semibold text-main">{item.soldLast30}</td>
-                                    <td className="py-2 px-2 text-center font-medium">{item.velocity}</td>
-                                    <td className="py-2 px-2 font-bold text-main">৳ {item.totalValue.toLocaleString()}</td>
-                                    <td className="py-2 px-2">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(item.status)}`}>
-                                            {item.status === 'Critical' && <AlertTriangle size={14} />}
-                                            {item.status}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="px-6 py-4 bg-gray-50 border-t text-sm text-gray-600">
-                    Total Items in Stock: {inventoryData.reduce((sum, i) => sum + i.stock, 0)} units •
-                    Total Inventory Value: ৳ {(totalStockValue / 100000).toFixed(1)} Lac •
-                    {lowStockItems > 0 && <span className="text-main font-medium"> ⚠ {lowStockItems} items need urgent restock!</span>}
-                </div>
-            </div>
-        </div>
+        </>
     );
 };
 

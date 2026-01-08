@@ -64,7 +64,7 @@ export const allNavigation = {
       role: "vendor",
       children: [
         { name: "Payment Gateways", path: "/vendor/payments/gateways" },
-        { name: "Invoices", path: "/vendor/payments/invoices" },
+        // { name: "Invoices", path: "/vendor/payments/invoices" },
         // {
         //   name: "Transaction",
         //   path: "/vendor/payments/transactions",
@@ -101,7 +101,7 @@ export const allNavigation = {
       role: "vendor",
       children: [
         { name: "Shipping Partners", path: "/vendor/shipping/methods" },
-        { name: "Shipping Zones", path: "/vendor/shipping/zones" },
+        // { name: "Shipping Zones", path: "/vendor/shipping/zones" },
         // { name: "Carriers Integration", path: "/vendor/shipping/carriers" },
         // { name: "Tracking Updates", path: "/vendor/shipping/tracking" },
         // { name: "Shipping Rates", path: "/vendor/shipping/rates" },
@@ -116,7 +116,7 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Overview", path: "/admin/dashboard/overview" },
-        { name: "Sales Analytics", path: "/admin/dashboard/sales-analytics" },
+        // { name: "Sales Analytics", path: "/admin/dashboard/sales-analytics" },
       ],
     },
     {
@@ -143,10 +143,10 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Order List", path: "/admin/orders/order-list" },
-        { name: "Order Tracking", path: "/admin/orders/order-tracking" },
-        { name: "Order History", path: "/admin/orders/order-history" },
-        { name: "Refund Requests", path: "/admin/orders/refund-requests" },
-        { name: "Return Management", path: "/admin/orders/return-management" },
+        // { name: "Order Tracking", path: "/admin/orders/order-tracking" },
+        // { name: "Order History", path: "/admin/orders/order-history" },
+        // { name: "Refund Requests", path: "/admin/orders/refund-requests" },
+        // { name: "Return Management", path: "/admin/orders/return-management" },
       ],
     },
     {
@@ -195,7 +195,7 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Payment Gateways", path: "/admin/payments/gateways" },
-        { name: "Invoices", path: "/admin/payments/invoices" },
+        // { name: "Invoices", path: "/admin/payments/invoices" },
         // {
         //   name: "Transaction",
         //   path: "/admin/payments/transactions",
@@ -236,7 +236,7 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Shipping Partners", path: "/admin/shipping/methods" },
-        { name: "Shipping Zones", path: "/admin/shipping/zones" },
+        // { name: "Shipping Zones", path: "/admin/shipping/zones" },
         // { name: "Carriers Integration", path: "/admin/shipping/carriers" },
         // { name: "Tracking Updates", path: "/admin/shipping/tracking" },
         // { name: "Shipping Rates", path: "/admin/shipping/rates" },

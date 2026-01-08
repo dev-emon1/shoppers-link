@@ -1,50 +1,102 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Download, Eye, Calendar, TrendingUp, Filter } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Search, Download, Eye, TrendingUp, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import API from '../../../utils/api';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-const AllSalesReportsTablePage = () => {
+const AllSalesTable = () => {
+    const [orders, setOrders] = useState([]);
+    const [summary, setSummary] = useState(null);
+    const [meta, setMeta] = useState({ current_page: 1, total: 0, per_page: 20 });
+    const [loading, setLoading] = useState(true);
+
+    // Filters
     const [searchTerm, setSearchTerm] = useState('');
-    const [typeFilter, setTypeFilter] = useState('All');
-    const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'desc' });
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [productId, setProductId] = useState('');
+    const [vendorId, setVendorId] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const reports = [
-        { id: 1, title: "November 2025 Sales Report", period: "Nov 1 – 19, 2025", generated: "2025-11-19", sales: 184200000, orders: 7824, growth: 32.4, type: "Monthly", status: "Live" },
-        { id: 2, title: "October 2025 Full Month", period: "Oct 1 – 31, 2025", generated: "2025-11-01", sales: 139200000, orders: 6098, growth: 18.7, type: "Monthly", status: "Completed" },
-        { id: 3, title: "Eid-ul-Adha 2025 Campaign", period: "Jun 10 – Jul 20, 2025", generated: "2025-07-21", sales: 428000000, orders: 18420, growth: 68.2, type: "Campaign", status: "Completed" },
-        { id: 4, title: "September 2025 Monthly", period: "Sep 1 – 30, 2025", generated: "2025-10-01", sales: 117100000, orders: 5213, growth: 11.3, type: "Monthly", status: "Completed" },
-        { id: 5, title: "Winter Collection Launch", period: "Nov 1 – 15, 2025", generated: "2025-11-16", sales: 142800000, orders: 6123, growth: 45.1, type: "Campaign", status: "Completed" },
-        { id: 6, title: "Pohela Boishakh 2025", period: "Apr 1 – 20, 2025", generated: "2025-04-21", sales: 285000000, orders: 13210, growth: 81.3, type: "Festival", status: "Completed" },
-        { id: 7, title: "Q3 2025 Summary", period: "Jul 1 – Sep 30, 2025", generated: "2025-10-02", sales: 317900000, orders: 14323, growth: 12.4, type: "Quarterly", status: "Completed" },
-        { id: 8, title: "Black Friday 2024", period: "Nov 28 – Dec 1, 2024", generated: "2024-12-02", sales: 221000000, orders: 9876, growth: 112.0, type: "Campaign", status: "Completed" },
-        { id: 9, title: "Year End Report 2024", period: "Jan 1 – Dec 31, 2024", generated: "2025-01-05", sales: 1785000000, orders: 78234, growth: 89.3, type: "Annual", status: "Completed" },
-    ];
+    // For sorting (client-side on current page)
+    const [sortConfig, setSortConfig] = useState({ key: 'order_date', direction: 'desc' });
 
-    // Filtering
-    const filteredReports = useMemo(() => {
-        return reports.filter(report => {
-            const matchesSearch = report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                report.period.includes(searchTerm);
-            const matchesType = typeFilter === 'All' || report.type === typeFilter;
-            return matchesSearch && matchesType;
-        });
-    }, [searchTerm, typeFilter]);
+    // You might fetch these separately or include in another API
+    // For demo, we'll leave as manual input or future enhancement
+    const isAdmin = true; // Replace with actual auth check: Auth.user().type === 'admin'
 
-    // Sorting
-    const sortedReports = useMemo(() => {
-        let sortable = [...filteredReports];
-        if (sortConfig.key) {
-            sortable.sort((a, b) => {
-                let aVal = a[sortConfig.key];
-                let bVal = b[sortConfig.key];
-                if (sortConfig.key === 'sales') {
-                    aVal = a.sales; bVal = b.sales;
-                }
-                if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-                return 0;
+    const fetchData = useCallback(async (page = 1) => {
+        try {
+            setLoading(true);
+
+            const params = {
+                page,
+                ...(startDate && { start_date: startDate.toISOString().split('T')[0] }),
+                ...(endDate && { end_date: endDate.toISOString().split('T')[0] }),
+                ...(productId && { product_id: productId }),
+                ...(vendorId && isAdmin && { vendor_id: vendorId }),
+            };
+
+            const res = await API.get("/reports/sales", { params });
+
+            const { data = [], summary = null, meta: responseMeta = {} } = res.data || {};
+
+            setOrders(Array.isArray(data) ? data : []);
+            setSummary(summary);
+            setMeta({
+                current_page: responseMeta.current_page || 1,
+                total: responseMeta.total || 0,
+                per_page: responseMeta.per_page || 20,
             });
+            setCurrentPage(responseMeta.current_page || 1);
+        } catch (error) {
+            console.error("Failed to fetch sales data:", error);
+        } finally {
+            setLoading(false);
         }
-        return sortable;
-    }, [filteredReports, sortConfig]);
+    }, [startDate, endDate, productId, vendorId, isAdmin]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Reset to page 1 when filters change
+        fetchData(1);
+    }, [startDate, endDate, productId, vendorId]);
+
+    useEffect(() => {
+        fetchData(currentPage);
+    }, [currentPage]);
+
+    // Client-side search & sort
+    const filteredOrders = useMemo(() => {
+        if (!searchTerm) return orders;
+        const term = searchTerm.toLowerCase();
+        return orders.filter(order =>
+            order.order_id?.toLowerCase().includes(term) ||
+            order.product_name?.toLowerCase().includes(term) ||
+            order.customer_name?.toLowerCase().includes(term) ||
+            order.shop_name?.toLowerCase().includes(term)
+        );
+    }, [orders, searchTerm]);
+
+    const sortedOrders = useMemo(() => {
+        if (!sortConfig.key) return filteredOrders;
+        return [...filteredOrders].sort((a, b) => {
+            let aValue = a[sortConfig.key];
+            let bValue = b[sortConfig.key];
+
+            if (['quantity', 'price', 'total'].includes(sortConfig.key)) {
+                aValue = parseFloat(aValue) || 0;
+                bValue = parseFloat(bValue) || 0;
+            }
+            if (sortConfig.key === 'order_date') {
+                aValue = new Date(aValue);
+                bValue = new Date(bValue);
+            }
+
+            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [filteredOrders, sortConfig]);
 
     const requestSort = (key) => {
         let direction = 'asc';
@@ -54,136 +106,245 @@ const AllSalesReportsTablePage = () => {
         setSortConfig({ key, direction });
     };
 
-    const formatCurrency = (amount) => {
-        if (amount >= 1000000000) return `৳ ${(amount / 1000000000).toFixed(2)}B`;
-        if (amount >= 10000000) return `৳ ${(amount / 10000000).toFixed(2)} Cr`;
-        if (amount >= 100000) return `৳ ${(amount / 100000).toFixed(1)}L`;
-        return `৳ ${amount.toLocaleString()}`;
+    const formatCurrency = (value) => {
+        if (!value) return '৳ 0.00';
+        if (typeof value === 'string' && value.startsWith('৳')) return value;
+        const num = parseFloat(value);
+        return `৳ ${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
+    const totalPages = Math.ceil(meta.total / meta.per_page);
+
+    const clearFilters = () => {
+        setStartDate(null);
+        setEndDate(null);
+        setProductId('');
+        setVendorId('');
+        setSearchTerm('');
     };
 
     return (
         <div className="px-6 bg-gray-50 min-h-screen">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800">All Sales Reports</h1>
-                    <p className="text-gray-600">Complete history of sales performance reports</p>
-                </div>
+            <div className="max-w-7xl mx-auto">
 
-                <div className='flex gap-3'>
-                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-sm">
-                        <Download size={16} />
-                        Export CSV
-                    </button>
-                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-sm">
-                        <Download size={16} />
-                        Export PDF
-                    </button>
-                </div>
-            </div>
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-2">
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-800">All Sales Reports</h1>
+                        <p className="text-gray-600 mt-1 text-sm">
+                            {summary?.date_range || 'Delivered orders history'}
+                        </p>
+                    </div>
 
-            {/* Search & Filter */}
-            <div className="bg-white rounded-lg shadow p-5 mb-6 flex flex-col md:flex-row gap-4 text-sm">
-                <div className="flex-1">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search by report name or period..."
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-main"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                    <div className="flex gap-3">
+                        <button className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium">
+                            <Download size={16} />
+                            Export CSV
+                        </button>
+                        <button className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium">
+                            <Download size={16} />
+                            Export PDF
+                        </button>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Filter size={18} className="text-gray-500" />
-                    <select
-                        className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                    >
-                        <option value="All">All Types</option>
-                        <option>Monthly</option>
-                        <option>Campaign</option>
-                        <option>Festival</option>
-                        <option>Quarterly</option>
-                        <option>Annual</option>
-                    </select>
-                </div>
-            </div>
 
-            {/* Reports Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-50 text-xs uppercase text-gray-700 border-b">
-                            <tr>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('id')}>
-                                    ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                                </th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('title')}>
-                                    Report Name {sortConfig.key === 'title' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                                </th>
-                                <th className="py-4 px-6 text-left">Period</th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('generated')}>
-                                    Generated On
-                                </th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('sales')}>
-                                    Total Sales {sortConfig.key === 'sales' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                                </th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('orders')}>
-                                    Orders
-                                </th>
-                                <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100" onClick={() => requestSort('growth')}>
-                                    Growth
-                                </th>
-                                <th className="py-4 px-6 text-left">Type</th>
-                                <th className="py-4 px-6 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {sortedReports.map((report => (
-                                <tr key={report.id} className="hover:bg-gray-50 transition">
-                                    <td className="py-2 px-2 font-medium text-main">#{report.id.toString().padStart(3, '0')}</td>
-                                    <td className="py-2 px-2 font-medium text-gray-800">{report.title}</td>
-                                    <td className="py-2 px-2 text-gray-700">{report.period}</td>
-                                    <td className="py-2 px-2 text-gray-600">{report.generated}</td>
-                                    <td className="py-2 px-2 font-bold text-green-600">{formatCurrency(report.sales)}</td>
-                                    <td className="py-2 px-2 font-semibold text-main">{report.orders.toLocaleString()}</td>
-                                    <td className="py-2 px-2">
-                                        <span className="text-green-600 font-bold flex items-center gap-1">
-                                            <TrendingUp size={16} /> +{report.growth}%
-                                        </span>
-                                    </td>
-                                    <td className="py-2 px-2">
-                                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                            {report.type}
-                                        </span>
-                                    </td>
-                                    <td className="py-2 px-2 text-center">
-                                        <div className="flex justify-center gap-3">
-                                            <button className="text-main hover:underline flex items-center gap-1 text-sm">
-                                                <Eye size={16} /> View
-                                            </button>
-                                            <button className="text-green-600 hover:underline flex items-center gap-1 text-sm">
-                                                <Download size={16} /> Export
-                                            </button>
-                                        </div>
-                                    </td>
+                {/* Summary Cards */}
+                {summary && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-2">
+                        {/* ... (same as before) */}
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <p className="text-sm text-gray-600">Total Sales</p>
+                            <p className="text-xl font-bold text-gray-900 mt-2">{summary.total_sales || '৳0.00'}</p>
+                        </div>
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <p className="text-sm text-gray-600">Total Orders</p>
+                            <p className="text-xl font-bold text-gray-900 mt-2">{summary.total_orders?.toLocaleString() || 0}</p>
+                        </div>
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <p className="text-sm text-gray-600">Items Sold</p>
+                            <p className="text-xl font-bold text-gray-900 mt-2">{summary.total_quantity_sold?.toLocaleString() || 0}</p>
+                        </div>
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <p className="text-sm text-gray-600">Avg Order Value</p>
+                            <p className="text-xl font-bold text-gray-900 mt-2">{summary.average_order_value || '৳0.00'}</p>
+                        </div>
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <p className="text-sm text-gray-600">Growth</p>
+                            <div className="flex items-end gap-2 mt-2">
+                                <TrendingUp size={28} className="text-green-600" />
+                                <p className="text-xl font-bold text-green-600">{summary.growth || '0%'}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Filters & Search */}
+                <div className="bg-white rounded-xl shadow-sm p-2 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        {/* Date Range */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                <Calendar size={16} /> Start Date
+                            </label>
+                            <DatePicker
+                                selected={startDate}
+                                onChange={setStartDate}
+                                dateFormat="dd MMM yyyy"
+                                placeholderText="Select start date"
+                                className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                isClearable
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                <Calendar size={16} /> End Date
+                            </label>
+                            <DatePicker
+                                selected={endDate}
+                                onChange={setEndDate}
+                                dateFormat="dd MMM yyyy"
+                                placeholderText="Select end date"
+                                className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                isClearable
+                            />
+                        </div>
+
+                        {/* Product Filter (optional enhancement: fetch products list) */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Product ID</label>
+                            <input
+                                type="text"
+                                placeholder="e.g. 123"
+                                value={productId}
+                                onChange={(e) => setProductId(e.target.value)}
+                                className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                            />
+                        </div>
+
+                        {/* Vendor Filter - Admin Only */}
+                        {isAdmin && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700">Vendor ID</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. 45"
+                                    value={vendorId}
+                                    onChange={(e) => setVendorId(e.target.value)}
+                                    className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Search + Clear */}
+                    <div className="flex flex-col sm:flex-row gap-4 items-end">
+                        <div className="flex-1 relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <input
+                                type="text"
+                                placeholder="Search orders locally..."
+                                className="w-full pl-12 pr-5 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+
+                        <button
+                            onClick={clearFilters}
+                            className="px-5 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+                        >
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                    {/* ... table same as before ... */}
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            {/* thead and tbody same as previous version */}
+                            <thead className="bg-gray-50 text-xs font-semibold uppercase text-gray-700 border-b border-gray-200">
+                                <tr>
+                                    <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100 transition" onClick={() => requestSort('order_id')}>
+                                        Order ID {sortConfig.key === 'order_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                    </th>
+                                    <th className="py-4 px-6 text-left">Product</th>
+                                    <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100 transition" onClick={() => requestSort('customer_name')}>
+                                        Customer
+                                    </th>
+                                    <th className="py-4 px-6 text-left">Shop</th>
+                                    <th className="py-4 px-6 text-right cursor-pointer hover:bg-gray-100 transition" onClick={() => requestSort('quantity')}>
+                                        Qty
+                                    </th>
+                                    <th className="py-4 px-6 text-right cursor-pointer hover:bg-gray-100 transition" onClick={() => requestSort('price')}>
+                                        Unit Price
+                                    </th>
+                                    <th className="py-4 px-6 text-right cursor-pointer hover:bg-gray-100 transition" onClick={() => requestSort('total')}>
+                                        Total
+                                    </th>
+                                    <th className="py-4 px-6 text-left cursor-pointer hover:bg-gray-100 transition" onClick={() => requestSort('order_date')}>
+                                        Order Date {sortConfig.key === 'order_date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                    </th>
                                 </tr>
-                            )))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {loading ? (
+                                    <tr><td colSpan="9" className="py-16 text-center text-gray-500">Loading...</td></tr>
+                                ) : sortedOrders.length === 0 ? (
+                                    <tr><td colSpan="9" className="py-16 text-center text-gray-500">No orders found</td></tr>
+                                ) : (
+                                    sortedOrders.map((order) => (
+                                        <tr key={order.order_id} className="hover:bg-gray-50 transition">
+                                            <td className="py-5 px-6 font-medium text-main">#{order.order_id}</td>
+                                            <td className="py-5 px-6"><p className="font-medium text-gray-900">{order.product_name}</p></td>
+                                            <td className="py-5 px-6 text-gray-700">{order.customer_name || 'Guest'}</td>
+                                            <td className="py-5 px-6 text-gray-600">{order.shop_name}</td>
+                                            <td className="py-5 px-6 text-right font-semibold">{order.quantity}</td>
+                                            <td className="py-5 px-6 text-right text-gray-700">{formatCurrency(order.price)}</td>
+                                            <td className="py-5 px-6 text-right font-bold text-green-600">{formatCurrency(order.total)}</td>
+                                            <td className="py-5 px-6 text-gray-600 text-sm">{formatDate(order.order_date)}</td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
-                {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center text-sm text-gray-600">
-                    <p>Showing {sortedReports.length} of {reports.length} reports</p>
-                    <p>Last updated: November 19, 2025</p>
+                    {/* Pagination */}
+                    <div className="px-6 py-4 bg-gray-50 border-t flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-600">
+                        <div>
+                            Showing {(currentPage - 1) * meta.per_page + 1} to {Math.min(currentPage * meta.per_page, meta.total)} of {meta.total.toLocaleString()} orders
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50">
+                                <ChevronLeft size={18} />
+                            </button>
+                            <span className="px-4 py-2 bg-white rounded-lg border font-medium">
+                                Page {currentPage} of {totalPages || 1}
+                            </span>
+                            <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50">
+                                <ChevronRight size={18} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-export default AllSalesReportsTablePage;
+export default AllSalesTable;
