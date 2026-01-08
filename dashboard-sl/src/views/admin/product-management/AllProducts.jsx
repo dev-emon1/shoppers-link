@@ -14,6 +14,7 @@ import API from "../../../../src/utils/api";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { useAuth } from "../../../utils/AuthContext";
+import { toast } from "react-toastify";
 
 const AllProducts = () => {
   const { user } = useAuth();
@@ -86,7 +87,7 @@ const AllProducts = () => {
 
   // Export functions (এগুলো ঠিক আছে)
   const handleExport = () => {
-    if (!products.length) return alert("No data to export!");
+    if (!products.length) return toast.error("No data to export!");
 
     const exportData = products.map((p, index) => {
       const variantList = p.variants
@@ -112,10 +113,11 @@ const AllProducts = () => {
     });
 
     exportToExcel(exportData, "products_export", "Products", "xlsx");
+    toast.success("Excel exported successfully!");
   };
 
   const exportToPDF = () => {
-    if (!products.length) return alert("No data to export!");
+    if (!products.length) return toast.error("No data to export!");
 
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
@@ -206,6 +208,7 @@ const AllProducts = () => {
     });
 
     doc.save(`products-export-${new Date().toISOString().slice(0, 10)}.pdf`);
+    toast.success("PDF exported successfully!");
   };
 
   // Table Columns - No কলামে label যোগ করা হয়েছে
@@ -282,13 +285,13 @@ const AllProducts = () => {
   ];
 
   return (
-    <div className="px-4 py-6">
+    <div className="px-4 py-2">
       <PageHeader
         title="All Products"
         searchTerm={searchTerm}
         onSearch={(e) => setSearchTerm(e.target.value)}
-        addLabel="Add Product"
-        onAddClick={() => navigate("/vendor/products/add-product")}
+        // addLabel="Add Product"
+        // onAddClick={() => navigate("/vendor/products/add-product")}
         placeholderText="Search by name or SKU..."
         rightActions={
           <>

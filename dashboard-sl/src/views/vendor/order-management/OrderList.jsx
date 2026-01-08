@@ -1,4 +1,5 @@
 // src/pages/vendor/orders/AllOrdersPage.jsx
+import { toast } from "react-toastify";
 import React, { useState, useEffect, useCallback } from "react";
 import PageHeader from "../../../components/common/PageHeader";
 import Table from "../../../components/table/Table";
@@ -25,7 +26,6 @@ const AllOrdersPage = () => {
     const [statusFilter, setStatusFilter] = useState("All");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
-    const [toast, setToast] = useState(null);
 
 
     const fetchOrders = useCallback(async () => {
@@ -35,7 +35,7 @@ const AllOrdersPage = () => {
             setOrders(res.data.data || []);
         } catch (err) {
             console.error(err);
-            showToast("Failed to load orders", "error");
+            toast.error("Failed to load orders");
         } finally {
             setLoading(false);
         }
@@ -45,10 +45,6 @@ const AllOrdersPage = () => {
         fetchOrders();
     }, [fetchOrders]);
 
-    const showToast = (msg, type = "success") => {
-        setToast({ msg, type });
-        setTimeout(() => setToast(null), 3000);
-    };
     // console.log(user);
     const handleStatusChange = async (orderId, newStatus) => {
         if (updatingOrderId === orderId) return;
@@ -70,8 +66,7 @@ const AllOrdersPage = () => {
                 // vendor_order_id is optional — URL already has it
             });
 
-            showToast(res.data.message || "Status updated successfully!");
-
+            toast.success(res.data.message || "Status updated successfully!");
             // Optional: use fresh data
             // setOrders(prev => prev.map(o => o.id === orderId ? res.data.vendor_order : o));
         } catch (err) {
@@ -84,7 +79,7 @@ const AllOrdersPage = () => {
                 err.response?.data?.message ||
                 "Failed to update status";
 
-            showToast(msg, "error");
+            toast.error(msg);
         } finally {
             setUpdatingOrderId(null);
         }

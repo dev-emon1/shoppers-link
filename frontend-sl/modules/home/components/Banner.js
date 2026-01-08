@@ -25,6 +25,7 @@ import { makeImageUrl } from "@/lib/utils/image";
 export default function Banner() {
   // Destructure banner data and request states from custom hook
   const { banners, loading, error } = useBanners();
+  // console.log(banners);
 
   /* ------------------------------------------------------------
      Swiper configuration
