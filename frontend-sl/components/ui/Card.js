@@ -31,7 +31,7 @@ const Card = ({ data, href, showSoldCount = false }) => {
     <Link
       href={href || `/product/${data.slug}`}
       className="block bg-bgSurface border border-border overflow-hidden
-                 hover:shadow-xl transition-shadow duration-300"
+                 hover:shadow-md transition-shadow duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
