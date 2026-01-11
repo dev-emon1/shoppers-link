@@ -148,7 +148,13 @@ export default function OrderCard({ order }) {
     );
   };
   // New: Check if review already submitted for the single vendor
-  const hasReviewed = order.vendor_orders?.[0]?.review?.submitted ?? false;
+  const reviewedItemCount = (order.vendor_orders?.[0]?.items ?? []).filter(
+    (i) => i.review
+  ).length;
+
+  const hasReviewed =
+    reviewedItemCount === (order.vendor_orders?.[0]?.items?.length ?? 0);
+
   return (
     <article
       className={`rounded-xl shadow-sm p-4 border transition ${
