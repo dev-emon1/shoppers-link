@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <RequireAuth>
-      <div className="min-h-screen bg-gray-50 flex pt-[40px]">
+      <div className="min-h-screen bg-gray-50 flex pt-[4px] lg:pt-[40px]">
         {/* Desktop Sidebar */}
         <DashboardSidebar />
 

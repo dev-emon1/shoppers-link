@@ -53,7 +53,7 @@ export default function OrderDetailRoutePage() {
   }
 
   return (
-    <div className="px-4">
+    <div className="px-0 lg:px-4">
       <button
         onClick={() => router.back()}
         className="mb-4 px-3 py-2 border rounded-md"
