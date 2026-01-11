@@ -49,15 +49,8 @@ function ProductGrid({
             : `/${catSlug}/${subSlug}/${childSlug}/${p.slug}`;
 
           return (
-            <div
-              key={p.id}
-              className="
-                group block
-                border border-border rounded-xl bg-white
-                overflow-hidden hover:shadow-lg transition-all
-              "
-            >
-              {/* ✅ ONLY CARD */}
+            <div key={p.id}>
+              {/* ONLY CARD */}
               <Card data={p} href={href} showSoldCount={true} />
             </div>
           );
