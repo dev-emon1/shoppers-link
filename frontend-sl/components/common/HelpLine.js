@@ -1,8 +1,19 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 
 export default function HelpLine() {
+  const [mounted, setMounted] = useState(false);
+
+  //  hydration-safe
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  //  server & first render
+  if (!mounted) return null;
+
   return (
     <a
       href="https://wa.me/8801401446644"

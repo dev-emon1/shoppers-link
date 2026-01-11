@@ -16,7 +16,7 @@ const ProductsLayout = ({ sidebar, topbar, children }) => {
   return (
     <section className="container">
       {/* Topbar */}
-      {topbar && <div className="mb-4">{topbar}</div>}
+      {topbar && <div className="mt-4 lg:mt-10 mb-4">{topbar}</div>}
 
       {/* Main Layout */}
       <div className="flex gap-6">

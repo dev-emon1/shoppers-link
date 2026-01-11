@@ -67,7 +67,7 @@ const TopBar = () => {
           </Link>
 
           {/* HELP */}
-          <div
+          {/* <div
             className="relative"
             onMouseEnter={openHelp}
             onMouseLeave={() => setIsHelpOpen(false)}
@@ -142,7 +142,7 @@ const TopBar = () => {
                 </div>,
                 getPortal()
               )}
-          </div>
+          </div> */}
 
           {/* WAYS TO SHOP */}
           {/* <div
