@@ -1,3 +1,4 @@
+// OrderDetailsPane.jsx
 "use client";
 import { createRoot } from "react-dom/client";
 import html2canvas from "html2canvas";
@@ -19,7 +20,7 @@ import {
 import { showToast } from "@/lib/utils/toast";
 import { makeImageUrl } from "@/lib/utils/image";
 import WriteReviewModal from "../../components/review/WriteReviewModal";
-import ViewReviewModal from "../../components/review/ViewReviewModal"; // New
+import ViewReviewModal from "../../components/review/ViewReviewModal";
 import jsPDF from "jspdf";
 import OrderInvoiceTemplate from "./OrderInvoiceTemplate";
 
@@ -32,23 +33,25 @@ function safeParse(str) {
   }
 }
 
-// Modern Step subcomponent with proper color variation
+// Desktop Step (unchanged)
 function Step({ active, completed, label, time, icon }) {
   return (
     <div className="flex flex-col items-center text-center relative">
       <div
-        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${completed
-          ? "bg-green text-white"
-          : active
+        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${
+          completed
+            ? "bg-green text-white"
+            : active
             ? "bg-main text-white"
             : "bg-gray-200 text-gray-400"
-          }`}
+        }`}
       >
         {icon}
       </div>
       <div
-        className={`mt-3 text-sm font-medium transition-colors ${completed || active ? "text-textPrimary" : "text-textSecondary"
-          }`}
+        className={`mt-3 text-sm font-medium transition-colors ${
+          completed || active ? "text-textPrimary" : "text-textSecondary"
+        }`}
       >
         {label}
       </div>
@@ -59,18 +62,47 @@ function Step({ active, completed, label, time, icon }) {
   );
 }
 
+// Mobile vertical timeline (new)
+function MobileTimeline({ steps, currentIndex, timelineMap }) {
+  return (
+    <div className="space-y-4">
+      {steps.map((s, idx) => {
+        const completed = idx < currentIndex;
+        const active = idx === currentIndex;
+        return (
+          <div key={s.key} className="flex items-start gap-3">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                completed
+                  ? "bg-green text-white"
+                  : active
+                  ? "bg-main text-white"
+                  : "bg-gray-200 text-gray-400"
+              }`}
+            >
+              {s.icon}
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-medium text-textPrimary">
+                {s.label}
+              </div>
+              <div className="text-xs text-textSecondary mt-0.5">
+                {timelineMap[s.key]
+                  ? new Date(timelineMap[s.key]).toLocaleString()
+                  : "—"}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const PROGRESS_STEPS = [
   { key: "pending", label: "Pending", icon: <Clock size={20} /> },
-  {
-    key: "confirmed",
-    label: "Confirmed",
-    icon: <CircleCheckBig size={20} />,
-  },
-  {
-    key: "processing",
-    label: "Processing",
-    icon: <TriangleAlert size={20} />,
-  },
+  { key: "confirmed", label: "Confirmed", icon: <CircleCheckBig size={20} /> },
+  { key: "processing", label: "Processing", icon: <TriangleAlert size={20} /> },
   { key: "shipped", label: "Shipped", icon: <Truck size={20} /> },
   { key: "delivered", label: "Delivered", icon: <Package size={20} /> },
 ];
@@ -85,17 +117,15 @@ function extractTimeline(order, entity = order) {
   for (const change of changes) {
     map[change.to.toLowerCase()] = change.date_time;
   }
-  // Fallback for pending if not set
   map.pending = map.pending ?? order.created_at ?? null;
   return map;
 }
 
 export default function OrderDetailsPane({ order }) {
-  // console.log("order details", order.vendor_orders);
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);
-  const [viewReviewVendorId, setViewReviewVendorId] = useState(null); // New for view
+  const [viewReviewVendorId, setViewReviewVendorId] = useState(null);
 
   if (!order)
     return (
@@ -104,29 +134,26 @@ export default function OrderDetailsPane({ order }) {
       </div>
     );
 
-  // Compute aggregated status like in OrderCard
   const vendorStatuses = (order.vendor_orders ?? []).map((v) =>
     (v.status ?? "pending").toLowerCase()
   );
-
   const activeStatuses = vendorStatuses.filter((s) => s !== "cancelled");
-
   const isAllCancelled = activeStatuses.length === 0;
 
   const statusToIndex = (status) =>
-    PROGRESS_STEPS.findIndex((s) => s.key === status) ?? 0; // Default to 0 for unknown
+    PROGRESS_STEPS.findIndex((s) => s.key === status) ?? 0;
 
   const overallIndex = isAllCancelled
     ? -1
     : activeStatuses.length > 0
-      ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0))
-      : 0;
+    ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0))
+    : 0;
 
   const overallStatus = isAllCancelled
     ? "cancelled"
     : activeStatuses.length > 0
-      ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
-      : "pending";
+    ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
+    : "pending";
 
   const isCancelled = overallStatus === "cancelled";
   const isDelivered = overallStatus === "delivered";
@@ -137,13 +164,12 @@ export default function OrderDetailsPane({ order }) {
     hasDelivered &&
     activeStatuses.some((s) => s !== "delivered");
 
-  // timeline map - use status_timeline
   const timelineMap = useMemo(() => extractTimeline(order, order), [order]);
 
-  // extract billing & totals
   const primaryVendorOrder = order.vendor_orders?.[0] ?? null;
   const a_s_a_raw =
     primaryVendorOrder?.order?.a_s_a ?? primaryVendorOrder?.order ?? null;
+
   let parsedASA = null;
   if (typeof a_s_a_raw === "string") {
     parsedASA = safeParse(a_s_a_raw);
@@ -153,10 +179,9 @@ export default function OrderDetailsPane({ order }) {
     parsedASA = null;
   }
 
-  const billing = parsedASA?.billing ?? parsedASA?.billing ?? null;
-  const totals = parsedASA?.totals ?? parsedASA?.totals ?? null;
+  const billing = parsedASA?.billing ?? null;
+  const totals = parsedASA?.totals ?? null;
 
-  // Vendor cancel handler (optimistic)
   const handleVendorCancel = async (vendorOrder) => {
     if (!vendorOrder || !vendorOrder.id) return;
     const voId = vendorOrder.id;
@@ -199,20 +224,15 @@ export default function OrderDetailsPane({ order }) {
     }
   };
 
-
-  // Invoice generation - exclude cancelled, handle overflow with new page, text wrapping
   const generateInvoice = async () => {
-    // 1. Prepare data
     const activeVendorOrders =
       order.vendor_orders?.filter(
         (v) => (v.status ?? "").toLowerCase() !== "cancelled"
       ) ?? [];
 
-    // console.log(activeVendorOrders);
-    // 2. Create a temporary container to render the template
     const container = document.createElement("div");
     container.style.position = "absolute";
-    container.style.left = "-9999px"; // Hide it from user view
+    container.style.left = "-9999px";
     document.body.appendChild(container);
 
     const root = createRoot(container);
@@ -225,36 +245,30 @@ export default function OrderDetailsPane({ order }) {
       />
     );
 
-    // Wait a small moment for React to finish rendering
     setTimeout(async () => {
       const element = document.getElementById("invoice-template");
-
-      // 3. Convert HTML to Canvas
       const canvas = await html2canvas(element, {
-        scale: 2, // Higher scale for better quality
-        useCORS: true, // Crucial if you have images from other domains
+        scale: 2,
+        useCORS: true,
         logging: false,
       });
 
       const imgData = canvas.toDataURL("image/png");
-
-      // 4. Create PDF
       const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 210; // A4 width in mm
+      const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
       pdf.save(`invoice_${order.unid}.pdf`);
-
-      // 5. Cleanup
       document.body.removeChild(container);
     }, 500);
   };
 
   return (
     <div
-      className={`p-4 md:p-6 bg-bgSurface rounded-lg border ${isCancelled ? "opacity-70 grayscale" : ""
-        }`}
+      className={`p-4 md:p-6 bg-bgSurface rounded-lg border ${
+        isCancelled ? "opacity-70 grayscale" : ""
+      }`}
     >
       {/* Header */}
       <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
@@ -274,6 +288,7 @@ export default function OrderDetailsPane({ order }) {
           </div>
         </div>
       </div>
+
       {/* Billing + Totals */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="col-span-2 p-4 border rounded-lg bg-white">
@@ -312,10 +327,19 @@ export default function OrderDetailsPane({ order }) {
         </div>
       </div>
 
-      {/* Modern Timeline */}
+      {/* Timeline (FIXED) */}
       <div className="mt-6 p-6 bg-white rounded-xl border shadow-sm">
-        <div className="relative">
-          {/* Connecting Lines - rendered first so they appear behind the steps */}
+        {/* Mobile: vertical */}
+        <div className="md:hidden">
+          <MobileTimeline
+            steps={PROGRESS_STEPS}
+            currentIndex={overallIndex}
+            timelineMap={timelineMap}
+          />
+        </div>
+
+        {/* Desktop: original horizontal */}
+        <div className="hidden md:block relative">
           <div className="absolute top-6 left-0 w-full h-1">
             {PROGRESS_STEPS.map((_, idx) => {
               if (idx === PROGRESS_STEPS.length - 1) return null;
@@ -323,8 +347,9 @@ export default function OrderDetailsPane({ order }) {
               return (
                 <div
                   key={`line-${idx}`}
-                  className={`absolute h-1 ${lineCompleted ? "bg-green" : "bg-gray-200"
-                    }`}
+                  className={`absolute h-1 ${
+                    lineCompleted ? "bg-green" : "bg-gray-200"
+                  }`}
                   style={{
                     left: `${(idx / (PROGRESS_STEPS.length - 1)) * 100}%`,
                     width: `${100 / (PROGRESS_STEPS.length - 1)}%`,
@@ -334,7 +359,6 @@ export default function OrderDetailsPane({ order }) {
             })}
           </div>
 
-          {/* Steps */}
           <div className="flex items-center justify-between relative">
             {PROGRESS_STEPS.map((s, idx) => {
               const completed = idx < overallIndex;
@@ -356,44 +380,44 @@ export default function OrderDetailsPane({ order }) {
         </div>
       </div>
 
-      {/* Shipment Details - with multi-vendor note */}
+      {/* Shipment Details */}
       {(order.courier_name ||
         order.tracking_number ||
         order.tracking_url ||
         order.estimated_delivery) && (
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Shipment Details</h4>
-            <div className="text-sm text-blue-800 space-y-1">
-              {order.courier_name && <div>Courier: {order.courier_name}</div>}
-              {order.tracking_number && (
-                <div>Tracking #: {order.tracking_number}</div>
-              )}
-              {order.estimated_delivery && (
-                <div>
-                  Estimated Delivery:{" "}
-                  {new Date(order.estimated_delivery).toLocaleDateString()}
-                </div>
-              )}
-              {order.tracking_url && (
-                <a
-                  href={order.tracking_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-main hover:underline"
-                >
-                  <PackageSearch size={14} /> Track Shipment
-                </a>
-              )}
-              {order.vendor_orders?.length > 1 && (
-                <p className="text-xs mt-2">
-                  Note: Check vendor sections for individual tracking if multiple
-                  couriers are used.{" "}
-                  {/* Future: Integrate multi-courier tracking aggregation here */}
-                </p>
-              )}
-            </div>
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">Shipment Details</h4>
+          <div className="text-sm text-blue-800 space-y-1">
+            {order.courier_name && <div>Courier: {order.courier_name}</div>}
+            {order.tracking_number && (
+              <div>Tracking #: {order.tracking_number}</div>
+            )}
+            {order.estimated_delivery && (
+              <div>
+                Estimated Delivery:{" "}
+                {new Date(order.estimated_delivery).toLocaleDateString()}
+              </div>
+            )}
+            {order.tracking_url && (
+              <a
+                href={order.tracking_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-main hover:underline"
+              >
+                <PackageSearch size={14} /> Track Shipment
+              </a>
+            )}
+            {order.vendor_orders?.length > 1 && (
+              <p className="text-xs mt-2">
+                Note: Check vendor sections for individual tracking if multiple
+                couriers are used.
+              </p>
+            )}
           </div>
-        )}
+        </div>
+      )}
+
       {/* Vendor orders list */}
       <div className="mt-6 space-y-4">
         {(order.vendor_orders ?? []).map((v) => {
@@ -410,21 +434,16 @@ export default function OrderDetailsPane({ order }) {
           const vendorName =
             v.vendor?.shop_name ?? v.vendor?.business_name ?? "Unknown Vendor";
 
-          // New: Check if this vendor has a submitted review
-          // const hasReviewed = v.review?.submitted ?? false;
-          const hasReviewed = (v.items ?? []).some(item => !!item.review);
-
-          // console.log(hasReviewed);
-          // console.log("order details", order.vendor_orders);
+          const hasReviewed = (v.items ?? []).some((item) => !!item.review);
 
           return (
             <div
               key={v.unid}
-              className={`p-4 bg-white rounded-lg border flex flex-col md:flex-row md:justify-between gap-4 ${vStatus === "cancelled" ? "opacity-70 grayscale" : ""
-                }`}
+              className={`p-4 bg-white rounded-lg border flex flex-col md:flex-row md:justify-between gap-4 ${
+                vStatus === "cancelled" ? "opacity-70 grayscale" : ""
+              }`}
             >
               <div className="flex gap-4 items-start">
-                {/* Vendor Logo with Default Icon Fallback */}
                 {hasVendorImage ? (
                   <img
                     src={vendorImage}
@@ -438,16 +457,15 @@ export default function OrderDetailsPane({ order }) {
                 ) : null}
 
                 <div
-                  className={`w-20 h-20 flex items-center justify-center bg-gray-100 rounded-lg border shadow-sm ${hasVendorImage ? "hidden" : "flex"
-                    }`}
+                  className={`w-20 h-20 flex items-center justify-center bg-gray-100 rounded-lg border shadow-sm ${
+                    hasVendorImage ? "hidden" : "flex"
+                  }`}
                 >
                   <Store size={36} className="text-gray-400" />
                 </div>
 
                 <div>
-                  <div className="text-sm font-semibold">
-                    {vendorName}
-                  </div>
+                  <div className="text-sm font-semibold">{vendorName}</div>
                   <div className="text-xs text-textSecondary mt-1">
                     Items: {v.item_count}
                   </div>
@@ -467,7 +485,10 @@ export default function OrderDetailsPane({ order }) {
                         />
                         <div>
                           <p>{it.product?.name}</p>
-                          <span className="text-xs">{it.variant?.sku} • Qty: {it.quantity} • ৳ {it.total}</span>
+                          <span className="text-xs">
+                            {it.variant?.sku} • Qty: {it.quantity} • ৳{" "}
+                            {it.total}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -481,8 +502,8 @@ export default function OrderDetailsPane({ order }) {
                   <div className="text-xs text-textSecondary mt-2">
                     {vTimeline[vStatus] || v.updated_at || v.created_at
                       ? new Date(
-                        vTimeline[vStatus] || v.updated_at || v.created_at
-                      ).toLocaleString()
+                          vTimeline[vStatus] || v.updated_at || v.created_at
+                        ).toLocaleString()
                       : ""}
                   </div>
                 </div>
@@ -570,11 +591,9 @@ export default function OrderDetailsPane({ order }) {
           );
         })}
       </div>
+
       {/* Footer Actions */}
       <div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        {/* <div className="text-sm text-textSecondary">
-          Order ID: {order.id ?? "-"}
-        </div> */}
         <div className="flex flex-wrap items-center gap-3 justify-end">
           {!isCancelled && (
             <button
@@ -606,7 +625,6 @@ export default function OrderDetailsPane({ order }) {
                 Paid
               </div>
             )}
-
         </div>
       </div>
     </div>
