@@ -4,6 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import api from "@/core/api/axiosClient";
 import { makeImageUrl } from "@/lib/utils/image";
+import {
+  readPromoBanner,
+  writePromoBanner,
+} from "@/modules/home/utils/promoBannerCache";
 
 const PromoBanner = ({ position = "middle-banner" }) => {
   const [banner, setBanner] = useState(null);
@@ -11,15 +15,24 @@ const PromoBanner = ({ position = "middle-banner" }) => {
 
   useEffect(() => {
     const fetchBanner = async () => {
+      // 1️⃣ try cache
+      const cached = readPromoBanner(position);
+      if (cached) {
+        setBanner(cached);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        // Using the route: /banners/{position?}
         const res = await api.get(`/banners/${position}`);
-        // If your Resource returns a collection, take the first item
         const data = res.data.data;
-        // console.log(data);
+        const bannerData = Array.isArray(data) ? data[0] : data;
 
-        setBanner(Array.isArray(data) ? data[0] : data);
+        setBanner(bannerData);
+
+        // 2️⃣ save cache
+        writePromoBanner(position, bannerData);
       } catch (err) {
         console.error("Failed to fetch banner:", err);
       } finally {

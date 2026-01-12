@@ -1,7 +1,7 @@
 "use client";
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { addAddressApi } from "@/modules/user/services/address.service";
+import { addAddressApi } from "@/modules/user/services/addressService";
 
 // 👉 new user হলে order time এ call হবে
 export const saveBillingAddress = createAsyncThunk(

@@ -105,9 +105,9 @@ export const fetchTopSelling = createAsyncThunk(
 
 export const fetchShopByBrands = createAsyncThunk(
   "home/fetchShopByBrands",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1 }, { rejectWithValue }) => {
     try {
-      return await fetchShopByBrandsApi();
+      return await fetchShopByBrandsApi(page);
     } catch {
       return rejectWithValue("Failed to fetch shop by brands");
     }
@@ -164,6 +164,9 @@ const homeSlice = createSlice({
     shopByBrands: {
       data: [],
       status: "idle",
+      page: 1,
+      lastPage: null,
+      hasMore: true,
       lastFetched: null,
       ttl: SHOP_BY_BRAND_TTL,
     },
@@ -270,8 +273,16 @@ const homeSlice = createSlice({
         state.shopByBrands.status = "loading";
       })
       .addCase(fetchShopByBrands.fulfilled, (state, action) => {
+        const { data, meta } = action.payload;
         state.shopByBrands.status = "success";
-        state.shopByBrands.data = action.payload;
+        if (meta.current_page === 1) {
+          state.shopByBrands.data = data;
+        } else {
+          state.shopByBrands.data.push(...data);
+        }
+        state.shopByBrands.page = meta.current_page;
+        state.shopByBrands.lastPage = meta.last_page;
+        state.shopByBrands.hasMore = meta.current_page < meta.last_page;
         state.shopByBrands.lastFetched = Date.now();
       })
       .addCase(fetchShopByBrands.rejected, (state) => {
