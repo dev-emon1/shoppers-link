@@ -11,7 +11,7 @@ const uid = () =>
 
 const inputClass = (hasError) =>
   [
-    "w-full px-2 py-1 rounded outline-none transition-all duration-300",
+    "w-full min-w-[100px] px-2 py-1 rounded outline-none transition-all duration-300",
     hasError
       ? "border border-red ring-1 ring-red/40 bg-red/5"
       : "border border-border focus:ring-1 focus:ring-main",

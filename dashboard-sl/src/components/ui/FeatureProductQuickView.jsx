@@ -23,7 +23,7 @@ const FeatureProductQuickView = ({ product, onClose }) => {
   const primaryImgPath = product.images?.find(img => img.is_primary === 1)?.image_path;
   const mainImage = variantImgPath || primaryImgPath;
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh]">
         {/* Close Button */}
         <button
@@ -35,11 +35,11 @@ const FeatureProductQuickView = ({ product, onClose }) => {
 
         {/* Product Header */}
 
-        <div className="flex flex-col md:flex-row gap-5 items-center md:items-start mb-4">
+        <div className="flex  md:flex-row gap-5 items-center md:items-start mb-4">
           {/* Product Images */}
 
           <div className="flex-1">
-            <h2 className="text-2xl font-semibold text-gray-800">
+            <h2 className="text-xl font-semibold text-gray-800">
               {product.name}
             </h2>
             <p className="text-sm text-gray-600">{product.sku}</p>

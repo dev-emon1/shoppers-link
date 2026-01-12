@@ -73,7 +73,7 @@ const VendordataPage = () => {
 
     return (
         <div className="px-6 bg-gray-50 min-h-screen">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center my-4 gap-4">
                 <div>
                     <h1 className="text-xl font-bold text-gray-800">All Partner</h1>
                 </div>
@@ -100,7 +100,7 @@ const VendordataPage = () => {
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-gradient-to-r from-main to-mainHover text-white">
+                        <thead className="bg-gradient-to-r from-main to-mainHover text-white text-sm">
                             <tr>
                                 <th className="px-4 py-2 text-left">Business Name</th>
                                 <th className="px-4 py-2 text-left">Owner</th>
@@ -110,7 +110,7 @@ const VendordataPage = () => {
                                 <th className="px-4 py-2 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-gray-200 text-sm">
                             {paginated.length === 0 ? (
                                 <tr><td colSpan="7" className="text-center py-2 text-gray-500">No vendors found</td></tr>
                             ) : (
