@@ -20,7 +20,7 @@ import useProductFilters from "@/modules/product/hooks/useProductFilters";
 const PER_LOAD = 12;
 
 /* ======================================================
-   URL <-> Filter helpers (PAGE LEVEL)
+   URL <-> Filter helpers
 ====================================================== */
 function parseFilters(sp) {
   return {
@@ -39,13 +39,11 @@ function parseFilters(sp) {
 
 function filtersToQuery(filters) {
   const q = new URLSearchParams();
-
   if (filters.brands?.length) q.set("brands", filters.brands.join(","));
   if (filters.ratings?.length) q.set("ratings", filters.ratings.join(","));
   if (filters.availability) q.set("in_stock", filters.availability);
   if (filters.price?.length === 2)
     q.set("price", `${filters.price[0]}-${filters.price[1]}`);
-
   return q;
 }
 
@@ -69,16 +67,19 @@ export default function SearchPage() {
     total,
     loading,
     isEmpty,
+    status,
   } = useSearchProducts({
     query,
     categoryId,
   });
 
-  /* ---------------- Normalize total ---------------- */
-  const safeTotal = useMemo(() => {
-    if (Array.isArray(total)) return total[0];
-    return Number(total) || items.length;
-  }, [total, items.length]);
+  /**
+   * 🔑 IMPORTANT FIX
+   * Only show loader when:
+   * - loading
+   * - AND no cached items yet
+   */
+  const showLoading = loading && items.length === 0;
 
   /* ---------------- Reset load-more on query/category change ---------------- */
   useEffect(() => {
@@ -88,7 +89,7 @@ export default function SearchPage() {
   /* ---------------- URL -> Initial Filters ---------------- */
   const initialFilters = useMemo(() => parseFilters(sp), [sp.toString()]);
 
-  /* ---------------- Filters Hook (PURE) ---------------- */
+  /* ---------------- Filters Hook ---------------- */
   const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
     useProductFilters({
       products: items,
@@ -106,13 +107,13 @@ export default function SearchPage() {
       },
     });
 
-  /* ---------------- Visible products (after filtering) ---------------- */
+  /* ---------------- Visible products ---------------- */
   const visibleFilteredProducts = useMemo(
     () => filteredProducts.slice(0, visibleCount),
     [filteredProducts, visibleCount]
   );
 
-  /* ---------------- Sorting (AFTER filtering) ---------------- */
+  /* ---------------- Sorting ---------------- */
   const sortedProducts = useSortedProducts(visibleFilteredProducts, sort);
 
   const hasMore = visibleCount < filteredProducts.length;
@@ -144,7 +145,7 @@ export default function SearchPage() {
         />
       }
     >
-      {loading ? (
+      {showLoading ? (
         <div className="py-20 flex justify-center">
           <Loader />
         </div>
