@@ -4,8 +4,8 @@ import { format } from "date-fns";
 
 const OrderDetailsModal = ({ order, onClose }) => {
     if (!order) return null;
-    // console.log(order);
     const { parsedData, items, unid, subtotal, vendor_earning, order: orderInfo } = order;
+    // console.log(orderInfo.a_s_a);
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
@@ -18,7 +18,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-main hover:text-mainHover transition font-light fixed left-auto right-4 top-4"
+                        className="text-main hover:text-mainHover transition font-light fixed left-auto right-4 top-8"
                         aria-label="Close modal"
                     >
                         <X size={24} />
@@ -57,7 +57,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
                             <p className="text-gray-700 leading-relaxed text-sm">
                                 {[
                                     parsedData?.billing?.line1,
-                                    parsedData?.billing?.line2,
+                                    parsedData?.billing?.area,
                                     parsedData?.billing?.city,
                                     parsedData?.billing?.state,
                                     parsedData?.billing?.postalCode,
@@ -82,19 +82,19 @@ const OrderDetailsModal = ({ order, onClose }) => {
                             <div className="bg-white rounded-xl p-3 text-center shadow">
                                 <p className="text-gray-600 text-sm">Shipping</p>
                                 <p className="text-xl font-bold text-gray-800 mt-1">
-                                    ৳ {orderInfo?.shipping || 0}
+                                    ৳ {Number(parsedData?.totals.shipping || 0).toLocaleString()}
                                 </p>
                             </div>
                             <div className="bg-white rounded-xl p-3 text-center shadow">
                                 <p className="text-gray-600 text-sm">Your Earning</p>
                                 <p className="text-xl font-bold text-green-600 mt-1">
-                                    ৳ {Number(vendor_earning).toLocaleString()}
+                                    ৳ {Number(parsedData?.totals.subtotal).toLocaleString()}
                                 </p>
                             </div>
                             <div className="bg-white rounded-xl p-4 text-center shadow">
                                 <p className="text-gray-600 text-sm">Grand Total</p>
-                                <p className="text-2xl font-bold text-blue-600 mt-1">
-                                    ৳ {Number(orderInfo?.total_amount || subtotal).toLocaleString()}
+                                <p className="text-xl font-bold text-blue-600 mt-1">
+                                    ৳ {Number(parsedData?.totals.grandTotal).toLocaleString()}
                                 </p>
                             </div>
                         </div>
@@ -107,19 +107,20 @@ const OrderDetailsModal = ({ order, onClose }) => {
                             {items.map((item, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-gray-50 rounded-xl p-2 flex flex-col md:flex-row gap-6 border"
+                                    className="bg-gray-50 rounded-xl p-2 flex flex-row gap-6 border justify-between items-center"
                                 >
-                                    <img
-                                        src={
-                                            item.image?.image_path
-                                                ? `${import.meta.env.VITE_IMAGE_URL}/${item.image.image_path}`
-                                                : "/placeholder.png"
-                                        }
-                                        alt={item.product.name}
-                                        className="w-full md:w-20 md:h-20 object-cover rounded-lg shadow-sm border"
-                                    />
-
-                                    <div className="flex space-y-2 justify-between w-full md:items-center md:flex-row flex-col">
+                                    <div>
+                                        <img
+                                            src={
+                                                item.image?.image_path
+                                                    ? `${import.meta.env.VITE_IMAGE_URL}/${item.image.image_path}`
+                                                    : "/placeholder.png"
+                                            }
+                                            alt={item.product.name}
+                                            className="w-20 h-20  object-cover rounded-lg shadow-sm border"
+                                        />
+                                    </div>
+                                    <div className="flex space-y-2 justify-between w-full items-center md:flex-row flex-col">
                                         <div>
                                             <h4 className="font-bold text-sm text-gray-900">
                                                 {item.product.name}
