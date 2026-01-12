@@ -1,18 +1,23 @@
+"use client";
+
 import ProductSection from "@/components/product/ProductSection";
-// Reusable product section component
+import useFeaturedProducts from "@/modules/home/hooks/useFeaturedProducts";
 
-import useFeaturedProducts from "../hooks/useFeaturedProducts";
-// Custom hook responsible for fetching featured products
+const FeaturedProducts = () => {
+  const { products, loading, error } = useFeaturedProducts({
+    mode: "home",
+  });
 
-// Lightweight wrapper component for Featured Products section
-const FeaturedProducts = () => (
-  <ProductSection
-    useProductsHook={useFeaturedProducts} // Inject data-fetching hook
-    title="Featured Products" // Section title
-    subtitle="Explore our highlighted selections" // Section subtitle
-    viewAllHref="/products?type=featured" // View-all page link
-  />
-);
+  return (
+    <ProductSection
+      products={products}
+      loading={loading}
+      error={error}
+      title="Featured Products"
+      subtitle="Explore our highlighted selections"
+      viewAllHref="/products?type=featured"
+    />
+  );
+};
 
 export default FeaturedProducts;
-// Export component for homepage or other layouts

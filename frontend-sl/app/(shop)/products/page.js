@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 /* Data hooks */
-import useFeaturedProducts from "@/modules/home/hooks/useFeaturedProducts";
-import useNewArrivals from "@/modules/home/hooks/useNewArrivals";
+import useNewArrivalsProducts from "@/modules/home/hooks/useNewArrivalsProducts";
 import useTopSellingProducts from "@/modules/home/hooks/useTopSellingProducts";
 import useTopRatingProducts from "@/modules/home/hooks/useTopRatingProducts";
+import useFeaturedProducts from "@/modules/home/hooks/useFeaturedProducts";
 
 /* Filter + sort */
 import useProductFilters from "@/modules/product/hooks/useProductFilters";
@@ -63,17 +63,34 @@ export default function ProductsPage() {
 
   /* -----------------------------
      Resolve product source
+     (LOGIC FIXED HERE)
   ----------------------------- */
   const hookResult = useMemo(() => {
     switch (type) {
       case "featured":
-        return { title: "Featured Products", hook: useFeaturedProducts };
+        return {
+          title: "Featured Products",
+          hook: () => useFeaturedProducts({ mode: "listing" }),
+        };
+
       case "new-arrivals":
-        return { title: "New Arrivals", hook: useNewArrivals };
+        return {
+          title: "New Arrivals",
+          hook: () => useNewArrivalsProducts({ mode: "listing" }),
+        };
+
       case "top-selling":
-        return { title: "Top Selling Products", hook: useTopSellingProducts };
+        return {
+          title: "Top Selling Products",
+          hook: () => useTopSellingProducts({ mode: "listing" }),
+        };
+
       case "top-rating":
-        return { title: "Top Rated Products", hook: useTopRatingProducts };
+        return {
+          title: "Top Rated Products",
+          hook: () => useTopRatingProducts({ mode: "listing" }),
+        };
+
       default:
         return null;
     }
@@ -85,9 +102,21 @@ export default function ProductsPage() {
       products: [],
       loading: false,
       error: false,
+      hasMore: false,
+      loadMore: undefined,
     }));
 
-  const { products = [], loading, error } = dataHook();
+  /**
+   * 🔑 IMPORTANT FIX
+   * Handle paginated + non-paginated hooks safely
+   */
+  const {
+    products = [],
+    loading,
+    error,
+    hasMore = false,
+    loadMore,
+  } = dataHook();
 
   /* -----------------------------
      URL -> filters (PAGE LEVEL)
@@ -149,9 +178,19 @@ export default function ProductsPage() {
       ) : filteredProducts.length === 0 ? (
         <EmptyState title="No products found" />
       ) : view === "grid" ? (
-        <ProductGrid products={sortedProducts} />
+        <ProductGrid
+          products={sortedProducts}
+          hasMore={hasMore}
+          loading={loading}
+          onLoadMore={loadMore}
+        />
       ) : (
-        <ProductsList products={sortedProducts} />
+        <ProductsList
+          products={sortedProducts}
+          hasMore={hasMore}
+          loading={loading}
+          onLoadMore={loadMore}
+        />
       )}
     </ProductsLayout>
   );
