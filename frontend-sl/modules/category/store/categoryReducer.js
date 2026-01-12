@@ -1,78 +1,69 @@
-// frontend_v1/modules/category/store/categoryReducer.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  fetchAllCategories,
-  forceRefreshCategories,
-} from "../services/categoryService";
+import { fetchAllCategoriesApi } from "../services/categoryService";
+import { readCategoryCache, writeCategoryCache } from "../utils/categoryCache";
+
+const CATEGORY_TTL = 24 * 60 * 60 * 1000; // 24h
 
 export const loadAllCategories = createAsyncThunk(
-  "category/loadAllCategories",
-  async (_, { rejectWithValue }) => {
+  "category/loadAll",
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const data = await fetchAllCategories();
+      // 🔹 1. Redux state cache check
+      const state = getState().category;
+      if (
+        state.items.length > 0 &&
+        state.lastFetched &&
+        Date.now() - state.lastFetched < state.ttl
+      ) {
+        // Already fresh in Redux
+        return state.items;
+      }
+
+      // 🔹 2. sessionStorage cache check
+      const cached = readCategoryCache();
+      if (cached && Array.isArray(cached)) {
+        return cached; // instant return, no API
+      }
+
+      // 🔹 3. Network call (last resort)
+      const data = await fetchAllCategoriesApi();
+
+      // 🔹 4. Write to session cache
+      writeCategoryCache(data);
+
       return data;
-    } catch (err) {
-      return rejectWithValue([]);
+    } catch (e) {
+      return rejectWithValue("Failed to load categories");
     }
   }
 );
-
-export const refreshAllCategories = createAsyncThunk(
-  "category/refreshAllCategories",
-  async (_, { rejectWithValue }) => {
-    try {
-      const data = await forceRefreshCategories();
-      return data ?? [];
-    } catch (err) {
-      return rejectWithValue([]);
-    }
-  }
-);
-
-const initialState = {
-  items: [],
-  loading: false,
-  error: null,
-  lastFetchedAt: null,
-};
 
 const categorySlice = createSlice({
   name: "category",
-  initialState,
-  reducers: {
-    setCategories(state, action) {
-      state.items = action.payload ?? [];
-      state.lastFetchedAt = Date.now();
-    },
-    clearCategories(state) {
-      state.items = [];
-      state.lastFetchedAt = null;
-    },
+  initialState: {
+    items: [],
+    status: "idle", // idle | loading | success | error
+    lastFetched: null,
+    ttl: CATEGORY_TTL,
   },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(loadAllCategories.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        // ⚠️ only show loading if empty
+        if (state.items.length === 0) {
+          state.status = "loading";
+        }
       })
       .addCase(loadAllCategories.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = action.payload ?? [];
-        state.lastFetchedAt = Date.now();
+        state.status = "success";
+        state.items = action.payload;
+        state.lastFetched = Date.now();
       })
-      .addCase(loadAllCategories.rejected, (state, action) => {
-        state.loading = false;
-        state.items = [];
-        state.error = action.payload ?? "Failed to load categories";
-      })
-      .addCase(refreshAllCategories.fulfilled, (state, action) => {
-        if (action.payload && action.payload.length) {
-          state.items = action.payload;
-          state.lastFetchedAt = Date.now();
-        }
+      .addCase(loadAllCategories.rejected, (state) => {
+        state.status = "error";
       });
   },
 });
 
-export const { setCategories, clearCategories } = categorySlice.actions;
 export default categorySlice.reducer;

@@ -1,52 +1,64 @@
 "use client";
-// Marks this hook as client-side only (uses Redux & browser timing)
 
-import { useEffect } from "react";
-// useEffect controls when the API call should run
-
+import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// Redux hooks for dispatching actions and reading store state
-
 import { fetchFeaturedProducts } from "../store/homeReducer";
-// Async Redux action to fetch featured products
 
-/* ------------------------------------------------------------
-   Cache validation helper
------------------------------------------------------------- */
 const isCacheValid = (lastFetched, ttl) => {
-  // If data was never fetched, cache is invalid
   if (!lastFetched) return false;
-
-  // Cache is valid if still within TTL window
   return Date.now() - lastFetched < ttl;
 };
 
-export default function useFeaturedProducts() {
-  // Initialize Redux dispatch
+/**
+ * Unified hook for Featured Products
+ *
+ * @param {Object} options
+ * @param {"home"|"listing"} options.mode
+ */
+export default function useFeaturedProducts({ mode = "home" } = {}) {
   const dispatch = useDispatch();
+  const state = useSelector((s) => s.home.featured);
 
-  // Select featured products slice from Redux store
-  const featured = useSelector((state) => state.home.featured);
+  const { data, status, page, hasMore, lastFetched, ttl } = state;
+  const loading = status === "loading";
 
-  /* ------------------------------------------------------------
-     Fetch featured products only when cache expires
-  ------------------------------------------------------------ */
+  /* ---------------------------
+     Initial fetch logic
+  --------------------------- */
   useEffect(() => {
-    // Prevent duplicate API calls while loading
-    if (featured.status === "loading") return;
+    // HOME MODE → cache based
+    if (mode === "home") {
+      if (loading) return;
 
-    // Fetch data only if cache is missing or expired
-    if (!isCacheValid(featured.lastFetched, featured.ttl)) {
-      dispatch(fetchFeaturedProducts());
+      if (!isCacheValid(lastFetched, ttl)) {
+        dispatch(fetchFeaturedProducts({ page: 1 }));
+      }
+      return;
     }
-  }, [dispatch, featured.status, featured.lastFetched, featured.ttl]);
 
-  /* ------------------------------------------------------------
-     Public API exposed by this hook
-  ------------------------------------------------------------ */
+    // LISTING MODE → first page only once
+    if (mode === "listing") {
+      if (data.length === 0) {
+        dispatch(fetchFeaturedProducts({ page: 1 }));
+      }
+    }
+  }, [dispatch, mode, lastFetched]);
+
+  /* ---------------------------
+     Load more (listing only)
+  --------------------------- */
+  const loadMore = useCallback(() => {
+    if (mode !== "listing") return;
+    if (loading || !hasMore) return;
+
+    dispatch(fetchFeaturedProducts({ page: page + 1 }));
+  }, [dispatch, mode, loading, hasMore, page]);
+
   return {
-    products: featured.data, // Featured products list
-    loading: featured.status === "loading", // Loading state
-    error: featured.status === "error", // Error state
+    products: data,
+    loading: mode === "listing" ? loading && data.length === 0 : loading,
+    error: status === "error",
+    hasMore: mode === "listing" ? hasMore : false,
+    loadMore: mode === "listing" ? loadMore : undefined,
   };
 }

@@ -1,18 +1,23 @@
+"use client";
+
 import ProductSection from "@/components/product/ProductSection";
-// Reusable product section component used across the homepage
+import useNewArrivalsProducts from "@/modules/home/hooks/useNewArrivalsProducts";
 
-import useNewArrivals from "@/modules/home/hooks/useNewArrivals";
-// Custom hook responsible for fetching "New Arrivals" products
+const NewArrivals = () => {
+  const { products, loading, error } = useNewArrivalsProducts({
+    mode: "home",
+  });
 
-// Wrapper component for the New Arrivals section
-const NewArrivals = () => (
-  <ProductSection
-    useProductsHook={useNewArrivals} // Injects New Arrivals data-fetching logic
-    title="New Arrivals" // Section title
-    subtitle="Discover our latest products" // Section subtitle
-    viewAllHref="/products?type=new-arrivals" // Link to full New Arrivals listing page
-  />
-);
+  return (
+    <ProductSection
+      products={products}
+      loading={loading}
+      error={error}
+      title="New Arrivals"
+      subtitle="Discover our latest products"
+      viewAllHref="/products?type=new-arrivals"
+    />
+  );
+};
 
 export default NewArrivals;
-// Export component for use on homepage or other layouts

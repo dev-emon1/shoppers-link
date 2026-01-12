@@ -1,129 +1,53 @@
-// modules/category/hooks/useCategoryFinders.js
 "use client";
 
 import { useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, shallowEqual } from "react-redux";
 
-/**
- * useCategoryFinders
- * - Accepts raw backend shape (no normalization)
- * - Builds maps for O(1) lookups by slug combinations
- * - Provides getCategoryBySlug, getSubcategoryBySlug, getChildBySlug, getSidebarTree
- *
- * Key format used internally:
- *  - sub key:    `${catSlug}::${subSlug}`
- *  - child key:  `${catSlug}::${subSlug}::${childSlug}`
- */
 export function useCategoryFinders() {
-  const categories = useSelector((s) =>
-    s?.category?.items ? s.category.items : []
-  );
+  const categories = useSelector((s) => s.category.items, shallowEqual);
 
   return useMemo(() => {
-    const catBySlug = new Map();
-    const subBySlug = new Map();
-    const childBySlug = new Map();
-
-    if (!Array.isArray(categories) || categories.length === 0) {
+    if (!categories?.length) {
       return {
         getCategoryBySlug: () => null,
         getSubcategoryBySlug: () => null,
         getChildBySlug: () => null,
         getSidebarTree: () => [],
-        getProductBySlug: () => null,
       };
     }
 
+    const catBySlug = new Map();
+    const subBySlug = new Map();
+    const childBySlug = new Map();
+
     categories.forEach((cat) => {
-      const cslug = String(cat?.slug ?? "").trim();
-      if (!cslug) return;
-      catBySlug.set(cslug, cat);
+      catBySlug.set(cat.slug, cat);
 
-      const subs = Array.isArray(cat?.sub_categories)
-        ? cat.sub_categories
-        : Array.isArray(cat?.subcategories)
-        ? cat.subcategories
-        : [];
+      (cat.sub_categories || []).forEach((sub) => {
+        subBySlug.set(`${cat.slug}::${sub.slug}`, sub);
 
-      subs.forEach((sub) => {
-        const sslug = String(sub?.slug ?? "").trim();
-        if (!sslug) return;
-        subBySlug.set(`${cslug}::${sslug}`, { ...sub, _parent: cat });
-
-        const childs = Array.isArray(sub?.child_categories)
-          ? sub.child_categories
-          : Array.isArray(sub?.children)
-          ? sub.children
-          : [];
-
-        childs.forEach((child) => {
-          const chslug = String(child?.slug ?? "").trim();
-          if (!chslug) return;
-          childBySlug.set(`${cslug}::${sslug}::${chslug}`, {
-            ...child,
-            _parent: sub,
-            _category: cat,
-          });
+        (sub.child_categories || []).forEach((child) => {
+          childBySlug.set(`${cat.slug}::${sub.slug}::${child.slug}`, child);
         });
       });
     });
 
-    const getCategoryBySlug = (slug) => {
-      if (!slug) return null;
-      return catBySlug.get(String(slug)) || null;
-    };
-
-    const getSubcategoryBySlug = (catSlug, subSlug) => {
-      if (!catSlug || !subSlug) return null;
-      return subBySlug.get(`${String(catSlug)}::${String(subSlug)}`) || null;
-    };
-
-    const getChildBySlug = (catSlug, subSlug, childSlug) => {
-      if (!catSlug || !subSlug || !childSlug) return null;
-      return (
-        childBySlug.get(
-          `${String(catSlug)}::${String(subSlug)}::${String(childSlug)}`
-        ) || null
-      );
-    };
-
-    const getSidebarTree = (catSlug) => {
-      const cat = getCategoryBySlug(catSlug);
-      if (!cat) return [];
-      const subs = Array.isArray(cat?.sub_categories)
-        ? cat.sub_categories
-        : Array.isArray(cat?.subcategories)
-        ? cat.subcategories
-        : [];
-      return subs.map((s) => ({
-        id: s.id,
-        name: s.name,
-        slug: s.slug,
-        children: (Array.isArray(s?.child_categories)
-          ? s.child_categories
-          : Array.isArray(s?.children)
-          ? s.children
-          : []
-        ).map((ch) => ({
-          id: ch.id,
-          name: ch.name,
-          slug: ch.slug,
-        })),
-      }));
-    };
-
-    // product finder stub (keeps API stable)
-    const getProductBySlug = (productSlug) => {
-      // not implemented in this hook
-      return null;
-    };
-
     return {
-      getCategoryBySlug,
-      getSubcategoryBySlug,
-      getChildBySlug,
-      getSidebarTree,
-      getProductBySlug,
+      getCategoryBySlug: (slug) => catBySlug.get(slug) || null,
+      getSubcategoryBySlug: (c, s) => subBySlug.get(`${c}::${s}`) || null,
+      getChildBySlug: (c, s, ch) =>
+        childBySlug.get(`${c}::${s}::${ch}`) || null,
+      getSidebarTree: (slug) =>
+        (catBySlug.get(slug)?.sub_categories || []).map((s) => ({
+          id: s.id,
+          name: s.name,
+          slug: s.slug,
+          children: (s.child_categories || []).map((c) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+          })),
+        })),
     };
   }, [categories]);
 }
