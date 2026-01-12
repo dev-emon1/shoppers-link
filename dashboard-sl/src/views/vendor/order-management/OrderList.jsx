@@ -27,7 +27,6 @@ const AllOrdersPage = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
 
-
     const fetchOrders = useCallback(async () => {
         try {
             setLoading(true);
@@ -45,7 +44,7 @@ const AllOrdersPage = () => {
         fetchOrders();
     }, [fetchOrders]);
 
-    // console.log(user);
+    // console.log(orders);
     const handleStatusChange = async (orderId, newStatus) => {
         if (updatingOrderId === orderId) return;
 
@@ -53,7 +52,14 @@ const AllOrdersPage = () => {
         if (!order) return;
 
         const prevStatus = order.status;
-
+        // Optional: cancelled-এর ক্ষেত্রে confirmation dialog
+        if (newStatus === 'cancelled') {
+            const confirmed = window.confirm(
+                "আপনি কি নিশ্চিত এই অর্ডার ক্যান্সেল করতে চান?\n" +
+                "এটি স্টক ফিরিয়ে দেবে এবং আর ফিরিয়ে আনা যাবে না।"
+            );
+            if (!confirmed) return;
+        }
         // Optimistic update
         setOrders(prev =>
             prev.map(o => (o.id === orderId ? { ...o, status: newStatus } : o))
