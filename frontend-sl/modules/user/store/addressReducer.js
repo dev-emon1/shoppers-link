@@ -1,134 +1,196 @@
-"use client";
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAddressesApi,
   addAddressApi,
   updateAddressApi,
-  deleteAddressApi,
-} from "@/modules/user/services/address.service";
+} from "@/modules/user/services/addressService";
 
-const STORAGE_KEY = "user_addresses";
+/* ==============================
+   Cache config (Chaldal-style)
+================================ */
+const CACHE_TTL = 1000 * 60 * 5; // 5 minutes
 
-/* -------------------------
-   Helpers
--------------------------- */
-const loadFromStorage = () => {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
+const initialState = {
+  list: [],
+  loading: false,
+  error: null,
+
+  lastFetchedAt: null,
+  cachedCustomerId: null,
 };
 
-const saveToStorage = (addresses) => {
-  if (typeof window !== "undefined") {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(addresses));
-  }
-};
+/* ==============================
+   THUNKS (inline, no extra file)
+================================ */
 
-/* -------------------------
-   Thunks
--------------------------- */
+/**
+ * Fetch addresses with smart caching
+ */
 export const fetchAddresses = createAsyncThunk(
   "address/fetch",
-  async (customerId, { rejectWithValue }) => {
+  async (customerId, { getState, rejectWithValue }) => {
+    const { address } = getState();
+
+    const now = Date.now();
+    const isSameCustomer = address.cachedCustomerId === customerId;
+    const isCacheValid =
+      address.lastFetchedAt && now - address.lastFetchedAt < CACHE_TTL;
+
+    // 🚀 Serve from cache
+    if (isSameCustomer && isCacheValid) {
+      return {
+        fromCache: true,
+        data: address.list,
+      };
+    }
+
     try {
-      const data = await getAddressesApi(customerId);
-      return data;
-    } catch (e) {
-      return rejectWithValue("Failed to load addresses");
+      const res = await getAddressesApi(customerId);
+      return {
+        fromCache: false,
+        data: res.data,
+        customerId,
+        fetchedAt: now,
+      };
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load addresses"
+      );
     }
   }
 );
 
+/**
+ * Add new address
+ */
 export const addAddress = createAsyncThunk(
   "address/add",
   async (payload, { rejectWithValue }) => {
     try {
-      const data = await addAddressApi(payload);
-      return data;
-    } catch (e) {
-      return rejectWithValue("Failed to add address");
+      const res = await addAddressApi(payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to add address"
+      );
     }
   }
 );
 
+/**
+ * Update address
+ */
 export const updateAddress = createAsyncThunk(
   "address/update",
   async ({ id, payload }, { rejectWithValue }) => {
     try {
-      const data = await updateAddressApi(id, payload);
-      return data;
-    } catch (e) {
-      return rejectWithValue("Failed to update address");
+      const res = await updateAddressApi(id, payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update address"
+      );
     }
   }
 );
 
-export const deleteAddress = createAsyncThunk(
-  "address/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await deleteAddressApi(id);
-      return id;
-    } catch {
-      return rejectWithValue("Failed to delete address");
-    }
-  }
-);
+/* ==============================
+   SLICE
+================================ */
 
-/* -------------------------
-   Slice
--------------------------- */
 const addressSlice = createSlice({
   name: "address",
-  initialState: {
-    list: loadFromStorage(),
-    loading: false,
-    error: null,
-  },
-
+  initialState,
   reducers: {
-    clearAddresses: (state) => {
+    clearAddressError(state) {
+      state.error = null;
+    },
+    invalidateAddressCache(state) {
+      state.lastFetchedAt = null;
+      state.cachedCustomerId = null;
+    },
+    clearAddresses(state) {
       state.list = [];
-      sessionStorage.removeItem(STORAGE_KEY);
+      state.loading = false;
+      state.error = null;
+      state.lastFetchedAt = null;
+      state.cachedCustomerId = null;
     },
   },
-
   extraReducers: (builder) => {
     builder
+      /* ---------- FETCH ---------- */
       .addCase(fetchAddresses.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchAddresses.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload || [];
-        saveToStorage(state.list);
+
+        if (action.payload.fromCache) return;
+
+        state.list = action.payload.data;
+        state.cachedCustomerId = action.payload.customerId;
+        state.lastFetchedAt = action.payload.fetchedAt;
       })
       .addCase(fetchAddresses.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
+      /* ---------- ADD ---------- */
+      .addCase(addAddress.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(addAddress.fulfilled, (state, action) => {
-        state.list.push(action.payload);
-        saveToStorage(state.list);
+        state.loading = false;
+        const newAddress = action.payload;
+
+        // Default address consistency
+        if (newAddress.is_default) {
+          state.list = state.list.map((addr) => ({
+            ...addr,
+            is_default: false,
+          }));
+        }
+
+        state.list.unshift(newAddress);
+
+        // Update cache timestamp (mutation = fresh data)
+        state.lastFetchedAt = Date.now();
+      })
+      .addCase(addAddress.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
+      /* ---------- UPDATE ---------- */
+      .addCase(updateAddress.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateAddress.fulfilled, (state, action) => {
-        const idx = state.list.findIndex((a) => a.id === action.payload.id);
-        if (idx !== -1) state.list[idx] = action.payload;
-        saveToStorage(state.list);
-      })
+        state.loading = false;
+        const updated = action.payload;
 
-      .addCase(deleteAddress.fulfilled, (state, action) => {
-        state.list = state.list.filter((a) => a.id !== action.payload);
-        saveToStorage(state.list);
+        state.list = state.list.map((addr) => {
+          if (updated.is_default && addr.id !== updated.id) {
+            return { ...addr, is_default: false };
+          }
+          return addr.id === updated.id ? updated : addr;
+        });
+
+        state.lastFetchedAt = Date.now();
+      })
+      .addCase(updateAddress.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { clearAddresses } = addressSlice.actions;
+export const { clearAddressError, invalidateAddressCache, clearAddresses } =
+  addressSlice.actions;
+
 export default addressSlice.reducer;

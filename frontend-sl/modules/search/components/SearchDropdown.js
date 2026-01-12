@@ -43,27 +43,28 @@ const SearchDropdown = ({ isOpen, query, onClose, onViewAll, categoryId }) => {
   const containerRef = useRef(null);
 
   const [recent, setRecent] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
 
-  /* fetch search result */
+  /* 🔑 SEARCH (backend limited preview) */
   const { items, total, loading, isEmpty } = useSearchProducts({
     query,
     debounce: 300,
     categoryId,
+    limit: MAX_PREVIEW,
   });
 
-  const safeTotal = Array.isArray(total)
-    ? total[0]
-    : Number(total) || items.length;
+  const safeTotal = useMemo(() => {
+    if (Array.isArray(total)) return total[0];
+    return Number(total) || items.length;
+  }, [total, items.length]);
 
-  /* frontend slice (backend limit no) */
-  const previewItems = useMemo(() => items.slice(0, MAX_PREVIEW), [items]);
-
-  /* load recent search on open */
+  /* load recent searches */
   useEffect(() => {
     if (isOpen) {
       setRecent(getRecentSearches());
+      setActiveIndex(-1);
     }
-  }, [isOpen]);
+  }, [isOpen, query]);
 
   /* outside click close */
   useEffect(() => {
@@ -76,6 +77,51 @@ const SearchDropdown = ({ isOpen, query, onClose, onViewAll, categoryId }) => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [isOpen, onClose]);
 
+  /* ⌨️ KEYBOARD NAVIGATION */
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function onKeyDown(e) {
+      const list = query ? items : recent;
+      if (!list.length) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveIndex((i) => (i < list.length - 1 ? i + 1 : 0));
+      }
+
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveIndex((i) => (i > 0 ? i - 1 : list.length - 1));
+      }
+
+      if (e.key === "Enter" && activeIndex >= 0) {
+        e.preventDefault();
+
+        if (query) {
+          const product = items[activeIndex];
+          if (!product) return;
+          saveRecentSearch(query);
+          router.push(buildProductUrl(product));
+        } else {
+          const q = recent[activeIndex];
+          if (!q) return;
+          saveRecentSearch(q);
+          router.push(`/search?q=${encodeURIComponent(q)}`);
+        }
+
+        onClose();
+      }
+
+      if (e.key === "Escape") {
+        onClose();
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, activeIndex, items, recent, query]);
+
   if (!isOpen) return null;
 
   return (
@@ -85,20 +131,18 @@ const SearchDropdown = ({ isOpen, query, onClose, onViewAll, categoryId }) => {
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -6 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.18 }}
         className="
-          absolute left-0 right-0 top-[85%] lg:top-full mt-2 z-[999]
-          bg-white shadow-xl border
-          overflow-hidden
+          absolute left-0 right-0 top-full mt-2 z-[999]
+          bg-white border border-gray-200 shadow-xl
+          rounded-lg overflow-hidden
+          max-h-[70vh] md:max-h-[420px]
         "
       >
-        {/* ----------------------------------
-            EMPTY QUERY → SUGGESTIONS
-        ----------------------------------- */}
-        {!query && (
-          <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Recent */}
-            <div>
+        <div className="max-h-[70vh] md:max-h-[420px] overflow-y-auto">
+          {/* ---------------- EMPTY QUERY ---------------- */}
+          {!query && (
+            <div className="p-4">
               <h4 className="text-xs font-semibold text-gray-500 mb-3">
                 Recent Searches
               </h4>
@@ -107,16 +151,25 @@ const SearchDropdown = ({ isOpen, query, onClose, onViewAll, categoryId }) => {
                 <p className="text-sm text-gray-400">No recent searches</p>
               )}
 
-              <ul className="space-y-2">
-                {recent.map((q) => (
+              <ul className="space-y-1">
+                {recent.map((q, idx) => (
                   <li key={q}>
                     <button
+                      onMouseEnter={() => setActiveIndex(idx)}
                       onClick={() => {
                         saveRecentSearch(q);
                         router.push(`/search?q=${encodeURIComponent(q)}`);
                         onClose();
                       }}
-                      className="text-sm hover:text-main transition"
+                      className={`
+                        w-full text-left px-2 py-1.5 rounded
+                        text-sm transition
+                        ${
+                          activeIndex === idx
+                            ? "bg-main/10 text-main"
+                            : "hover:bg-gray-100"
+                        }
+                      `}
                     >
                       {q}
                     </button>
@@ -124,102 +177,96 @@ const SearchDropdown = ({ isOpen, query, onClose, onViewAll, categoryId }) => {
                 ))}
               </ul>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* ----------------------------------
-            TYPING → PRODUCT RESULT
-        ----------------------------------- */}
-        {query && (
-          <>
-            {/* loading */}
-            {loading && (
-              <div className="py-8 flex justify-center">
-                <Loader size="sm" />
-              </div>
-            )}
+          {/* ---------------- QUERY RESULT ---------------- */}
+          {query && (
+            <>
+              {loading && (
+                <div className="py-6 flex justify-center">
+                  <Loader size="sm" />
+                </div>
+              )}
 
-            {/* empty */}
-            {!loading && isEmpty && (
-              <div className="py-10 text-center text-sm text-gray-500">
-                No products found for <b>{query}</b>
-              </div>
-            )}
+              {!loading && isEmpty && (
+                <div className="py-10 text-center text-sm text-gray-500">
+                  No products found for <b>{query}</b>
+                </div>
+              )}
 
-            {/* results */}
-            {!loading && previewItems.length > 0 && (
-              <>
-                <ul className="divide-y">
-                  {previewItems.map((product) => {
-                    const href = buildProductUrl(product);
+              {!loading && items.length > 0 && (
+                <>
+                  <ul className="divide-y">
+                    {items.map((product, idx) => {
+                      const imagePath =
+                        product.primary_image ||
+                        product.images?.find((img) => img.is_primary)
+                          ?.image_path ||
+                        product.images?.[0]?.image_path ||
+                        "";
 
-                    const imagePath =
-                      product.primary_image ||
-                      product.images?.find((img) => img.is_primary)
-                        ?.image_path ||
-                      product.images?.[0]?.image_path ||
-                      "";
+                      return (
+                        <li
+                          key={product.id}
+                          onMouseEnter={() => setActiveIndex(idx)}
+                          onClick={() => {
+                            saveRecentSearch(query);
+                            router.push(buildProductUrl(product));
+                            onClose();
+                          }}
+                          className={`
+                            flex items-center gap-4 px-4 py-3
+                            cursor-pointer transition
+                            ${
+                              activeIndex === idx
+                                ? "bg-main/10"
+                                : "hover:bg-main/5"
+                            }
+                          `}
+                        >
+                          <div className="relative w-14 h-14 rounded bg-gray-100 overflow-hidden">
+                            <Image
+                              src={makeImageUrl(imagePath)}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
 
-                    const imageSrc = makeImageUrl(imagePath);
+                          <div className="flex-1">
+                            <p className="text-sm font-medium line-clamp-1">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              ৳ {Number(product.price).toLocaleString()}
+                            </p>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
 
-                    return (
-                      <li
-                        key={product.id}
-                        onClick={() => {
-                          saveRecentSearch(query);
-                          router.push(href);
-                          onClose();
-                        }}
-                        className="
-                          flex items-center gap-4 px-4 py-3
-                          cursor-pointer hover:bg-gray-50 transition
-                        "
-                      >
-                        {/* image */}
-                        <div className="relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-                          <Image
-                            src={imageSrc}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-
-                        {/* info */}
-                        <div className="flex-1">
-                          <p className="text-sm font-medium line-clamp-1">
-                            {product.name}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            ৳ {Number(product.price).toLocaleString()}
-                          </p>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-
-                {/* view all */}
-                {safeTotal > MAX_PREVIEW && (
-                  <button
-                    onClick={() => {
-                      saveRecentSearch(query);
-                      onViewAll();
-                      onClose();
-                    }}
-                    className="
-                      w-full py-3 text-sm font-medium
-                      text-main hover:bg-main/5
-                      border-t
-                    "
-                  >
-                    View all results ({safeTotal})
-                  </button>
-                )}
-              </>
-            )}
-          </>
-        )}
+                  {safeTotal > MAX_PREVIEW && (
+                    <button
+                      onClick={() => {
+                        saveRecentSearch(query);
+                        onViewAll();
+                        onClose();
+                      }}
+                      className="
+                        w-full py-3 text-sm font-medium
+                        text-main hover:bg-main/5
+                        border-t
+                      "
+                    >
+                      View all results ({safeTotal})
+                    </button>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
       </motion.div>
     </AnimatePresence>
   );

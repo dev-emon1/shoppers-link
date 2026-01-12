@@ -51,7 +51,7 @@ export const fetchTopRatingApi = async (page = 1) => {
 /**
  * Shop By Brand (Vendor Shops) API
  */
-export const fetchShopByBrandsApi = async () => {
-  const res = await api.get("/vendor/shops");
-  return Array.isArray(res?.data?.data) ? res.data.data : [];
+export const fetchShopByBrandsApi = async (page = 1) => {
+  const res = await api.get(`/vendor/shops?page=${page}`);
+  return res?.data;
 };
