@@ -77,7 +77,6 @@ export default function Banner() {
             {/* ================= Background Layer ================= */}
             <div className="absolute inset-0">
               {/* Optimized background image */}
-              {console.log(makeImageUrl(banner.image))}
               <Image
                 src={makeImageUrl(banner.image)} // Full image URL
                 alt={banner.title || "Promotional banner"} // Accessible alt text

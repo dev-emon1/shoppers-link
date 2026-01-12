@@ -3,7 +3,7 @@
 import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getAddressesApi } from "@/modules/user/services/address.service";
+import { getAddressesApi } from "@/modules/user/services/addressService";
 import { validateBilling } from "../utils/validation";
 
 export default function BillingForm({

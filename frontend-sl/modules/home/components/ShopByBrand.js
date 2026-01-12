@@ -1,34 +1,23 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-
 import { Store } from "lucide-react";
 
 import useShopByBrands from "@/modules/home/hooks/useShopByBrands";
 import { makeImageUrl } from "@/lib/utils/image";
 
 const ShopByBrand = () => {
-  const { data, status } = useShopByBrands();
+  const { brands, loading, error, showAll } = useShopByBrands({
+    mode: "home",
+    limit: 10,
+  });
 
-  /**
-   * ✅ Filter brands:
-   * - link must exist
-   * - link must be non-empty string
-   */
-  const brandsWithLink = useMemo(() => {
-    if (!Array.isArray(data)) return [];
-    return data.filter(
-      (brand) => typeof brand.link === "string" && brand.link.trim().length > 0
-    );
-  }, [data]);
-
-  /* ================= Loading ================= */
-  if (status === "loading") {
+  if (loading) {
     return (
       <section className="py-16 text-center text-sm text-textSecondary">
         Loading brands...
@@ -36,15 +25,12 @@ const ShopByBrand = () => {
     );
   }
 
-  /* ================= Error / Empty ================= */
-  if (status === "error" || !brandsWithLink.length) {
-    return null;
-  }
+  if (error || !brands.length) return null;
 
   return (
     <section className="py-16 bg-white border-t border-border">
       <div className="container">
-        {/* ================= Header ================= */}
+        {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-textPrimary">
             Shop by Brand
@@ -55,7 +41,7 @@ const ShopByBrand = () => {
           <div className="mt-3 w-20 h-1 bg-main mx-auto rounded-full" />
         </div>
 
-        {/* ================= Brand Slider ================= */}
+        {/* Slider (UNCHANGED) */}
         <Swiper
           modules={[Autoplay]}
           spaceBetween={30}
@@ -72,7 +58,7 @@ const ShopByBrand = () => {
           loop
           speed={800}
         >
-          {brandsWithLink.map((brand) => {
+          {brands.map((brand) => {
             const hasLogo = Boolean(brand.logo);
 
             return (
@@ -82,20 +68,8 @@ const ShopByBrand = () => {
                     href={brand.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="
-    group
-    relative
-    w-28 h-28
-    rounded-full
-    border border-border
-    bg-bgPage
-    flex items-center justify-center
-    overflow-hidden        // ✅ KEY FIX
-    hover:shadow-md
-    transition
-  "
+                    className="group relative w-28 h-28 rounded-full border border-border bg-bgPage flex items-center justify-center overflow-hidden hover:shadow-md transition"
                   >
-                    {/* ================= Logo OR Icon ================= */}
                     {hasLogo ? (
                       <Image
                         src={makeImageUrl(brand.logo)}
@@ -118,6 +92,18 @@ const ShopByBrand = () => {
             );
           })}
         </Swiper>
+
+        {/* Show All */}
+        {showAll && (
+          <div className="text-center mt-10">
+            <Link
+              href="/brands"
+              className="text-main underline-offset-1 hover:underline transition-all duration-300 text-sm font-medium"
+            >
+              View all Brands
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );
