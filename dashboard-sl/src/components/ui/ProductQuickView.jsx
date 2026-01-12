@@ -38,7 +38,7 @@ const ProductQuickView = ({ product, onClose }) => {
 
         {/* Product Header */}
 
-        <div className="flex flex-col md:flex-row gap-5 items-center md:items-start mb-4">
+        <div className="flex  md:flex-row gap-5 items-center md:items-start mb-4">
           {/* Product Images */}
 
           <div className="flex-1">
