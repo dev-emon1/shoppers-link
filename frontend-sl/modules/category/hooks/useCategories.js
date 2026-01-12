@@ -2,28 +2,28 @@
 
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBanners } from "../store/homeReducer";
+import { loadAllCategories } from "../store/categoryReducer";
 
 const isCacheValid = (lastFetched, ttl) => {
   if (!lastFetched) return false;
   return Date.now() - lastFetched < ttl;
 };
 
-export default function useBanners() {
+export default function useCategories() {
   const dispatch = useDispatch();
-  const state = useSelector((s) => s.home.banners);
+  const state = useSelector((s) => s.category);
 
   useEffect(() => {
     if (state.status === "loading") return;
 
     if (!isCacheValid(state.lastFetched, state.ttl)) {
-      dispatch(fetchBanners());
+      dispatch(loadAllCategories());
     }
   }, [dispatch, state.lastFetched]);
 
   return {
-    banners: state.data,
-    loading: state.status === "loading" && state.data.length === 0,
+    categories: state.items,
+    loading: state.status === "loading" && state.items.length === 0,
     error: state.status === "error",
   };
 }

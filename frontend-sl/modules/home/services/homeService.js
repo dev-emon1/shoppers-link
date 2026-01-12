@@ -11,9 +11,9 @@ export const fetchBannersApi = async () => {
 /**
  * Featured Products API
  */
-export const fetchFeaturedProductsApi = async () => {
-  const res = await api.get("/featured-products");
-  return Array.isArray(res?.data?.data) ? res.data.data : [];
+export const fetchFeaturedProductsApi = async (page = 1) => {
+  const res = await api.get(`/featured-products?page=${page}`);
+  return res?.data; // { data, meta }
 };
 
 /**
@@ -27,25 +27,25 @@ export const fetchPromoBannersApi = async () => {
 /**
  * New Arrivals Products API
  */
-export const fetchNewArrivalsApi = async () => {
-  const res = await api.get("/new/arrivals");
-  return Array.isArray(res?.data?.data) ? res.data.data : [];
+export const fetchNewArrivalsApi = async (page = 1) => {
+  const res = await api.get(`/new/arrivals?page=${page}`);
+  return res?.data;
 };
 
 /**
  * Top Selling Products API
  */
-export const fetchTopSellingApi = async () => {
-  const res = await api.get("/top/selling");
-  return Array.isArray(res?.data?.data) ? res.data.data : [];
+export const fetchTopSellingApi = async (page = 1) => {
+  const res = await api.get(`/top/selling?page=${page}`);
+  return res?.data;
 };
 
 /**
  * Top Rating Products API
  */
-export const fetchTopRatingApi = async () => {
-  const res = await api.get("/top/ratting");
-  return Array.isArray(res?.data?.data) ? res.data.data : [];
+export const fetchTopRatingApi = async (page = 1) => {
+  const res = await api.get(`/top/ratting?page=${page}`);
+  return res?.data;
 };
 
 /**

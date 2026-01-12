@@ -1,17 +1,23 @@
+"use client";
+
 import ProductSection from "@/components/product/ProductSection";
-// Reusable product section component
-
 import useTopRatingProducts from "@/modules/home/hooks/useTopRatingProducts";
-// Custom hook responsible for fetching "Top Rating" products
 
-const TopRating = () => (
-  <ProductSection
-    useProductsHook={useTopRatingProducts}
-    title="Top Rated Products"
-    subtitle="Highly rated by customers across all categories"
-    viewAllHref="/products?type=top-rating"
-    showSoldCount={false}
-  />
-);
+const TopRatingProducts = () => {
+  const { products, loading, error } = useTopRatingProducts({
+    mode: "home",
+  });
 
-export default TopRating;
+  return (
+    <ProductSection
+      products={products}
+      loading={loading}
+      error={error}
+      title="Top Rated Products"
+      subtitle="Highly rated products by customers"
+      viewAllHref="/products?type=top-rating"
+    />
+  );
+};
+
+export default TopRatingProducts;

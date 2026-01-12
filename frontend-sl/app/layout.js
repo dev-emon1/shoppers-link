@@ -18,7 +18,7 @@ import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/footer/Footer";
 // Global footer component
 
-import { ReduxProvider } from "@/core/store/Provider";
+import { ReduxProvider } from "@/core/store/ReduxProvider";
 // Redux provider wrapper for global state management
 
 import { Toaster } from "react-hot-toast";

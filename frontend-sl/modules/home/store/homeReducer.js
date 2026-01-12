@@ -8,6 +8,7 @@ import {
   fetchBannersApi,
   fetchShopByBrandsApi,
 } from "../services/homeService";
+import { readBannerCache, writeBannerCache } from "../utils/bannerCache";
 
 /**
  * TTL = Time To Live in milliseconds
@@ -21,9 +22,32 @@ const SHOP_BY_BRAND_TTL = 60 * 60 * 1000; // 1 hour
 
 export const fetchBanners = createAsyncThunk(
   "home/fetchBanners",
-  async (_, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      return await fetchBannersApi();
+      const state = getState().home.banners;
+
+      // 1️⃣ Redux TTL cache
+      if (
+        state.data.length > 0 &&
+        state.lastFetched &&
+        Date.now() - state.lastFetched < state.ttl
+      ) {
+        return state.data;
+      }
+
+      // 2️⃣ Session cache
+      const cached = readBannerCache();
+      if (cached && Array.isArray(cached)) {
+        return cached;
+      }
+
+      // 3️⃣ Network
+      const data = await fetchBannersApi();
+
+      // 4️⃣ Save to session cache
+      writeBannerCache(data);
+
+      return data;
     } catch {
       return rejectWithValue("Failed to fetch banners");
     }
@@ -32,10 +56,14 @@ export const fetchBanners = createAsyncThunk(
 
 export const fetchFeaturedProducts = createAsyncThunk(
   "home/fetchFeaturedProducts",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1 }, { rejectWithValue }) => {
     try {
-      const raw = await fetchFeaturedProductsApi();
-      return normalizeFeaturedProducts(raw);
+      const res = await fetchFeaturedProductsApi(page);
+
+      return {
+        products: normalizeFeaturedProducts(res.data),
+        meta: res.meta,
+      };
     } catch {
       return rejectWithValue("Failed to fetch featured products");
     }
@@ -44,9 +72,9 @@ export const fetchFeaturedProducts = createAsyncThunk(
 
 export const fetchTopRatingProducts = createAsyncThunk(
   "home/fetchTopRatingProducts",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1 }, { rejectWithValue }) => {
     try {
-      return await fetchTopRatingApi();
+      return await fetchTopRatingApi(page);
     } catch {
       return rejectWithValue("Failed to fetch top rating products");
     }
@@ -55,10 +83,10 @@ export const fetchTopRatingProducts = createAsyncThunk(
 
 export const fetchNewArrivals = createAsyncThunk(
   "home/fetchNewArrivals",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1 }, { rejectWithValue }) => {
     try {
-      return await fetchNewArrivalsApi();
-    } catch (err) {
+      return await fetchNewArrivalsApi(page);
+    } catch {
       return rejectWithValue("Failed to fetch new arrivals");
     }
   }
@@ -66,9 +94,9 @@ export const fetchNewArrivals = createAsyncThunk(
 
 export const fetchTopSelling = createAsyncThunk(
   "home/fetchTopSelling",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1 }, { rejectWithValue }) => {
     try {
-      return await fetchTopSellingApi();
+      return await fetchTopSellingApi(page);
     } catch {
       return rejectWithValue("Failed to fetch top selling products");
     }
@@ -97,25 +125,39 @@ const homeSlice = createSlice({
     },
     featured: {
       data: [],
-      status: "idle", // idle | loading | success | error
+      status: "idle",
+      page: 1,
+      lastPage: null,
+      hasMore: true,
       lastFetched: null,
       ttl: FEATURED_TTL,
     },
+
     topRating: {
       data: [],
       status: "idle",
+      page: 1,
+      lastPage: null,
+      hasMore: true,
       lastFetched: null,
       ttl: TOP_RATING_TTL,
     },
+
     newArrivals: {
       data: [],
       status: "idle",
+      page: 1,
+      lastPage: null,
+      hasMore: true,
       lastFetched: null,
       ttl: NEW_ARRIVALS_TTL,
     },
     topSelling: {
       data: [],
       status: "idle",
+      page: 1,
+      lastPage: null,
+      hasMore: true,
       lastFetched: null,
       ttl: TOP_SELLING_TTL,
     },
@@ -130,7 +172,9 @@ const homeSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchBanners.pending, (state) => {
-        state.banners.status = "loading";
+        if (state.banners.data.length === 0) {
+          state.banners.status = "loading";
+        }
       })
       .addCase(fetchBanners.fulfilled, (state, action) => {
         state.banners.status = "success";
@@ -140,50 +184,88 @@ const homeSlice = createSlice({
       .addCase(fetchBanners.rejected, (state) => {
         state.banners.status = "error";
       })
+
       .addCase(fetchFeaturedProducts.pending, (state) => {
         state.featured.status = "loading";
       })
+
       .addCase(fetchFeaturedProducts.fulfilled, (state, action) => {
+        const { products, meta } = action.payload;
         state.featured.status = "success";
-        state.featured.data = action.payload;
+        if (meta.current_page === 1) {
+          state.featured.data = products;
+        } else {
+          state.featured.data.push(...products);
+        }
+        state.featured.page = meta.current_page;
+        state.featured.lastPage = meta.last_page;
+        state.featured.hasMore = meta.current_page < meta.last_page;
         state.featured.lastFetched = Date.now();
       })
       .addCase(fetchFeaturedProducts.rejected, (state) => {
         state.featured.status = "error";
       })
+
       .addCase(fetchTopRatingProducts.pending, (state) => {
         state.topRating.status = "loading";
       })
       .addCase(fetchTopRatingProducts.fulfilled, (state, action) => {
+        const { data, meta } = action.payload;
         state.topRating.status = "success";
-        state.topRating.data = action.payload;
+        if (meta.current_page === 1) {
+          state.topRating.data = data;
+        } else {
+          state.topRating.data.push(...data);
+        }
+        state.topRating.page = meta.current_page;
+        state.topRating.lastPage = meta.last_page;
+        state.topRating.hasMore = meta.current_page < meta.last_page;
         state.topRating.lastFetched = Date.now();
       })
       .addCase(fetchTopRatingProducts.rejected, (state) => {
         state.topRating.status = "error";
       })
+
       .addCase(fetchNewArrivals.pending, (state) => {
         state.newArrivals.status = "loading";
       })
       .addCase(fetchNewArrivals.fulfilled, (state, action) => {
+        const { data, meta } = action.payload;
         state.newArrivals.status = "success";
-        state.newArrivals.data = action.payload;
+        if (meta.current_page === 1) {
+          state.newArrivals.data = data;
+        } else {
+          state.newArrivals.data.push(...data);
+        }
+        state.newArrivals.page = meta.current_page;
+        state.newArrivals.lastPage = meta.last_page;
+        state.newArrivals.hasMore = meta.current_page < meta.last_page;
         state.newArrivals.lastFetched = Date.now();
       })
       .addCase(fetchNewArrivals.rejected, (state) => {
         state.newArrivals.status = "error";
       })
+
       .addCase(fetchTopSelling.pending, (state) => {
         state.topSelling.status = "loading";
       })
       .addCase(fetchTopSelling.fulfilled, (state, action) => {
+        const { data, meta } = action.payload;
         state.topSelling.status = "success";
-        state.topSelling.data = action.payload;
+        if (meta.current_page === 1) {
+          state.topSelling.data = data;
+        } else {
+          state.topSelling.data.push(...data);
+        }
+        state.topSelling.page = meta.current_page;
+        state.topSelling.lastPage = meta.last_page;
+        state.topSelling.hasMore = meta.current_page < meta.last_page;
         state.topSelling.lastFetched = Date.now();
       })
       .addCase(fetchTopSelling.rejected, (state) => {
         state.topSelling.status = "error";
       })
+
       .addCase(fetchShopByBrands.pending, (state) => {
         state.shopByBrands.status = "loading";
       })

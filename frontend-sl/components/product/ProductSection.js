@@ -21,7 +21,9 @@ import ViewAllButton from "../common/ViewAllButton";
 // Reusable "View All" button component
 
 const ProductSection = ({
-  useProductsHook,
+  products = [],
+  loading = false,
+  error = false,
   title,
   subtitle,
   viewAllHref,
@@ -29,9 +31,6 @@ const ProductSection = ({
 }) => {
   // Reference to Swiper instance (for manual navigation)
   const swiperRef = useRef(null);
-
-  // Fetch products using injected hook
-  const { products, loading, error } = useProductsHook();
 
   // Toggle state for "Expiring Soon" filter
   const [showExpiringSoon, setShowExpiringSoon] = useState(false);
