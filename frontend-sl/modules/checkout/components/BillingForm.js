@@ -3,24 +3,25 @@
 import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getAddressesApi } from "@/modules/user/services/addressService";
+import useCachedAddresses from "@/modules/user/hooks/useCachedAddresses";
 import { validateBilling } from "../utils/validation";
 
 export default function BillingForm({
   value = {},
   errors = {},
   onChange,
-  hasSavedBilling,
-  onUseSaved,
   registerValidate,
 }) {
   const { user } = useSelector((state) => state.auth);
 
-  const [addresses, setAddresses] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [localErrors, setLocalErrors] = useState(errors || {});
+  const { addresses, hasAddresses, defaultAddress } = useCachedAddresses(
+    user?.customer?.id
+  );
 
-  // 🔹 local controlled form (single source for inputs)
+  const [localErrors, setLocalErrors] = useState(errors || {});
+  const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
+
+  // 🔹 local controlled form
   const [form, setForm] = useState({
     fullName: value.fullName || "",
     phone: value.phone || "",
@@ -32,7 +33,7 @@ export default function BillingForm({
     notes: value.notes || "",
   });
 
-  // 🔹 register validation with Stepper
+  /* 🔹 register validation with stepper */
   useEffect(() => {
     if (!registerValidate) return;
 
@@ -40,70 +41,67 @@ export default function BillingForm({
       const vErrors = validateBilling(form);
       setLocalErrors(vErrors);
 
-      // ✅ Stepper-compatible return
-      if (Object.keys(vErrors).length > 0) {
-        return { valid: false };
-      }
-
-      return { valid: true };
+      return Object.keys(vErrors).length ? { valid: false } : { valid: true };
     });
-  }, [registerValidate, form]);
-
-  // 🔹 local → redux (ONLY direction)
-  useEffect(() => {
-    onChange && onChange(form);
   }, [form]);
 
-  // 🔹 sync errors from parent (redux / middleware)
+  /* 🔹 sync to checkout redux */
   useEffect(() => {
-    setLocalErrors(errors || {});
-  }, [errors]);
+    onChange &&
+      onChange({
+        ...form,
+        saveAddress: shouldSaveAddress,
+      });
+  }, [form, shouldSaveAddress]);
 
-  // 🔹 Fetch saved addresses
+  /* 🔹 first-time user → auto save */
   useEffect(() => {
-    const fetchAddresses = async () => {
-      if (!user?.customer?.id) return;
-      try {
-        setLoading(true);
-        const res = await getAddressesApi(user.customer.id);
-        setAddresses(res?.data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAddresses();
-  }, [user?.customer?.id]);
+    if (!hasAddresses) {
+      setShouldSaveAddress(true);
+    }
+  }, [hasAddresses]);
 
-  // 🔹 Address select → fill form
+  /* 🔹 default address auto-fill */
+  useEffect(() => {
+    if (!defaultAddress) return;
+
+    setForm((prev) => ({
+      ...prev,
+      line1: defaultAddress.address_line1 || "",
+      area: defaultAddress.area || "",
+      city: defaultAddress.city || "",
+      postalCode: defaultAddress.postal_code || "",
+    }));
+  }, [defaultAddress]);
+
+  /* 🔹 select saved address */
   const handleAddressSelect = (addr) => {
+    setShouldSaveAddress(false); // ❌ do not auto save
     setForm((prev) => ({
       ...prev,
       line1: addr.address_line1 || "",
-      city: addr.city || "",
       area: addr.area || "",
+      city: addr.city || "",
       postalCode: addr.postal_code || "",
     }));
   };
 
+  /* 🔹 handle input change */
   const handleChange = (field) => (e) => {
     const value = e.target.value;
-
     setForm((prev) => ({ ...prev, [field]: value }));
 
-    // 🔥 clear error for this field if valid now
     if (localErrors[field]) {
-      const fieldErrors = validateBilling({
+      const nextErrors = validateBilling({
         ...form,
         [field]: value,
       });
 
-      if (!fieldErrors[field]) {
+      if (!nextErrors[field]) {
         setLocalErrors((prev) => {
-          const next = { ...prev };
-          delete next[field];
-          return next;
+          const copy = { ...prev };
+          delete copy[field];
+          return copy;
         });
       }
     }
@@ -123,21 +121,22 @@ export default function BillingForm({
           </p>
         </div>
 
+        {/* Saved addresses */}
         <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-xs text-textSecondary">Address type:</span>
+          <span className="text-xs text-textSecondary">Saved:</span>
           {addresses.length > 0 ? (
             addresses.map((a) => (
               <button
                 key={a.id}
                 type="button"
                 onClick={() => handleAddressSelect(a)}
-                className={`px-3 py-1 text-xs font-medium rounded-full border transition-all ${
+                className={`px-3 py-1 text-xs font-medium rounded-full border transition-all capitalize ${
                   form.line1 === a.address_line1
                     ? "bg-main text-white border-main"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-main"
+                    : "bg-white text-textSecondary border-border hover:border-main"
                 }`}
               >
-                {a.address_line1}
+                {a.address_type}
               </button>
             ))
           ) : (
@@ -146,16 +145,6 @@ export default function BillingForm({
             </span>
           )}
         </div>
-
-        {hasSavedBilling && (
-          <button
-            type="button"
-            onClick={onUseSaved}
-            className="text-xs md:text-sm text-main hover:underline"
-          >
-            Use saved address
-          </button>
-        )}
       </div>
 
       {/* Form */}
@@ -217,6 +206,7 @@ export default function BillingForm({
           error={localErrors.postalCode}
         />
 
+        {/* Order notes */}
         <div className="md:col-span-2">
           <label className="block text-xs font-medium text-gray-700 mb-1">
             Order notes (optional)
@@ -226,7 +216,7 @@ export default function BillingForm({
             placeholder="Any special instructions for delivery…"
             value={form.notes}
             onChange={handleChange("notes")}
-            className="w-full rounded-lg border px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none"
           />
         </div>
       </div>
@@ -246,7 +236,9 @@ function Input({ label, value, onChange, error, placeholder, colSpan }) {
         onChange={onChange}
         placeholder={placeholder}
         className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
-          error ? "border-red-500 focus:ring-red-200" : "border-border"
+          error
+            ? "border-red-500 focus:ring-red-200"
+            : "border-border focus:ring-mainSoft"
         }`}
       />
       {error && <p className="mt-1 text-xs text-red">{error}</p>}

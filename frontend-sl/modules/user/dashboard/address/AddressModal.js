@@ -2,6 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { useAddresses } from "@/modules/user/hooks/useAddresses";
+import {
+  validateAddressField,
+  validateAddressForm,
+} from "@/modules/user/utils/addressValidation";
+import { CrossIcon, X } from "lucide-react";
 
 export default function AddressModal({
   open,
@@ -11,6 +16,7 @@ export default function AddressModal({
   initialData = null,
 }) {
   const { createAddress, editAddress, loading } = useAddresses(customerId);
+  const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
     address_type: "home",
@@ -41,30 +47,35 @@ export default function AddressModal({
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    const finalValue = type === "checkbox" ? checked : value;
+
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: finalValue,
+    }));
+
+    // real-time validation
+    const error = validateAddressField(name, finalValue);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: error,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !form.address_type ||
-      !form.address_line1 ||
-      !form.area ||
-      !form.city ||
-      !form.postal_code
-    ) {
-      alert("Please fill all required fields");
+    const validationErrors = validateAddressForm(form);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
     const payload = {
       ...form,
       country: "Bangladesh",
-      state: null, // deprecated
+      state: null,
     };
 
     if (mode === "edit") {
@@ -82,28 +93,38 @@ export default function AddressModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white w-full max-w-lg rounded-lg p-6 space-y-4">
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50">
+      {/* Modal */}
+      <div className="z-[9999] w-full max-w-xl rounded-xl bg-bgSurface shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-mainSoft">
+          <h2 className="text-lg font-semibold text-textPrimary">
             {mode === "edit" ? "Edit Address" : "Add New Address"}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-black">
-            ✕
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="rounded-md p-1 text-textSecondary
+             hover:text-textPrimary hover:bg-mainSoft
+             transition-colors"
+          >
+            <X size={18} strokeWidth={2} />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
           {/* Address Type */}
           <div>
-            <label className="block text-sm font-medium">Address Type *</label>
+            <label className="block text-sm font-medium text-textSecondary mb-1">
+              Address Type *
+            </label>
             <select
               name="address_type"
               value={form.address_type}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border bg-bgSurface px-3 py-2 text-sm
+                       focus:border-main focus:ring-2 focus:ring-mainSoft outline-none"
             >
               <option value="home">Home</option>
               <option value="office">Office</option>
@@ -111,34 +132,39 @@ export default function AddressModal({
           </div>
 
           {/* Address Line 1 */}
-          <input
-            type="text"
-            name="address_line1"
-            value={form.address_line1}
-            onChange={handleChange}
-            placeholder="House, Road, Block *"
-            className="w-full border rounded px-3 py-2 text-sm"
-          />
+          <div>
+            <label className="block text-sm font-medium text-textSecondary mb-1">
+              Address *
+            </label>
 
-          {/* Address Line 2 */}
-          <input
-            type="text"
-            name="address_line2"
-            value={form.address_line2}
-            onChange={handleChange}
-            placeholder="Apartment, Floor (optional)"
-            className="w-full border rounded px-3 py-2 text-sm"
-          />
+            <input
+              type="text"
+              name="address_line1"
+              value={form.address_line1}
+              onChange={handleChange}
+              className={`w-full rounded-lg border px-3 py-2 text-sm outline-none
+    ${
+      errors.address_line1
+        ? "border-red focus:ring-red/20"
+        : "border-border focus:border-main focus:ring-mainSoft"
+    }`}
+            />
 
-          {/* Area / City */}
-          <div className="grid grid-cols-2 gap-3">
+            {errors.address_line1 && (
+              <p className="mt-1 text-xs text-red">{errors.address_line1}</p>
+            )}
+          </div>
+
+          {/* Area + City */}
+          <div className="grid grid-cols-2 gap-4">
             <input
               type="text"
               name="area"
               value={form.area}
               onChange={handleChange}
               placeholder="Area / Thana *"
-              className="border rounded px-3 py-2 text-sm"
+              className="rounded-lg border border-border bg-bgSurface px-3 py-2 text-sm
+                       focus:border-main focus:ring-2 focus:ring-mainSoft outline-none"
             />
             <input
               type="text"
@@ -146,7 +172,8 @@ export default function AddressModal({
               value={form.city}
               onChange={handleChange}
               placeholder="City / District *"
-              className="border rounded px-3 py-2 text-sm"
+              className="rounded-lg border border-border bg-bgSurface px-3 py-2 text-sm
+                       focus:border-main focus:ring-2 focus:ring-mainSoft outline-none"
             />
           </div>
 
@@ -157,33 +184,38 @@ export default function AddressModal({
             value={form.postal_code}
             onChange={handleChange}
             placeholder="Postcode *"
-            className="w-full border rounded px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-bgSurface px-3 py-2 text-sm
+                     focus:border-main focus:ring-2 focus:ring-mainSoft outline-none"
           />
 
           {/* Default */}
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-2 text-sm text-textSecondary">
             <input
               type="checkbox"
               name="is_default"
               checked={form.is_default}
               onChange={handleChange}
+              className="h-4 w-4 rounded border-border text-main focus:ring-main"
             />
             Set as default address
           </label>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-2">
+          {/* Footer */}
+          <div className="flex justify-end gap-3 pt-4 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm border rounded"
+              className="px-4 py-2 text-sm rounded-lg border border-border text-textSecondary
+                       hover:bg-bgPage"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded disabled:opacity-50"
+              className="px-5 py-2 text-sm rounded-lg bg-main text-textWhite
+             hover:bg-mainHover active:bg-mainActive
+             disabled:opacity-50"
             >
               {loading
                 ? "Saving..."

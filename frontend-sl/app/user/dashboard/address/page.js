@@ -29,7 +29,7 @@ export default function AddressPage() {
         {/* Form comes next phase */}
         <AddAddressButton
           customerId={customerId}
-          disabled={addresses.length >= 3}
+          disabled={addresses.length >= 2}
         />
       </div>
 
