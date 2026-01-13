@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { showToast } from "@/lib/utils/toast";
 import { orderService } from "../services/order.service";
 import { saveBillingAddress } from "../store/billingReducer";
+import { mapBillingToAddressPayload } from "../utils/billingToAddressMapper";
 
 export default function useOrderPlacement({
   billing,
@@ -26,17 +27,20 @@ export default function useOrderPlacement({
 
       if (!user?.customer?.id) {
         showToast("Please login to place order.");
+        setIsPlacing(false);
         return;
       }
 
       if (!payment?.value) {
         showToast("Please select a payment method.");
+        setIsPlacing(false);
         return;
       }
 
       const vendorEntries = Object.entries(cart || {});
       if (!vendorEntries.length) {
         showToast("Your cart is empty.");
+        setIsPlacing(false);
         return;
       }
 
@@ -56,20 +60,20 @@ export default function useOrderPlacement({
         })
         .filter(Boolean);
 
-      // 🟢 SAVE BILLING ADDRESS (new user / no default)
-      if (!user?.billingAddress && billing?.value?.line1) {
-        await dispatch(
-          saveBillingAddress({
-            billing: billing.value,
-            customerId: user.customer.id,
-          })
-        ).unwrap();
+      // Save address (first-time user only)
+      if (billing?.value?.saveAddress === true && billing?.value?.line1) {
+        const addressPayload = mapBillingToAddressPayload({
+          billing: billing.value,
+          customerId: user.customer.id,
+        });
+
+        await dispatch(saveBillingAddress(addressPayload)).unwrap();
       }
 
       const payload = {
         customer_id: user.customer.id,
         payment_method: payment.value,
-        shipping_address_id: billing?.value?.address_id || null,
+        shipping_address_id: null, // 🔥 safer for now
         a_s_a: {
           billing: billing.value,
           shipping: shipping.value,
