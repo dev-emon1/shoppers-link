@@ -253,7 +253,7 @@ export default function OrderCard({ order }) {
         <div className="mt-5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2.5">
           <button
             onClick={handleViewDetails}
-            className="w-full sm:w-auto px-3.5 py-1.5 text-xs font-medium bg-main text-white rounded-md hover:opacity-90 transition"
+            className="w-full sm:w-auto px-3.5 py-1.5 text-xs font-medium bg-white border border-main text-main rounded-md hover:bg-main/5 transition"
           >
             View Details
           </button>
@@ -263,7 +263,7 @@ export default function OrderCard({ order }) {
               <button
                 onClick={handleCancel}
                 disabled={cancelling}
-                className="w-full sm:w-auto px-3.5 py-1.5 text-xs font-medium bg-main text-white rounded-md hover:opacity-90 disabled:opacity-50 transition"
+                className="w-full sm:w-auto px-3.5 py-1.5 text-xs font-medium bg-white text-red border border-red  rounded-md hover:bg-red/15 disabled:opacity-50 transition"
               >
                 {cancelling ? "Cancelling..." : "Cancel"}
               </button>

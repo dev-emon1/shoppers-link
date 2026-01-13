@@ -39,13 +39,13 @@ function ProductGrid({
       </div>
 
       {hasMore && typeof onLoadMore === "function" && (
-        <div className="flex justify-center mt-12">
+        <div className="flex justify-center mt-8 mb-4">
           <button
             onClick={onLoadMore}
             disabled={loading}
-            className="bg-main text-white px-8 py-2.5 rounded-lg hover:bg-main/90 disabled:opacity-60 transition-all"
+            className="bg-white text-main border border-main px-4 py-1 rounded-sm hover:bg-main/5  disabled:opacity-60 transition-all text-sm"
           >
-            {loading ? "Loading..." : "Load More"}
+            {loading ? "Loading..." : "Load more"}
           </button>
         </div>
       )}
