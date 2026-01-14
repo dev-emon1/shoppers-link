@@ -1,24 +1,24 @@
 "use client";
 
-import { useSelector, useDispatch } from "react-redux";
-import { Camera, Mail, Phone, User, Lock, Calendar } from "lucide-react";
+import { Camera, Mail, Phone, User, Lock } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
-import toast from "react-hot-toast";
-import {
-  updateProfile,
-  updateAvatar,
-  changePassword,
-} from "@/modules/user/store/profileReducer";
-import { setUserFromToken } from "@/modules/user/store/authReducer";
-import { IMAGE_URL } from "@/core/api/axiosClient";
+import { useProfile } from "@/modules/user/hooks/useProfile";
+import { makeImageUrl } from "@/lib/utils/image";
 
 export default function ProfilePage() {
-  const { user } = useSelector((state) => state.auth);
-  const profileState = useSelector((state) => state.profile);
-  const dispatch = useDispatch();
+  const {
+    user,
+    updatingProfile,
+    avatarUploading,
+    passwordUpdating,
+    saveProfile,
+    uploadAvatar,
+    updatePasswordHandler,
+  } = useProfile();
 
   const [profileImage, setProfileImage] = useState(null);
+
   const [form, setForm] = useState({
     name: user?.user_name || "",
     email: user?.email,
@@ -35,53 +35,15 @@ export default function ProfilePage() {
     const file = e.target.files[0];
     if (!file) return;
 
+    // local preview (same as before)
     setProfileImage(URL.createObjectURL(file));
-
-    const result = await dispatch(updateAvatar(file));
-    if (updateAvatar.fulfilled.match(result)) {
-      toast.success("Profile picture updated!");
-
-      // Refresh user info
-      // dispatch(setUserFromToken(result.payload));
-    } else {
-      toast.error("Upload failed");
-    }
+    await uploadAvatar(file);
   };
 
-  const handleProfileSave = async () => {
-    const result = await dispatch(updateProfile(form));
-    if (updateProfile.fulfilled.match(result)) {
-      toast.success("Profile updated successfully!");
-
-      // dispatch(setUserFromToken(result.payload));
-    } else {
-      toast.error(result.payload?.message || "Failed to update");
-    }
-  };
-
-  const handlePasswordUpdate = async () => {
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
-
-    const result = await dispatch(changePassword(passwordForm));
-    if (changePassword.fulfilled.match(result)) {
-      toast.success("Password updated!");
-      setPasswordForm({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } else {
-      toast.error(result.payload?.message || "Password update failed");
-    }
-  };
   const avatarSrc = profileImage
-    ? profileImage // This is the local blob preview from the file input
-    : user?.customer?.profile_picture
-    ? `${IMAGE_URL}/avatars/${user.customer.profile_picture}`
-    : "/default-avatar.png";
+    ? profileImage
+    : makeImageUrl(user?.customer?.profile_picture);
+
   return (
     <div className="space-y-10">
       {/* HEADER BLOCK */}
@@ -107,7 +69,7 @@ export default function ProfilePage() {
           <div className="text-white space-y-1">
             <h1 className="text-2xl font-semibold">{user?.user_name}</h1>
             <p className="flex items-center gap-2 opacity-90">
-              <Mail size={16} /> {user?.email}
+              {user?.email && <Mail size={16} />}
             </p>
             <p className="flex items-center gap-2 opacity-90">
               <Phone size={16} /> {user?.phone || "No phone added"}
@@ -116,7 +78,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* EDITABLE PROFILE FORM */}
+      {/* EDIT PROFILE */}
       <div className="bg-white p-8 rounded-2xl shadow-sm border space-y-8">
         <h2 className="text-xl font-semibold">Edit Profile Information</h2>
 
@@ -138,7 +100,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* EMAIL (disabled) */}
+          {/* EMAIL */}
           <div>
             <label className="text-sm font-medium">Email (locked)</label>
             <div className="relative opacity-70">
@@ -174,10 +136,10 @@ export default function ProfilePage() {
         </div>
 
         <button
-          onClick={handleProfileSave}
+          onClick={() => saveProfile(form)}
           className="bg-main text-white px-6 py-3 rounded-lg font-medium hover:bg-mainHover transition"
         >
-          {profileState?.updating ? "Saving..." : "Save Changes"}
+          {updatingProfile ? "Saving..." : "Save Changes"}
         </button>
       </div>
 
@@ -186,78 +148,51 @@ export default function ProfilePage() {
         <h2 className="text-xl font-semibold">Change Password</h2>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {/* CURRENT PASSWORD */}
-          <div>
-            <label className="text-sm font-medium">Current Password</label>
-            <div className="relative">
-              <Lock
-                size={18}
-                className="absolute left-3 top-1/2 text-gray-400 -translate-y-1/2"
-              />
-              <input
-                type="password"
-                value={passwordForm.currentPassword}
-                onChange={(e) =>
-                  setPasswordForm({
-                    ...passwordForm,
-                    currentPassword: e.target.value,
-                  })
-                }
-                className="w-full py-3 pl-10 pr-3 border rounded-lg mt-1"
-              />
-            </div>
-          </div>
+          <input
+            type="password"
+            placeholder="Current Password"
+            value={passwordForm.currentPassword}
+            onChange={(e) =>
+              setPasswordForm({
+                ...passwordForm,
+                currentPassword: e.target.value,
+              })
+            }
+            className="border p-3 rounded-lg"
+          />
 
-          {/* NEW PASSWORD */}
-          <div>
-            <label className="text-sm font-medium">New Password</label>
-            <div className="relative">
-              <Lock
-                size={18}
-                className="absolute left-3 top-1/2 text-gray-400 -translate-y-1/2"
-              />
-              <input
-                type="password"
-                value={passwordForm.newPassword}
-                onChange={(e) =>
-                  setPasswordForm({
-                    ...passwordForm,
-                    newPassword: e.target.value,
-                  })
-                }
-                className="w-full py-3 pl-10 pr-3 border rounded-lg mt-1"
-              />
-            </div>
-          </div>
+          <input
+            type="password"
+            placeholder="New Password"
+            value={passwordForm.newPassword}
+            onChange={(e) =>
+              setPasswordForm({
+                ...passwordForm,
+                newPassword: e.target.value,
+              })
+            }
+            className="border p-3 rounded-lg"
+          />
 
-          {/* CONFIRM PASSWORD */}
-          <div>
-            <label className="text-sm font-medium">Confirm New Password</label>
-            <div className="relative">
-              <Lock
-                size={18}
-                className="absolute left-3 top-1/2 text-gray-400 -translate-y-1/2"
-              />
-              <input
-                type="password"
-                value={passwordForm.confirmPassword}
-                onChange={(e) =>
-                  setPasswordForm({
-                    ...passwordForm,
-                    confirmPassword: e.target.value,
-                  })
-                }
-                className="w-full py-3 pl-10 pr-3 border rounded-lg mt-1"
-              />
-            </div>
-          </div>
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={passwordForm.confirmPassword}
+            onChange={(e) =>
+              setPasswordForm({
+                ...passwordForm,
+                confirmPassword: e.target.value,
+              })
+            }
+            className="border p-3 rounded-lg"
+          />
         </div>
 
         <button
-          onClick={handlePasswordUpdate}
+          onClick={() => updatePasswordHandler(passwordForm)}
           className="bg-main text-white px-6 py-3 rounded-lg font-medium hover:bg-mainHover transition"
         >
-          {profileState?.passwordUpdating ? "Updating..." : "Update Password"}
+          {passwordUpdating ? "Updating..." : "Update Password"}
         </button>
       </div>
     </div>
