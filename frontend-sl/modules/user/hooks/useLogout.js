@@ -24,7 +24,7 @@ export default function useLogout() {
       localStorage.removeItem("auth");
     }
 
-    router.push("/login");
+    router.push("/user/login");
   };
 
   return { logout: handleLogout };
