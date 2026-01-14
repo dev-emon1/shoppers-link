@@ -3,19 +3,17 @@ import api from "@/core/api/axiosClient";
 // Update name, phone, etc.
 export const updateProfileApi = async (payload) => {
   const res = await api.post("/user/profile/update", payload);
-  return res.data;
+  return res.data; // expect updated user/customer
 };
 
-// Update profile picture (multipart form)
+// Update profile picture (multipart)
 export const updateProfilePhotoApi = async (file) => {
   const form = new FormData();
   form.append("avatar", file);
 
-  const res = await api.post("/user/profile/avatar", form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-
-  return res.data;
+  // ❌ no manual headers
+  const res = await api.post("/user/profile/avatar", form);
+  return res.data; // { profile_picture: "xxx.jpg" }
 };
 
 // Change password
