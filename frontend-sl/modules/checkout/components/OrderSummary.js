@@ -134,7 +134,7 @@ import { formatAmount } from "../utils/format";
 import useCart from "@/modules/cart/hooks/useCart"; // <-- UPDATED
 
 export default function OrderSummary({ totals }) {
-  const { cart, totalItems, totalPrice } = useCart(); // <-- UPDATED
+  const { cart, totalItems, totalPrice } = useCart();
 
   const flatCartItems = [];
   Object.values(cart || {}).forEach((vendor) => {

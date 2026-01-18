@@ -42,8 +42,8 @@ function Step({ active, completed, label, time, icon }) {
           completed
             ? "bg-green text-white"
             : active
-            ? "bg-main text-white"
-            : "bg-gray-200 text-gray-400"
+              ? "bg-main text-white"
+              : "bg-gray-200 text-gray-400"
         }`}
       >
         {icon}
@@ -76,8 +76,8 @@ function MobileTimeline({ steps, currentIndex, timelineMap }) {
                 completed
                   ? "bg-green text-white"
                   : active
-                  ? "bg-main text-white"
-                  : "bg-gray-200 text-gray-400"
+                    ? "bg-main text-white"
+                    : "bg-gray-200 text-gray-400"
               }`}
             >
               {s.icon}
@@ -135,7 +135,7 @@ export default function OrderDetailsPane({ order }) {
     );
 
   const vendorStatuses = (order.vendor_orders ?? []).map((v) =>
-    (v.status ?? "pending").toLowerCase()
+    (v.status ?? "pending").toLowerCase(),
   );
   const activeStatuses = vendorStatuses.filter((s) => s !== "cancelled");
   const isAllCancelled = activeStatuses.length === 0;
@@ -146,14 +146,14 @@ export default function OrderDetailsPane({ order }) {
   const overallIndex = isAllCancelled
     ? -1
     : activeStatuses.length > 0
-    ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0))
-    : 0;
+      ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0))
+      : 0;
 
   const overallStatus = isAllCancelled
     ? "cancelled"
     : activeStatuses.length > 0
-    ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
-    : "pending";
+      ? (PROGRESS_STEPS[overallIndex]?.key ?? "pending")
+      : "pending";
 
   const isCancelled = overallStatus === "cancelled";
   const isDelivered = overallStatus === "delivered";
@@ -188,7 +188,7 @@ export default function OrderDetailsPane({ order }) {
     const orderKey = order.unid ?? order.id;
 
     const ok = window.confirm(
-      "Do you want to request cancellation for this vendor order? This will attempt to release reserved stock and notify the vendor."
+      "Do you want to request cancellation for this vendor order? This will attempt to release reserved stock and notify the vendor.",
     );
     if (!ok) return;
 
@@ -200,15 +200,15 @@ export default function OrderDetailsPane({ order }) {
             vendor_orders: (order.vendor_orders ?? []).map((v) =>
               v.id === voId
                 ? { ...v, status: "cancelled", cancelled_by: "customer" }
-                : v
+                : v,
             ),
             status: (order.vendor_orders ?? []).every(
-              (v) => (v.id === voId ? "cancelled" : v.status) === "cancelled"
+              (v) => (v.id === voId ? "cancelled" : v.status) === "cancelled",
             )
               ? "cancelled"
               : order.status,
           },
-        })
+        }),
       );
 
       setProcessingVendorCancel(voId);
@@ -227,7 +227,7 @@ export default function OrderDetailsPane({ order }) {
   const generateInvoice = async () => {
     const activeVendorOrders =
       order.vendor_orders?.filter(
-        (v) => (v.status ?? "").toLowerCase() !== "cancelled"
+        (v) => (v.status ?? "").toLowerCase() !== "cancelled",
       ) ?? [];
 
     const container = document.createElement("div");
@@ -242,7 +242,7 @@ export default function OrderDetailsPane({ order }) {
         billing={billing}
         activeVendorOrders={activeVendorOrders}
         totals={totals}
-      />
+      />,
     );
 
     setTimeout(async () => {
@@ -502,7 +502,7 @@ export default function OrderDetailsPane({ order }) {
                   <div className="text-xs text-textSecondary mt-2">
                     {vTimeline[vStatus] || v.updated_at || v.created_at
                       ? new Date(
-                          vTimeline[vStatus] || v.updated_at || v.created_at
+                          vTimeline[vStatus] || v.updated_at || v.created_at,
                         ).toLocaleString()
                       : ""}
                   </div>

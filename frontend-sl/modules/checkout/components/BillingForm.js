@@ -7,6 +7,7 @@ import useCachedAddresses from "@/modules/user/hooks/useCachedAddresses";
 import { validateBilling } from "../utils/validation";
 import { showToast } from "@/lib/utils/toast";
 
+/* ---------------- helpers ---------------- */
 const isSameValue = (a, b) => {
   try {
     return JSON.stringify(a) === JSON.stringify(b);
@@ -22,14 +23,13 @@ export default function BillingForm({
   registerValidate,
 }) {
   const { user } = useSelector((state) => state.auth);
-
   const { addresses, defaultAddress } = useCachedAddresses(user?.customer?.id);
 
   const [localErrors, setLocalErrors] = useState(errors || {});
   const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
   const [setAsDefault, setSetAsDefault] = useState(false);
 
-  // 🔹 local controlled form
+  /* ---------------- local form ---------------- */
   const [form, setForm] = useState({
     fullName: value.fullName || "",
     phone: value.phone || "",
@@ -41,55 +41,44 @@ export default function BillingForm({
     notes: value.notes || "",
   });
 
-  /* ===============================
-     Duplicate address check
-  =============================== */
-  const isDuplicateAddress = () => {
-    return addresses.some((addr) => {
-      return (
-        addr.address_line1?.trim().toLowerCase() ===
+  /* ---------------- duplicate check ---------------- */
+  const isDuplicateAddress = () =>
+    addresses.some(
+      (a) =>
+        a.address_line1?.trim().toLowerCase() ===
           form.line1.trim().toLowerCase() &&
-        addr.area?.trim().toLowerCase() === form.area.trim().toLowerCase() &&
-        addr.city?.trim().toLowerCase() === form.city.trim().toLowerCase()
-      );
-    });
-  };
+        a.area?.trim().toLowerCase() === form.area.trim().toLowerCase() &&
+        a.city?.trim().toLowerCase() === form.city.trim().toLowerCase(),
+    );
 
-  /* ===============================
-     Register validation with stepper
-  =============================== */
+  /* ---------------- step validation ---------------- */
   useEffect(() => {
     if (!registerValidate) return;
 
     registerValidate(() => {
       const vErrors = validateBilling(form);
       setLocalErrors(vErrors);
-
       return Object.keys(vErrors).length ? { valid: false } : { valid: true };
     });
   }, [form, registerValidate]);
 
-  /* ===============================
-     Sync to redux
-  =============================== */
+  /* ---------------- sync to redux (SAFE) ---------------- */
   useEffect(() => {
     if (!onChange) return;
 
     const nextValue = {
+      ...value, // 🔥 keep selectedAddressId
       ...form,
       saveAddress: shouldSaveAddress,
       setAsDefault,
     };
 
-    // 🔒 prevent infinite update loop
     if (!isSameValue(value, nextValue)) {
       onChange(nextValue);
     }
   }, [form, shouldSaveAddress, setAsDefault]);
 
-  /* ===============================
-     Default address autofill
-  =============================== */
+  /* ---------------- default address autofill ---------------- */
   useEffect(() => {
     if (!defaultAddress) return;
 
@@ -106,48 +95,46 @@ export default function BillingForm({
     });
   }, [defaultAddress]);
 
-  /* ===============================
-     Select saved address
-  =============================== */
+  /* ---------------- select saved address ---------------- */
   const handleAddressSelect = (addr) => {
     setShouldSaveAddress(false);
     setSetAsDefault(false);
 
-    setForm((prev) => ({
-      ...prev,
+    setForm({
+      fullName: form.fullName,
+      phone: form.phone,
+      email: form.email,
       line1: addr.address_line1 || "",
       area: addr.area || "",
       city: addr.city || "",
       postalCode: addr.postal_code || "",
-    }));
+      notes: "",
+    });
+
+    onChange({
+      ...value,
+      selectedAddressId: addr.id,
+      saveAddress: false,
+      setAsDefault: false,
+    });
   };
 
-  /* ===============================
-     Input change
-  =============================== */
+  /* ---------------- input change ---------------- */
   const handleChange = (field) => (e) => {
-    const value = e.target.value;
-    setForm((prev) => ({ ...prev, [field]: value }));
+    const v = e.target.value;
 
-    if (localErrors[field]) {
-      const nextErrors = validateBilling({
-        ...form,
-        [field]: value,
-      });
+    setForm((p) => ({ ...p, [field]: v }));
 
-      if (!nextErrors[field]) {
-        setLocalErrors((prev) => {
-          const copy = { ...prev };
-          delete copy[field];
-          return copy;
-        });
-      }
-    }
+    // manual typing → deselect saved address
+    onChange({
+      ...value,
+      ...form,
+      [field]: v,
+      selectedAddressId: null,
+    });
   };
 
-  /* ===============================
-     Save address toggle
-  =============================== */
+  /* ---------------- save toggle ---------------- */
   const handleSaveToggle = (checked) => {
     if (checked && isDuplicateAddress()) {
       showToast("This address is already saved.");
@@ -171,28 +158,26 @@ export default function BillingForm({
           </p>
         </div>
 
-        {/* Saved addresses */}
+        {/* Saved */}
         <div className="flex flex-wrap gap-2 items-center">
           <span className="text-xs text-textSecondary">Saved:</span>
-          {addresses.length > 0 ? (
+          {addresses.length ? (
             addresses.map((a) => (
               <button
                 key={a.id}
                 type="button"
                 onClick={() => handleAddressSelect(a)}
-                className={`px-3 py-1 text-xs font-medium rounded-full border transition-all capitalize ${
-                  form.line1 === a.address_line1
+                className={`px-3 py-1 text-xs rounded-full border capitalize ${
+                  value.selectedAddressId === a.id
                     ? "bg-main text-white border-main"
-                    : "bg-white text-textSecondary border-border hover:border-main"
+                    : "bg-white border-border"
                 }`}
               >
                 {a.address_type}
               </button>
             ))
           ) : (
-            <span className="text-xs font-medium text-gray-400">
-              No saved address
-            </span>
+            <span className="text-xs text-gray-400">No saved address</span>
           )}
         </div>
       </div>
@@ -206,7 +191,6 @@ export default function BillingForm({
           onChange={handleChange("fullName")}
           error={localErrors.fullName}
         />
-
         <Input
           label="Phone number *"
           placeholder="01XXXXXXXXX"
@@ -214,7 +198,6 @@ export default function BillingForm({
           onChange={handleChange("phone")}
           error={localErrors.phone}
         />
-
         <Input
           label="Email (optional)"
           placeholder="you@example.com"
@@ -222,7 +205,6 @@ export default function BillingForm({
           onChange={handleChange("email")}
           error={localErrors.email}
         />
-
         <Input
           label="Area / Thana *"
           placeholder="e.g. Mirpur 14"
@@ -230,7 +212,6 @@ export default function BillingForm({
           onChange={handleChange("area")}
           error={localErrors.area}
         />
-
         <Input
           label="Address line *"
           placeholder="House, Road, Block, Area"
@@ -239,7 +220,6 @@ export default function BillingForm({
           error={localErrors.line1}
           colSpan
         />
-
         <Input
           label="City / District *"
           placeholder="e.g. Dhaka"
@@ -247,7 +227,6 @@ export default function BillingForm({
           onChange={handleChange("city")}
           error={localErrors.city}
         />
-
         <Input
           label="Postcode (optional)"
           placeholder="e.g. 1211"
@@ -258,21 +237,18 @@ export default function BillingForm({
 
         {/* Notes */}
         <div className="md:col-span-2">
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Order notes (optional)
-          </label>
           <textarea
             rows={3}
             placeholder="Any special instructions for delivery…"
             value={form.notes}
             onChange={handleChange("notes")}
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none"
+            className="w-full rounded-lg border px-3 py-2 text-sm"
           />
         </div>
 
-        {/* Save address options */}
-        <div className="md:col-span-2 flex flex-col gap-2 pt-2">
-          <label className="flex items-center gap-2 text-sm text-textSecondary">
+        {/* Save options */}
+        <div className="md:col-span-2 space-y-1 pt-2">
+          <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={shouldSaveAddress}
@@ -282,7 +258,7 @@ export default function BillingForm({
           </label>
 
           {shouldSaveAddress && (
-            <label className="flex items-center gap-2 text-xs text-textSecondary ml-6">
+            <label className="flex items-center gap-2 text-xs ml-6">
               <input
                 type="checkbox"
                 checked={setAsDefault}
@@ -297,24 +273,20 @@ export default function BillingForm({
   );
 }
 
-/* 🔹 Reusable Input */
+/* ---------------- input ---------------- */
 function Input({ label, value, onChange, error, placeholder, colSpan }) {
   return (
     <div className={colSpan ? "md:col-span-2" : ""}>
-      <label className="block text-xs font-medium text-gray-700 mb-1">
-        {label}
-      </label>
+      <label className="block text-xs mb-1">{label}</label>
       <input
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
-          error
-            ? "border-red-500 focus:ring-red-200"
-            : "border-border focus:ring-mainSoft"
+        className={`w-full rounded-lg border px-3 py-2 text-sm ${
+          error ? "border-red-500" : "border-border"
         }`}
       />
-      {error && <p className="mt-1 text-xs text-red">{error}</p>}
+      {error && <p className="text-xs text-red mt-1">{error}</p>}
     </div>
   );
 }
