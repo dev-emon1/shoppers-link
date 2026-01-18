@@ -140,7 +140,7 @@ const AllSalesTable = () => {
             <div className="max-w-7xl mx-auto">
 
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-2">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-2">
                     <div>
                         <h1 className="text-xl font-bold text-gray-800">All Sales Reports</h1>
                         <p className="text-gray-600 mt-1 text-sm">
@@ -162,7 +162,7 @@ const AllSalesTable = () => {
 
                 {/* Summary Cards */}
                 {summary && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-2">
                         {/* ... (same as before) */}
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <p className="text-sm text-gray-600">Total Sales</p>
@@ -202,6 +202,7 @@ const AllSalesTable = () => {
                                 selected={startDate}
                                 onChange={setStartDate}
                                 dateFormat="dd MMM yyyy"
+                                wrapperClassName='w-full'
                                 placeholderText="Select start date"
                                 className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
                                 isClearable
@@ -216,6 +217,7 @@ const AllSalesTable = () => {
                                 selected={endDate}
                                 onChange={setEndDate}
                                 dateFormat="dd MMM yyyy"
+                                wrapperClassName="w-full"
                                 placeholderText="Select end date"
                                 className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
                                 isClearable
@@ -234,23 +236,10 @@ const AllSalesTable = () => {
                             />
                         </div>
 
-                        {/* Vendor Filter - Admin Only */}
-                        {isAdmin && (
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Vendor ID</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. 45"
-                                    value={vendorId}
-                                    onChange={(e) => setVendorId(e.target.value)}
-                                    className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
-                                />
-                            </div>
-                        )}
                     </div>
 
                     {/* Search + Clear */}
-                    <div className="flex flex-col sm:flex-row gap-4 items-end">
+                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                         <div className="flex-1 relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input

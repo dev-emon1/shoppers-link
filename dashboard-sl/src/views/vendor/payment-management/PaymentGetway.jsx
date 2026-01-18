@@ -37,7 +37,7 @@ const AllPaymentSystemsPage = () => {
         <div className="px-6 bg-gray-50 min-h-screen">
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800">All Payment Systems</h1>
+                    <h1 className="text-xl font-bold text-gray-800">All Payment Systems</h1>
                     <p className="text-gray-600 mt-1">14 Payment Methods Available • Fully Integrated</p>
                 </div>
                 {/* <button className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
@@ -47,7 +47,7 @@ const AllPaymentSystemsPage = () => {
             </div>
 
             {/* Real Logos Grid */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6 gap-6">
                 {paymentMethods.map((method) => (
                     <div
                         key={method.id}

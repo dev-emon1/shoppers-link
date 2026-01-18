@@ -239,7 +239,7 @@ const InventoryReportPage = () => {
                 <div className="max-w-7xl mx-auto">
 
                     {/* Header */}
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-2 no-print">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-2 no-print">
                         <div>
                             <h1 className="text-xl font-bold text-gray-800">Inventory Report</h1>
                             <p className="text-gray-600 mt-1 text-sm">Current stock levels and variant details</p>
