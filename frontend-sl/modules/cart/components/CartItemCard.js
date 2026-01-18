@@ -9,7 +9,7 @@ const CartItemCard = ({ item, vendorId, onRemove, onQuantityChange }) => {
   const currentQty = Number(item?.quantity) || 1;
   const stock = Number(item?.stock) || 10;
 
-  // 🔹 Image resolve (single source of truth)
+  // 🔹 Resolve product image (single source of truth)
   const rawImage =
     item?.images?.[0] ?? item?.image ?? item?.rawProduct?.images?.[0];
 
@@ -47,18 +47,17 @@ const CartItemCard = ({ item, vendorId, onRemove, onQuantityChange }) => {
   const totalLine = (priceNumber * currentQty).toFixed(2);
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-3 border border-border rounded-lg p-3 mb-3 bg-white hover:shadow-sm transition">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-3 border border-border rounded-sm p-3 mb-3 bg-white">
       {/* Product Info */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        {/* Image */}
-        <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0">
+        {/* Image (compact & safe) */}
+        <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 overflow-hidden rounded-md bg-gray-100 border">
           <Image
             src={imageSrc}
             alt={item?.name ?? "Product image"}
-            width={64}
-            height={64}
-            className="object-contain rounded-md"
-            unoptimized
+            fill
+            sizes="64px"
+            className="object-contain"
           />
         </div>
 
@@ -124,7 +123,7 @@ const CartItemCard = ({ item, vendorId, onRemove, onQuantityChange }) => {
         {/* Remove */}
         <button
           onClick={handleRemove}
-          className="text-red-500 hover:text-red-700 flex-shrink-0"
+          className="text-red/80 hover:text-red flex-shrink-0"
           aria-label="Remove item"
         >
           <Trash2 size={18} />
