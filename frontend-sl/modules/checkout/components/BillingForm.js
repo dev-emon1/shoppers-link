@@ -7,6 +7,14 @@ import useCachedAddresses from "@/modules/user/hooks/useCachedAddresses";
 import { validateBilling } from "../utils/validation";
 import { showToast } from "@/lib/utils/toast";
 
+const isSameValue = (a, b) => {
+  try {
+    return JSON.stringify(a) === JSON.stringify(b);
+  } catch {
+    return false;
+  }
+};
+
 export default function BillingForm({
   value = {},
   errors = {},
@@ -34,7 +42,7 @@ export default function BillingForm({
   });
 
   /* ===============================
-     Duplicate Address Detection
+     Duplicate address check
   =============================== */
   const isDuplicateAddress = () => {
     return addresses.some((addr) => {
@@ -59,22 +67,28 @@ export default function BillingForm({
 
       return Object.keys(vErrors).length ? { valid: false } : { valid: true };
     });
-  }, [form]);
+  }, [form, registerValidate]);
 
   /* ===============================
-     Sync to checkout redux
+     Sync to redux
   =============================== */
   useEffect(() => {
-    onChange &&
-      onChange({
-        ...form,
-        saveAddress: shouldSaveAddress,
-        setAsDefault,
-      });
+    if (!onChange) return;
+
+    const nextValue = {
+      ...form,
+      saveAddress: shouldSaveAddress,
+      setAsDefault,
+    };
+
+    // 🔒 prevent infinite update loop
+    if (!isSameValue(value, nextValue)) {
+      onChange(nextValue);
+    }
   }, [form, shouldSaveAddress, setAsDefault]);
 
   /* ===============================
-     Default address auto-fill (safe)
+     Default address autofill
   =============================== */
   useEffect(() => {
     if (!defaultAddress) return;
@@ -187,43 +201,56 @@ export default function BillingForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Input
           label="Full name *"
+          placeholder="e.g. Hossen Emon"
           value={form.fullName}
           onChange={handleChange("fullName")}
           error={localErrors.fullName}
         />
+
         <Input
           label="Phone number *"
+          placeholder="01XXXXXXXXX"
           value={form.phone}
           onChange={handleChange("phone")}
           error={localErrors.phone}
         />
+
         <Input
           label="Email (optional)"
+          placeholder="you@example.com"
           value={form.email}
           onChange={handleChange("email")}
           error={localErrors.email}
         />
+
         <Input
           label="Area / Thana *"
+          placeholder="e.g. Mirpur 14"
           value={form.area}
           onChange={handleChange("area")}
           error={localErrors.area}
         />
+
         <Input
           label="Address line *"
+          placeholder="House, Road, Block, Area"
           value={form.line1}
           onChange={handleChange("line1")}
           error={localErrors.line1}
           colSpan
         />
+
         <Input
           label="City / District *"
+          placeholder="e.g. Dhaka"
           value={form.city}
           onChange={handleChange("city")}
           error={localErrors.city}
         />
+
         <Input
           label="Postcode (optional)"
+          placeholder="e.g. 1211"
           value={form.postalCode}
           onChange={handleChange("postalCode")}
           error={localErrors.postalCode}
@@ -231,9 +258,12 @@ export default function BillingForm({
 
         {/* Notes */}
         <div className="md:col-span-2">
+          <label className="block text-xs font-medium text-gray-700 mb-1">
+            Order notes (optional)
+          </label>
           <textarea
             rows={3}
-            placeholder="Order notes (optional)"
+            placeholder="Any special instructions for delivery…"
             value={form.notes}
             onChange={handleChange("notes")}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none"
@@ -267,15 +297,22 @@ export default function BillingForm({
   );
 }
 
-/* Reusable Input */
-function Input({ label, value, onChange, error, colSpan }) {
+/* 🔹 Reusable Input */
+function Input({ label, value, onChange, error, placeholder, colSpan }) {
   return (
     <div className={colSpan ? "md:col-span-2" : ""}>
-      <label className="block text-xs font-medium mb-1">{label}</label>
+      <label className="block text-xs font-medium text-gray-700 mb-1">
+        {label}
+      </label>
       <input
         value={value}
         onChange={onChange}
-        className="w-full rounded-lg border px-3 py-2 text-sm"
+        placeholder={placeholder}
+        className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
+          error
+            ? "border-red-500 focus:ring-red-200"
+            : "border-border focus:ring-mainSoft"
+        }`}
       />
       {error && <p className="mt-1 text-xs text-red">{error}</p>}
     </div>
