@@ -166,8 +166,8 @@ const AllProductsVariantStockPage = () => {
                         <table className="w-full">
                             <thead className="bg-gradient-to-r from-main to-mainHover text-white">
                                 <tr>
-                                    <th className="px-8 py-2 text-left font-bold text-md">Product Name</th>
-                                    <th className="px-8 py-2 text-left font-bold text-md">Variants (Stock)</th>
+                                    <th className="px-8 py-2 text-left font-bold text-sm">Product Name</th>
+                                    <th className="px-8 py-2 text-left font-bold text-sm">Variants (Stock)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">

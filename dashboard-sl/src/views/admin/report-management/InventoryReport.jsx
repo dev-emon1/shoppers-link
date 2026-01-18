@@ -265,8 +265,8 @@ const InventoryReportPage = () => {
 
                     {/* Summary Cards */}
                     {summary && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-2">
-                            <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-2 no-print">
+                            <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 ">
                                 <div className="flex items-center gap-3">
                                     <Package size={32} className="text-blue-600" />
                                     <div>

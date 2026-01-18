@@ -71,14 +71,14 @@ const AllCustomersTablePage = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800">All Customers</h1>
-                    <p className="text-gray-600">Total: {meta.total.toLocaleString()} customers</p>
+                    <h1 className="text-xl font-bold text-gray-800">All Customers</h1>
+                    {/* <p className="text-gray-600">Total: {meta.total.toLocaleString()} customers</p> */}
                 </div>
                 <div className="flex gap-3">
-                    <button className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-sm">
+                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-xs">
                         <Download size={16} /> Export CSV
                     </button>
-                    <button className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-sm">
+                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-xs">
                         <Download size={16} /> Export PDF
                     </button>
                 </div>

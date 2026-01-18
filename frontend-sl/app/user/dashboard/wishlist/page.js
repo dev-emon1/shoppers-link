@@ -37,7 +37,7 @@ export default function WishlistPage() {
     remove(product.id); // Uncommented so it actually "moves" the item
     toast.success(`🛒 ${product.name} moved to cart`);
   };
-  // console.log(wishlist);
+  console.log(wishlist);
   const buildHref = (p) =>
     `/${[p.category?.slug, p.sub_category?.slug, p.child_category?.slug, p.slug]
       .filter(Boolean)
@@ -78,17 +78,17 @@ export default function WishlistPage() {
               {/* Image */}
               <Link href={buildHref(product)} className="block overflow-hidden">
                 <Image
-                  src={`${IMAGE_URL}/${product?.primary_image || "placeholder.png"}`}
+                  src={`${IMAGE_URL}/storage/${product?.primary_image || "placeholder.png"}`}
                   alt={product.name}
                   width={300}
                   height={250}
-                  className="rounded-xl object-cover w-full h-[220px]"
+                  className="rounded-xl object-contain w-full h-[220px]"
                 />
               </Link>
 
               {/* Info */}
               <div className="mt-4 space-y-1">
-                <Link href={`/product/${product.slug}`}>
+                <Link href={buildHref(product)} >
                   <h3 className="font-semibold text-gray-800 group-hover:text-main">
                     {product.name}
                   </h3>

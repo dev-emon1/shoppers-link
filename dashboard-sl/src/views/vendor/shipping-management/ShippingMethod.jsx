@@ -27,7 +27,7 @@ const AllShippingPartnersPage = () => {
         <div className="px-6 bg-gray-50 min-h-screen">
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800">All Shipping Partners</h1>
+                    <h1 className="text-xl font-bold text-gray-800">All Shipping Partners</h1>
                     <p className="text-gray-600 mt-1">6 Delivery Partners • Nationwide Coverage</p>
                 </div>
                 {/* <button className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
