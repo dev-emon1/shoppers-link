@@ -140,7 +140,7 @@ const AllSalesTable = () => {
             <div className="max-w-7xl mx-auto">
 
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-2">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-2">
                     <div>
                         <h1 className="text-xl font-bold text-gray-800">All Sales Reports</h1>
                         <p className="text-gray-600 mt-1 text-sm">
@@ -149,11 +149,11 @@ const AllSalesTable = () => {
                     </div>
 
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium">
+                        <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium">
                             <Download size={16} />
                             Export CSV
                         </button>
-                        <button className="flex items-center gap-2 bg-main text-white px-4 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium">
+                        <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-xs font-medium">
                             <Download size={16} />
                             Export PDF
                         </button>
@@ -162,7 +162,7 @@ const AllSalesTable = () => {
 
                 {/* Summary Cards */}
                 {summary && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 mb-2">
                         {/* ... (same as before) */}
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <p className="text-sm text-gray-600">Total Sales</p>
@@ -191,39 +191,46 @@ const AllSalesTable = () => {
                 )}
 
                 {/* Filters & Search */}
-                <div className="bg-white rounded-xl shadow-sm p-2 mb-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                        {/* Date Range */}
-                        <div className="space-y-2">
+                <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        {/* Date Range: Start */}
+                        <div className="flex flex-col space-y-2">
                             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                 <Calendar size={16} /> Start Date
                             </label>
-                            <DatePicker
-                                selected={startDate}
-                                onChange={setStartDate}
-                                dateFormat="dd MMM yyyy"
-                                placeholderText="Select start date"
-                                className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
-                                isClearable
-                            />
+                            <div className="w-full"> {/* Extra wrapper ensures 100% width */}
+                                <DatePicker
+                                    selected={startDate}
+                                    onChange={setStartDate}
+                                    dateFormat="dd MMM yyyy"
+                                    placeholderText="Select start date"
+                                    wrapperClassName="w-full"
+                                    className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                    isClearable
+                                />
+                            </div>
                         </div>
 
-                        <div className="space-y-2">
+                        {/* Date Range: End */}
+                        <div className="flex flex-col space-y-2">
                             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                 <Calendar size={16} /> End Date
                             </label>
-                            <DatePicker
-                                selected={endDate}
-                                onChange={setEndDate}
-                                dateFormat="dd MMM yyyy"
-                                placeholderText="Select end date"
-                                className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
-                                isClearable
-                            />
+                            <div className="w-full">
+                                <DatePicker
+                                    selected={endDate}
+                                    onChange={setEndDate}
+                                    dateFormat="dd MMM yyyy"
+                                    placeholderText="Select end date"
+                                    wrapperClassName="w-full"
+                                    className="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                    isClearable
+                                />
+                            </div>
                         </div>
 
-                        {/* Product Filter (optional enhancement: fetch products list) */}
-                        <div className="space-y-2">
+                        {/* Product Filter */}
+                        <div className="flex flex-col space-y-2">
                             <label className="text-sm font-medium text-gray-700">Product ID</label>
                             <input
                                 type="text"
@@ -236,7 +243,7 @@ const AllSalesTable = () => {
 
                         {/* Vendor Filter - Admin Only */}
                         {isAdmin && (
-                            <div className="space-y-2">
+                            <div className="flex flex-col space-y-2">
                                 <label className="text-sm font-medium text-gray-700">Vendor ID</label>
                                 <input
                                     type="text"
@@ -250,13 +257,13 @@ const AllSalesTable = () => {
                     </div>
 
                     {/* Search + Clear */}
-                    <div className="flex flex-col sm:flex-row gap-4 items-end">
+                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                         <div className="flex-1 relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input
                                 type="text"
                                 placeholder="Search orders locally..."
-                                className="w-full pl-12 pr-5 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
+                                className="w-full pl-11 pr-5 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-main"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -264,7 +271,7 @@ const AllSalesTable = () => {
 
                         <button
                             onClick={clearFilters}
-                            className="px-5 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+                            className="px-5 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition font-medium whitespace-nowrap border border-gray-200"
                         >
                             Clear Filters
                         </button>
