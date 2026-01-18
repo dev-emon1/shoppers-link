@@ -42,44 +42,63 @@ export default function useOrderPlacement({
             variant_id: item.variantId,
             qty: item.quantity,
             price: item.price,
-            total: item.price * item.quantity,
           })),
         }))
         .filter((v) => v.items.length);
 
-      /* 🔹 Optional address save */
+      let savedAddressId = null;
+
+      /* ---------- optional save ---------- */
       if (billing.value.saveAddress) {
         try {
-          await dispatch(
+          const res = await dispatch(
             saveBillingAddress({
               billing: billing.value,
               customerId: user.customer.id,
               isDefault: billing.value.setAsDefault === true,
             }),
           ).unwrap();
+
+          savedAddressId = res?.id || null;
         } catch {
-          // ignore save failure
+          // ignore save error
         }
       }
 
       const payload = {
         customer_id: user.customer.id,
         payment_method: payment.value,
-        shipping_address_id: null,
         vendors,
-        a_s_a: {
-          billing: billing.value,
-          shipping: shipping.value,
-          totals,
-        },
       };
 
-      const response = await orderService.placeOrder(payload);
+      /* ---------- address priority ---------- */
+      if (billing.value.selectedAddressId) {
+        payload.shipping_address_id = billing.value.selectedAddressId;
+      } else if (savedAddressId) {
+        payload.shipping_address_id = savedAddressId;
+      } else {
+        payload.shipping_address_id = null;
+        payload.a_s_a = {
+          billing: {
+            fullName: billing.value.fullName,
+            phone: billing.value.phone,
+            email: billing.value.email || null,
+            line1: billing.value.line1,
+            area: billing.value.area,
+            city: billing.value.city,
+            postalCode: billing.value.postalCode || null,
+            notes: billing.value.notes || null,
+          },
+          shipping_method: shipping.value,
+          totals,
+        };
+      }
+
+      const res = await orderService.placeOrder(payload);
 
       showToast("🎉 Order placed successfully!");
       clearCart();
-
-      router.push(`/checkout/success?ref=${response.order.unid}`);
+      router.push(`/checkout/success?ref=${res.order.unid}`);
     } finally {
       setIsPlacing(false);
     }
