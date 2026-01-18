@@ -3,25 +3,28 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { addAddressApi } from "@/modules/user/services/addressService";
 
-// 👉 new user হলে order time এ call হবে
+//
 export const saveBillingAddress = createAsyncThunk(
   "checkoutBilling/saveBillingAddress",
   async ({ billing, customerId }, { rejectWithValue }) => {
     try {
       const payload = {
         customer_id: customerId,
+        address_type: "home",
         address_line1: billing.line1,
+        area: billing.area,
         city: billing.city,
-        state: billing.area,
+        state: null,
         postal_code: billing.postalCode,
         country: "Bangladesh",
         is_default: true,
       };
+
       return await addAddressApi(payload);
     } catch (e) {
       return rejectWithValue(e?.response?.data || "Billing save failed");
     }
-  }
+  },
 );
 
 const initialState = {

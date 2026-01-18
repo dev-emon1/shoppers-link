@@ -6,7 +6,6 @@ import { useDispatch } from "react-redux";
 import { showToast } from "@/lib/utils/toast";
 import { orderService } from "../services/order.service";
 import { saveBillingAddress } from "../store/billingReducer";
-import { mapBillingToAddressPayload } from "../utils/billingToAddressMapper";
 
 export default function useOrderPlacement({
   billing,
@@ -27,59 +26,52 @@ export default function useOrderPlacement({
 
       if (!user?.customer?.id) {
         showToast("Please login to place order.");
-        setIsPlacing(false);
         return;
       }
 
       if (!payment?.value) {
         showToast("Please select a payment method.");
-        setIsPlacing(false);
         return;
       }
 
-      const vendorEntries = Object.entries(cart || {});
-      if (!vendorEntries.length) {
-        showToast("Your cart is empty.");
-        setIsPlacing(false);
-        return;
-      }
+      const vendors = Object.entries(cart || {})
+        .map(([vendorId, vendorData]) => ({
+          vendor_id: Number(vendorId),
+          items: vendorData.items.map((item) => ({
+            product_id: item.id,
+            variant_id: item.variantId,
+            qty: item.quantity,
+            price: item.price,
+            total: item.price * item.quantity,
+          })),
+        }))
+        .filter((v) => v.items.length);
 
-      const vendors = vendorEntries
-        .map(([vendorId, vendorData]) => {
-          if (!Array.isArray(vendorData?.items)) return null;
-          return {
-            vendor_id: Number(vendorId),
-            items: vendorData.items.map((item) => ({
-              product_id: item.id,
-              variant_id: item.variantId,
-              qty: item.quantity,
-              price: item.price,
-              total: item.price * item.quantity,
-            })),
-          };
-        })
-        .filter(Boolean);
-
-      // Save address (first-time user only)
-      if (billing?.value?.saveAddress === true && billing?.value?.line1) {
-        const addressPayload = mapBillingToAddressPayload({
-          billing: billing.value,
-          customerId: user.customer.id,
-        });
-
-        await dispatch(saveBillingAddress(addressPayload)).unwrap();
+      /* 🔹 Optional address save */
+      if (billing.value.saveAddress) {
+        try {
+          await dispatch(
+            saveBillingAddress({
+              billing: billing.value,
+              customerId: user.customer.id,
+              isDefault: billing.value.setAsDefault === true,
+            }),
+          ).unwrap();
+        } catch {
+          // ignore save failure
+        }
       }
 
       const payload = {
         customer_id: user.customer.id,
         payment_method: payment.value,
-        shipping_address_id: null, // 🔥 safer for now
+        shipping_address_id: null,
+        vendors,
         a_s_a: {
           billing: billing.value,
           shipping: shipping.value,
           totals,
         },
-        vendors,
       };
 
       const response = await orderService.placeOrder(payload);
@@ -87,14 +79,7 @@ export default function useOrderPlacement({
       showToast("🎉 Order placed successfully!");
       clearCart();
 
-      const ref = response?.order?.unid;
-      router.push(ref ? `/checkout/success?ref=${ref}` : "/checkout/success");
-
-      return response;
-    } catch (error) {
-      console.error(error);
-      showToast("❌ Failed to place order. Please try again.");
-      throw error;
+      router.push(`/checkout/success?ref=${response.order.unid}`);
     } finally {
       setIsPlacing(false);
     }
