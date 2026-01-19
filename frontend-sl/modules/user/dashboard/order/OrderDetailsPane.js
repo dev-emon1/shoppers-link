@@ -1,4 +1,3 @@
-// OrderDetailsPane.jsx
 "use client";
 import { createRoot } from "react-dom/client";
 import html2canvas from "html2canvas";
@@ -23,6 +22,7 @@ import WriteReviewModal from "../../components/review/WriteReviewModal";
 import ViewReviewModal from "../../components/review/ViewReviewModal";
 import jsPDF from "jspdf";
 import OrderInvoiceTemplate from "./OrderInvoiceTemplate";
+import { normalizeShippingAddress } from "@/modules/user/utils/normalizeShippingAddress";
 
 function safeParse(str) {
   if (!str) return null;
@@ -62,7 +62,7 @@ function Step({ active, completed, label, time, icon }) {
   );
 }
 
-// Mobile vertical timeline (new)
+// Mobile vertical timeline (unchanged)
 function MobileTimeline({ steps, currentIndex, timelineMap }) {
   return (
     <div className="space-y-4">
@@ -112,12 +112,10 @@ function extractTimeline(order, entity = order) {
   const entityUnid = entity?.unid ?? entity?.id;
   const changes = timeline.filter((t) => t.unid === entityUnid);
   const map = {};
-  const createdAt = entity?.created_at ?? null;
-  map.pending = createdAt;
+  map.pending = entity?.created_at ?? order.created_at ?? null;
   for (const change of changes) {
     map[change.to.toLowerCase()] = change.date_time;
   }
-  map.pending = map.pending ?? order.created_at ?? null;
   return map;
 }
 
@@ -145,15 +143,11 @@ export default function OrderDetailsPane({ order }) {
 
   const overallIndex = isAllCancelled
     ? -1
-    : activeStatuses.length > 0
-      ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0))
-      : 0;
+    : Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0));
 
   const overallStatus = isAllCancelled
     ? "cancelled"
-    : activeStatuses.length > 0
-      ? (PROGRESS_STEPS[overallIndex]?.key ?? "pending")
-      : "pending";
+    : (PROGRESS_STEPS[overallIndex]?.key ?? "pending");
 
   const isCancelled = overallStatus === "cancelled";
   const isDelivered = overallStatus === "delivered";
@@ -167,19 +161,13 @@ export default function OrderDetailsPane({ order }) {
   const timelineMap = useMemo(() => extractTimeline(order, order), [order]);
 
   const primaryVendorOrder = order.vendor_orders?.[0] ?? null;
-  const a_s_a_raw =
-    primaryVendorOrder?.order?.a_s_a ?? primaryVendorOrder?.order ?? null;
 
-  let parsedASA = null;
-  if (typeof a_s_a_raw === "string") {
-    parsedASA = safeParse(a_s_a_raw);
-  } else if (typeof a_s_a_raw === "object" && a_s_a_raw) {
-    parsedASA = safeParse(a_s_a_raw.a_s_a) ?? safeParse(a_s_a_raw) ?? a_s_a_raw;
-  } else {
-    parsedASA = null;
-  }
+  const billing = useMemo(
+    () => normalizeShippingAddress(primaryVendorOrder),
+    [primaryVendorOrder],
+  );
 
-  const billing = parsedASA?.billing ?? null;
+  const parsedASA = safeParse(primaryVendorOrder?.order?.a_s_a);
   const totals = parsedASA?.totals ?? null;
 
   const handleVendorCancel = async (vendorOrder) => {
@@ -319,7 +307,7 @@ export default function OrderDetailsPane({ order }) {
           <h4 className="font-medium mb-2">Order Totals</h4>
           <div className="text-sm text-textSecondary space-y-1">
             <div>Subtotal: ৳ {totals?.subtotal ?? order.total_amount}</div>
-            <div>Shipping: ৳ {totals?.shipping ?? "—"}</div>
+            <div>Shipping: ৳ {totals?.shipping_charge ?? "—"}</div>
             <div className="font-semibold mt-2">
               Grand Total: ৳ {totals?.grandTotal ?? order.total_amount}
             </div>

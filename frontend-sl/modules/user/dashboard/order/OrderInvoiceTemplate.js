@@ -95,29 +95,57 @@ const OrderInvoiceTemplate = ({
           {activeVendorOrders.map((v) =>
             v.items?.map((it, idx) => (
               <tr key={`${v.id}-${idx}`}>
-                <td style={{ padding: "12px", border: "1px solid #eee", verticalAlign: "top" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <td
+                  style={{
+                    padding: "12px",
+                    border: "1px solid #eee",
+                    verticalAlign: "top",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px",
+                    }}
+                  >
                     {/* Product Name */}
-                    <span style={{ fontWeight: "600", color: "#333", fontSize: "14px" }}>
+                    <span
+                      style={{
+                        fontWeight: "600",
+                        color: "#333",
+                        fontSize: "14px",
+                      }}
+                    >
                       {it.product?.name}
                     </span>
 
                     {/* Attributes Wrapper */}
                     {it.variant?.attributes && (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                        {Object.entries(JSON.parse(it.variant.attributes)).map(([key, value]) => (
-                          <span
-                            key={key}
-                            style={{
-                              fontSize: "11px",
-                              display: "inline-flex",
-                              gap: "4px"
-                            }}
-                          >
-                            <strong style={{ textTransform: "capitalize" }}>{key}:</strong>
-                            {value}
-                          </span>
-                        ))}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "8px",
+                        }}
+                      >
+                        {Object.entries(JSON.parse(it.variant.attributes)).map(
+                          ([key, value]) => (
+                            <span
+                              key={key}
+                              style={{
+                                fontSize: "11px",
+                                display: "inline-flex",
+                                gap: "4px",
+                              }}
+                            >
+                              <strong style={{ textTransform: "capitalize" }}>
+                                {key}:
+                              </strong>
+                              {value}
+                            </span>
+                          ),
+                        )}
                       </div>
                     )}
                   </div>
@@ -132,7 +160,7 @@ const OrderInvoiceTemplate = ({
                   ৳ {it.total}
                 </td>
               </tr>
-            ))
+            )),
           )}
         </tbody>
       </table>
@@ -162,7 +190,7 @@ const OrderInvoiceTemplate = ({
             padding: "5px 0",
           }}
         >
-          <span>Shipping:</span> <span>৳ {totals?.shipping}</span>
+          <span>Shipping:</span> <span>৳ {totals?.shipping_charge}</span>
         </div>
         <div
           style={{
@@ -177,7 +205,7 @@ const OrderInvoiceTemplate = ({
           <span>Grand Total:</span> <span>৳ {totals?.grandTotal}</span>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 
