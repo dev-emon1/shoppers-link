@@ -135,6 +135,7 @@ import useCart from "@/modules/cart/hooks/useCart"; // <-- UPDATED
 
 export default function OrderSummary({ totals }) {
   const { cart, totalItems, totalPrice } = useCart();
+  console.log(totals);
 
   const flatCartItems = [];
   Object.values(cart || {}).forEach((vendor) => {
@@ -201,7 +202,7 @@ export default function OrderSummary({ totals }) {
             <span>Shipping</span>
             <span className="flex items-center gap-1">
               <TbCurrencyTaka size={13} />
-              {formatAmount(totals.shipping)}
+              {formatAmount(totals.shipping_charge)}
             </span>
           </div>
 
