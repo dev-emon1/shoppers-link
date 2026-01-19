@@ -1,11 +1,11 @@
 "use client";
 
-import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import useCachedAddresses from "@/modules/user/hooks/useCachedAddresses";
 import { validateBilling } from "../utils/validation";
 import { showToast } from "@/lib/utils/toast";
+import { MapPin, Home, Building2 } from "lucide-react";
 
 /* ---------------- helpers ---------------- */
 const isSameValue = (a, b) => {
@@ -39,6 +39,7 @@ export default function BillingForm({
     city: value.city || "",
     postalCode: value.postalCode || "",
     notes: value.notes || "",
+    addressType: "home",
   });
 
   /* ---------------- duplicate check ---------------- */
@@ -67,7 +68,7 @@ export default function BillingForm({
     if (!onChange) return;
 
     const nextValue = {
-      ...value, // 🔥 keep selectedAddressId
+      ...value,
       ...form,
       saveAddress: shouldSaveAddress,
       setAsDefault,
@@ -95,6 +96,10 @@ export default function BillingForm({
     });
   }, [defaultAddress]);
 
+  const disableSave =
+    addresses.length >= 2 ||
+    addresses.some((a) => a.address_type === form.addressType);
+
   /* ---------------- select saved address ---------------- */
   const handleAddressSelect = (addr) => {
     setShouldSaveAddress(false);
@@ -109,13 +114,14 @@ export default function BillingForm({
       city: addr.city || "",
       postalCode: addr.postal_code || "",
       notes: "",
+      addressType: addr.address_type || "home",
     });
 
     onChange({
       ...value,
       selectedAddressId: addr.id,
       saveAddress: false,
-      setAsDefault: false,
+      addressType: addr.address_type || "home",
     });
   };
 
@@ -173,7 +179,14 @@ export default function BillingForm({
                     : "bg-white border-border"
                 }`}
               >
-                {a.address_type}
+                <span className="flex items-center gap-1 capitalize">
+                  {a.address_type === "home" || 0 ? (
+                    <Home size={12} />
+                  ) : (
+                    <Building2 size={12} />
+                  )}
+                  {a.address_type}
+                </span>
               </button>
             ))
           ) : (
@@ -251,21 +264,19 @@ export default function BillingForm({
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
+              disabled={disableSave}
               checked={shouldSaveAddress}
               onChange={(e) => handleSaveToggle(e.target.checked)}
             />
             Save this address for future orders
           </label>
 
-          {shouldSaveAddress && (
-            <label className="flex items-center gap-2 text-xs ml-6">
-              <input
-                type="checkbox"
-                checked={setAsDefault}
-                onChange={(e) => setSetAsDefault(e.target.checked)}
-              />
-              Set as default address
-            </label>
+          {disableSave && (
+            <p className="text-xs text-gray-500 ml-6">
+              {addresses.length >= 2
+                ? "Maximum 2 addresses allowed (Home & Office)."
+                : `You already have a ${form.addressType} address saved.`}
+            </p>
           )}
         </div>
       </div>
