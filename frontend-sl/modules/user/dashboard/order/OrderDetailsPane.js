@@ -1,6 +1,4 @@
 "use client";
-import { createRoot } from "react-dom/client";
-import html2canvas from "html2canvas";
 import React, { useMemo, useState } from "react";
 import StatusBadge from "./StatusBadge";
 import { cancelVendorOrderApi } from "@/modules/user/services/orderService";
@@ -20,9 +18,8 @@ import { showToast } from "@/lib/utils/toast";
 import { makeImageUrl } from "@/lib/utils/image";
 import WriteReviewModal from "../../components/review/WriteReviewModal";
 import ViewReviewModal from "../../components/review/ViewReviewModal";
-import jsPDF from "jspdf";
-import OrderInvoiceTemplate from "./OrderInvoiceTemplate";
 import { normalizeShippingAddress } from "@/modules/user/utils/normalizeShippingAddress";
+import { generateInvoicePdf } from "@/modules/user/utils/generateInvoicePdf";
 
 function safeParse(str) {
   if (!str) return null;
@@ -120,6 +117,7 @@ function extractTimeline(order, entity = order) {
 }
 
 export default function OrderDetailsPane({ order }) {
+  console.log(order);
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);
@@ -212,44 +210,18 @@ export default function OrderDetailsPane({ order }) {
     }
   };
 
-  const generateInvoice = async () => {
+  const handleDownloadInvoice = async () => {
     const activeVendorOrders =
       order.vendor_orders?.filter(
         (v) => (v.status ?? "").toLowerCase() !== "cancelled",
       ) ?? [];
 
-    const container = document.createElement("div");
-    container.style.position = "absolute";
-    container.style.left = "-9999px";
-    document.body.appendChild(container);
-
-    const root = createRoot(container);
-    root.render(
-      <OrderInvoiceTemplate
-        order={order}
-        billing={billing}
-        activeVendorOrders={activeVendorOrders}
-        totals={totals}
-      />,
-    );
-
-    setTimeout(async () => {
-      const element = document.getElementById("invoice-template");
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      pdf.save(`invoice_${order.unid}.pdf`);
-      document.body.removeChild(container);
-    }, 500);
+    await generateInvoicePdf({
+      order,
+      billing,
+      activeVendorOrders,
+      totals,
+    });
   };
 
   return (
@@ -585,7 +557,7 @@ export default function OrderDetailsPane({ order }) {
         <div className="flex flex-wrap items-center gap-3 justify-end">
           {!isCancelled && (
             <button
-              onClick={generateInvoice}
+              onClick={handleDownloadInvoice}
               className="px-5 py-2 bg-main text-white rounded-md hover:opacity-90 transition flex items-center gap-2"
             >
               <Download size={18} /> Download Invoice

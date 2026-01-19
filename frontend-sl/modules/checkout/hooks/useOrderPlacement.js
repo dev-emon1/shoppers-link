@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "@/lib/utils/toast";
 import { orderService } from "../services/order.service";
 import { saveBillingAddress } from "../store/billingReducer";
+import { shippingOptions } from "../hooks/useShipping";
+import { canSaveAddress } from "../utils/addressRules";
 
 export default function useOrderPlacement({
   billing,
@@ -19,6 +21,8 @@ export default function useOrderPlacement({
   const router = useRouter();
   const dispatch = useDispatch();
   const [isPlacing, setIsPlacing] = useState(false);
+
+  const addresses = useSelector((s) => s.address.list || []);
 
   const placeOrder = async () => {
     try {
@@ -34,6 +38,7 @@ export default function useOrderPlacement({
         return;
       }
 
+      /* ---------- vendors ---------- */
       const vendors = Object.entries(cart || {})
         .map(([vendorId, vendorData]) => ({
           vendor_id: Number(vendorId),
@@ -46,10 +51,15 @@ export default function useOrderPlacement({
         }))
         .filter((v) => v.items.length);
 
+      /* ---------- optional save ---------- */
       let savedAddressId = null;
 
-      /* ---------- optional save ---------- */
-      if (billing.value.saveAddress) {
+      const saveCheck = canSaveAddress({
+        billing: billing.value,
+        existingAddresses: addresses,
+      });
+
+      if (saveCheck.ok) {
         try {
           const res = await dispatch(
             saveBillingAddress({
@@ -60,25 +70,21 @@ export default function useOrderPlacement({
           ).unwrap();
 
           savedAddressId = res?.id || null;
-        } catch {
-          // ignore save error
-        }
+        } catch {}
+      } else if (billing.value.saveAddress && saveCheck.reason) {
+        showToast(saveCheck.reason);
       }
+
+      /* ---------- shipping snapshot (ALWAYS) ---------- */
+      const selectedShipping = shippingOptions.find(
+        (s) => s.id === shipping.value,
+      );
 
       const payload = {
         customer_id: user.customer.id,
         payment_method: payment.value,
         vendors,
-      };
-
-      /* ---------- address priority ---------- */
-      if (billing.value.selectedAddressId) {
-        payload.shipping_address_id = billing.value.selectedAddressId;
-      } else if (savedAddressId) {
-        payload.shipping_address_id = savedAddressId;
-      } else {
-        payload.shipping_address_id = null;
-        payload.a_s_a = {
+        a_s_a: {
           billing: {
             fullName: billing.value.fullName,
             phone: billing.value.phone,
@@ -88,10 +94,28 @@ export default function useOrderPlacement({
             city: billing.value.city,
             postalCode: billing.value.postalCode || null,
             notes: billing.value.notes || null,
+            addressType: billing.value.addressType || "home",
           },
-          shipping_method: shipping.value,
-          totals,
-        };
+          shipping: {
+            id: shipping.value,
+            label: selectedShipping?.label || null,
+            fee: selectedShipping?.fee || 0,
+          },
+          totals: {
+            subtotal: totals.subtotal,
+            shipping_charge: totals.shipping_charge,
+            grandTotal: totals.grandTotal,
+          },
+        },
+      };
+
+      /* ---------- address reference ---------- */
+      if (billing.value.selectedAddressId) {
+        payload.shipping_address_id = billing.value.selectedAddressId;
+      } else if (savedAddressId) {
+        payload.shipping_address_id = savedAddressId;
+      } else {
+        payload.shipping_address_id = null;
       }
 
       const res = await orderService.placeOrder(payload);
