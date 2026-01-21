@@ -132,22 +132,22 @@ const BannersPage = () => {
 
     return (
         <div className="px-6 max-w-7xl mx-auto py-6">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-xl font-bold text-gray-800">Promotion Banners</h1>
+            <div className="sm:flex justify-between items-center mb-6">
+                <h1 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">Promotion Banners</h1>
                 <button onClick={() => setShowForm(true)} className="flex items-center gap-2 bg-main text-white px-2 py-1 rounded-lg hover:bg-mainHover transition">
                     <Plus size={18} /> Add Banner
                 </button>
             </div>
 
             {showForm && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 mt-10">
-                    <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
+                    <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-2 relative overflow-auto max-h-[90vh]">
+                        <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
                             <h2 className="text-xl font-bold">{editingId ? "Edit Banner" : "New Banner"}</h2>
                             <button onClick={closeModal} className="text-gray-400 hover:text-gray-600"><X /></button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-2 space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Title</label>
@@ -217,7 +217,7 @@ const BannersPage = () => {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-4">
+                            <div className="flex justify-center gap-3 pt-4">
                                 <button type="button" onClick={closeModal} className="px-4 py-2 border rounded-lg text-gray-600">Cancel</button>
                                 <button type="submit" className="px-4 py-2 bg-main text-white rounded-lg hover:bg-mainHover">Save Banner</button>
                             </div>

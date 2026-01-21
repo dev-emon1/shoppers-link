@@ -110,11 +110,11 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
-            <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh] mx-auto">
-                <div className="px-6">
+            <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-3 relative overflow-auto max-h-[90vh] mx-auto">
+                <div className="px-2">
                     <div className="flex justify-between items-center mb-2">
                         <h2 className="text-xl font-bold">Edit Product</h2>
-                        <button onClick={onClose} className="text-main hover:text-mainHover fixed left-auto right-4 top-4">
+                        <button onClick={onClose} className="text-main hover:text-mainHover fixed left-auto right-4 top-8">
                             <RiCloseLine size={28} />
                         </button>
                     </div>
@@ -260,7 +260,7 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
                                 </span>
                             </div>
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className="sm:flex justify-between items-center">
                             <div className="flex gap-2">
                                 <input type="checkbox"
                                     id="status-checkbox"
