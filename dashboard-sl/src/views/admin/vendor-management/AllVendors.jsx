@@ -126,7 +126,7 @@ const VendordataPage = () => {
                                                     </div>
                                                     <div>
                                                         <div className="font-bold text-gray-900">{v.shop_name}</div>
-                                                        <div className="text-sm text-gray-500">ID: V{v.id.toString().padStart(4, '0')}</div>
+                                                        {/* <div className="text-sm text-gray-500">ID: V{v.id.toString().padStart(4, '0')}</div> */}
                                                     </div>
                                                 </div>
                                             </td>
@@ -136,7 +136,7 @@ const VendordataPage = () => {
                                                     <User size={16} className="text-gray-500" />
                                                     <span className="font-medium">{v.owner_name}</span>
                                                 </div>
-                                                <div className="text-sm text-gray-600">{v.user?.user_name}</div>
+                                                {/* <div className="text-sm text-gray-600">{v.user?.user_name}</div> */}
                                             </td>
 
                                             <td className="px-4 py-2 text-sm">
@@ -174,16 +174,16 @@ const VendordataPage = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="px-6 py-4 bg-gray-50 flex justify-between items-center text-sm">
+                <div className="px-6 py-2 bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-2 text-sm">
                     <p className="text-gray-600">
                         Showing {(page - 1) * itemsPerPage + 1} to {Math.min(page * itemsPerPage, filteredVendors.length)} of {filteredVendors.length}
                     </p>
                     <div className="flex gap-2">
                         <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                            className="px-4 py-2 border rounded-lg disabled:opacity-50 hover:bg-gray-100">Previous</button>
-                        <span className="px-4 py-2 bg-main text-white rounded-lg">{page} / {totalPages}</span>
+                            className="px-2 py-1 border rounded-lg disabled:opacity-50 hover:bg-gray-100">Previous</button>
+                        <span className="px-2 py-1 bg-main text-white rounded-lg">{page} / {totalPages}</span>
                         <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                            className="px-4 py-2 border rounded-lg disabled:opacity-50 hover:bg-gray-100">Next</button>
+                            className="px-2 py-1 border rounded-lg disabled:opacity-50 hover:bg-gray-100">Next</button>
                     </div>
                 </div>
             </div>

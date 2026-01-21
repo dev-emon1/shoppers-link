@@ -137,8 +137,8 @@ const SliderPage = () => {
   };
   return (
     <div className="px-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold text-gray-800">Slider Management</h1>
+      <div className="sm:flex justify-between items-center mb-4">
+        <h1 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">Slider Management</h1>
         <button
           onClick={() => setShowForm(true)}
           className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-sm"
@@ -149,9 +149,9 @@ const SliderPage = () => {
 
       {/* Add/Edit Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn mt-10">
-          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh]">
-            <div className="p-4 border-b flex justify-between items-center">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-2 relative overflow-auto max-h-[90vh]">
+            <div className="p-2 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold">
                 {editingId ? "Edit Banner" : "Create New Banner"}
               </h2>
@@ -163,7 +163,7 @@ const SliderPage = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 space-y-2">
+            <form onSubmit={handleSubmit} className="p-2 space-y-2">
               {/* Title */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-700 mb-2">
@@ -328,11 +328,10 @@ const SliderPage = () => {
           {banners.map((banner) => (
             <div
               key={banner.id}
-              className={`group relative bg-white rounded-2xl shadow-xl overflow-hidden border-4 transition-all ${
-                banner.is_active
-                  ? "border-green-400"
-                  : "border-gray-300 opacity-80"
-              }`}
+              className={`group relative bg-white rounded-2xl shadow-xl overflow-hidden border-4 transition-all ${banner.is_active
+                ? "border-green-400"
+                : "border-gray-300 opacity-80"
+                }`}
             >
               <div className="relative h-48 overflow-hidden">
                 <img
@@ -368,11 +367,10 @@ const SliderPage = () => {
 
                 <div className="flex justify-between items-center mt-4">
                   <span
-                    className={`px-4 py-2 rounded-full text-xs font-bold ${
-                      banner.is_active
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`px-4 py-2 rounded-full text-xs font-bold ${banner.is_active
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {banner.is_active ? "ACTIVE" : "INACTIVE"}
                   </span>
