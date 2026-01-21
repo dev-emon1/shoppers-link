@@ -35,6 +35,7 @@ export default function BrandsPage() {
               <Link
                 key={brand.id}
                 href={brand.link}
+                prefetch={false}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative w-28 h-28 rounded-full border border-border bg-bgPage flex items-center justify-center overflow-hidden hover:shadow-md transition"

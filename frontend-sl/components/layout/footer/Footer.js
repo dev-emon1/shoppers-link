@@ -108,6 +108,7 @@ export default function Footer() {
             href={"https://fingertipsinnovations.com/"}
             target="_blank"
             className="inline-block"
+            prefetch={false}
           >
             <Image src={fingertips} alt={"Fingertips"} className="w-28" />
           </Link>

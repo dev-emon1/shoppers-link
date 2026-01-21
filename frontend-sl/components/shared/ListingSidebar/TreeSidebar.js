@@ -64,6 +64,7 @@ export default function TreeSidebar({ category, tree = [], active = {} }) {
               >
                 <Link
                   href={`/${category.slug}/${sub.slug}`}
+                  prefetch
                   className={`text-sm font-medium flex-1
                     ${isActiveSub ? "text-main" : "text-textPrimary"}
                   `}
@@ -133,6 +134,7 @@ export default function TreeSidebar({ category, tree = [], active = {} }) {
                       <li className="pt-1">
                         <Link
                           href={`/${category.slug}/${sub.slug}`}
+                          prefetch
                           className="text-xs font-medium text-main hover:underline px-2 block"
                         >
                           View all

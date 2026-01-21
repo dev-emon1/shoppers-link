@@ -11,6 +11,7 @@ export default function BrandGrid({ brands = [] }) {
         <Link
           key={brand.id}
           href={`/brand/${brand.slug}`}
+          prefetch
           className="group border rounded-lg p-4 flex flex-col items-center hover:shadow-md transition"
         >
           <Image

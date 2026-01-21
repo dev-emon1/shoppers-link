@@ -14,6 +14,7 @@ const EmptyCart = () => (
     </p>
     <Link
       href="/"
+      prefetch
       className="inline-block bg-main text-white px-6 py-2 rounded-lg hover:bg-main/90 transition"
     >
       Continue Shopping

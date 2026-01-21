@@ -48,6 +48,7 @@ const TopBar = () => {
         <div>
           <Link
             href="#"
+            prefetch={false}
             className="text-white uppercase text-xs font-medium hover:underline"
           >
             Always Worth What You Pay For
@@ -58,8 +59,9 @@ const TopBar = () => {
         <div className="flex gap-6 font-medium text-xs">
           {/* Partner Access */}
           <Link
-            href="http://localhost:5173/login"
+            href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}/login`}
             target="_blank"
+            prefetch={false}
             className="text-white flex items-center gap-2 hover:text-secondary"
           >
             <Handshake size={14} />

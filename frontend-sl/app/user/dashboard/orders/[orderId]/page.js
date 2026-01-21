@@ -1,56 +1,87 @@
-// app/user/dashboard/orders/[orderId]/page.js
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import useOrderFromList from "@/modules/user/hooks/useOrderFromList";
 import OrderDetailsPane from "@/modules/user/dashboard/order/OrderDetailsPane";
 
 export default function OrderDetailRoutePage() {
-  const params = useParams();
+  const { orderId } = useParams();
   const router = useRouter();
-  const orderId = params?.orderId;
+
   const { order: storeOrder, getOrderWithFallback } = useOrderFromList(orderId);
 
-  const [immediateOrder, setImmediateOrder] = useState(null);
+  const [hydratedOrder, setHydratedOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  const finalOrder = storeOrder ?? hydratedOrder;
+
+  /* ----------------------------------
+     1️⃣ SessionStorage hydration
+  ---------------------------------- */
   useEffect(() => {
-    // try sessionStorage first for immediate render
     try {
       const raw = sessionStorage.getItem("selectedOrder");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        // ensure it matches route param (unid or id)
-        const key = parsed?.unid ?? parsed?.id;
-        if (key && key.toString() === (orderId ?? "").toString()) {
-          setImmediateOrder(parsed);
-        } else {
-          // if different, clear it
-          sessionStorage.removeItem("selectedOrder");
-        }
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw);
+      const key = parsed?.unid ?? parsed?.id;
+
+      if (String(key) === String(orderId)) {
+        setHydratedOrder(parsed);
       }
-    } catch (e) {
-      // ignore parse errors
-    }
+    } catch {}
+  }, [orderId]);
 
-    // ensure store/list is populated (fallbackFetch will dispatch loadOrders if needed)
-    getOrderWithFallback({ fallbackFetch: true }).catch(() => {});
-  }, [orderId, getOrderWithFallback]);
+  /* ----------------------------------
+     2️⃣ Fallback fetch (only if missing)
+  ---------------------------------- */
+  useEffect(() => {
+    if (storeOrder || hydratedOrder) return;
 
-  // use storeOrder if available, else immediateOrder
-  const finalOrder = storeOrder ?? immediateOrder;
-  if (!finalOrder) {
+    setLoading(true);
+    getOrderWithFallback({ fallbackFetch: true })
+      .then((o) => o && setHydratedOrder(o))
+      .finally(() => setLoading(false));
+  }, [storeOrder, hydratedOrder, getOrderWithFallback]);
+
+  /* ----------------------------------
+     3️⃣ Phase–4: Live revalidation
+  ---------------------------------- */
+  useEffect(() => {
+    if (!finalOrder) return;
+
+    const status = (finalOrder.status ?? "").toLowerCase();
+    if (["delivered", "cancelled"].includes(status)) return;
+
+    const interval = setInterval(() => {
+      getOrderWithFallback({
+        fallbackFetch: true,
+        force: true,
+      });
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [finalOrder, getOrderWithFallback]);
+
+  /* ----------------------------------
+     UI
+  ---------------------------------- */
+  if (loading && !finalOrder) {
     return (
       <div className="p-4">
         <button
           onClick={() => router.back()}
-          className="mb-4 px-3 border rounded-md"
+          className="mb-4 px-3 py-2 border rounded-md"
         >
           ← Back
         </button>
-        <div>Loading order...</div>
+        <div className="text-gray-500">Loading order…</div>
       </div>
     );
   }
+
+  if (!finalOrder) return null;
 
   return (
     <div className="px-0 lg:px-4">
@@ -60,6 +91,7 @@ export default function OrderDetailRoutePage() {
       >
         ← Back
       </button>
+
       <OrderDetailsPane order={finalOrder} />
     </div>
   );
