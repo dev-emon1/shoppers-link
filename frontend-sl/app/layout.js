@@ -4,6 +4,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 // Global application styles
 
+export const dynamic = "force-static";
+export const revalidate = 60;
+
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";

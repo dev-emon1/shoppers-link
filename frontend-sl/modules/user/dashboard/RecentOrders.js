@@ -62,7 +62,7 @@ export default function RecentOrders() {
     return [...list]
       .sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       )
       .slice(0, 5);
   }, [list]);
@@ -126,6 +126,7 @@ export default function RecentOrders() {
                 </div>
 
                 <Link
+                  prefetch
                   href={`/user/dashboard/orders/${order.unid}`}
                   className="inline-flex items-center gap-1 text-main font-medium hover:underline"
                 >

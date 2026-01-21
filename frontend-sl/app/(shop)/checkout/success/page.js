@@ -66,6 +66,7 @@ export default function CheckoutSuccessPage() {
           <Link
             href="/user/dashboard/orders"
             className="bg-main text-white py-2 rounded-lg hover:bg-main/90 transition"
+            prefetch
           >
             View Orders
           </Link>
@@ -73,6 +74,7 @@ export default function CheckoutSuccessPage() {
           <Link
             href="/"
             className="text-main underline text-sm hover:text-main/80 transition"
+            prefetch
           >
             Continue Shopping →
           </Link>

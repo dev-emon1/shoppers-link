@@ -94,6 +94,7 @@ const MiniCartDrawer = ({ open, onClose }) => {
               </p>
               <Link
                 href="/"
+                prefetch
                 onClick={onClose}
                 className="text-main underline hover:text-main/80 text-sm"
               >
@@ -234,6 +235,7 @@ const MiniCartDrawer = ({ open, onClose }) => {
 
             <Link
               href="/cart"
+              prefetch
               onClick={onClose}
               className="block text-center bg-main text-white py-2 rounded-lg hover:bg-main/90 transition"
             >
