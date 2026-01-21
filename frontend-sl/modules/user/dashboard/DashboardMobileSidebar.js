@@ -74,6 +74,7 @@ export default function DashboardMobileSidebar({ open, onClose }) {
           {menu.map((item) => (
             <li key={item.href}>
               <Link
+                prefetch
                 href={item.href}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm 

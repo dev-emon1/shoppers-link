@@ -16,11 +16,13 @@ const CheckoutFailPage = () => {
         <Link
           href="/checkout"
           className="bg-main text-white px-6 py-2 rounded-lg hover:bg-main/90 transition"
+          prefetch
         >
           Retry Payment
         </Link>
         <Link
           href="/"
+          prefetch
           className="border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50 transition"
         >
           Back to Home

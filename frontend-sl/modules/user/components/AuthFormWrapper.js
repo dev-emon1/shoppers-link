@@ -65,12 +65,17 @@ export default function AuthWrapper({ mode }) {
             {isLogin ? (
               <Link
                 href="/user/register"
+                prefetch
                 className="ml-1 text-main font-medium"
               >
                 Sign up
               </Link>
             ) : (
-              <Link href="/user/login" className="ml-1 text-main font-medium">
+              <Link
+                prefetch
+                href="/user/login"
+                className="ml-1 text-main font-medium"
+              >
                 Sign in
               </Link>
             )}

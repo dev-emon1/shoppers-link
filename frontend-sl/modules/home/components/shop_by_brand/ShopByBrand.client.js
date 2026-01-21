@@ -1,9 +1,7 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import { Store } from "lucide-react";
@@ -11,13 +9,14 @@ import { Store } from "lucide-react";
 import useShopByBrands from "@/modules/home/hooks/useShopByBrands";
 import { makeImageUrl } from "@/lib/utils/image";
 
-const ShopByBrand = () => {
+export default function ShopByBrandClient() {
   const { brands, loading, error, showAll } = useShopByBrands({
     mode: "home",
     limit: 10,
   });
 
-  if (loading) {
+  // ⛔ Never block UI if data exists
+  if (loading && (!brands || brands.length === 0)) {
     return (
       <section className="py-16 text-center text-sm text-textSecondary">
         Loading brands...
@@ -25,7 +24,7 @@ const ShopByBrand = () => {
     );
   }
 
-  if (error || !brands.length) return null;
+  if (error || !brands?.length) return null;
 
   return (
     <section className="py-16 bg-white border-t border-border">
@@ -41,7 +40,7 @@ const ShopByBrand = () => {
           <div className="mt-3 w-20 h-1 bg-main mx-auto rounded-full" />
         </div>
 
-        {/* Slider (UNCHANGED) */}
+        {/* Slider */}
         <Swiper
           modules={[Autoplay]}
           spaceBetween={30}
@@ -68,6 +67,7 @@ const ShopByBrand = () => {
                     href={brand.link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    prefetch={false}
                     className="group relative w-28 h-28 rounded-full border border-border bg-bgPage flex items-center justify-center overflow-hidden hover:shadow-md transition"
                   >
                     {hasLogo ? (
@@ -98,6 +98,7 @@ const ShopByBrand = () => {
           <div className="text-center mt-10">
             <Link
               href="/brands"
+              prefetch
               className="text-main underline-offset-1 hover:underline transition-all duration-300 text-sm font-medium"
             >
               View all Brands
@@ -107,6 +108,4 @@ const ShopByBrand = () => {
       </div>
     </section>
   );
-};
-
-export default ShopByBrand;
+}

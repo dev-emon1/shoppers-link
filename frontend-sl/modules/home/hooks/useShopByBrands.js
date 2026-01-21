@@ -8,7 +8,6 @@ export default function useShopByBrands({ mode = "home", limit = 10 } = {}) {
 
   const { data, status, page, hasMore, lastFetched, ttl } = state;
 
-  console.log(data);
   useEffect(() => {
     if (status === "loading") return;
 
@@ -21,7 +20,7 @@ export default function useShopByBrands({ mode = "home", limit = 10 } = {}) {
   const brandsWithLink = useMemo(() => {
     if (!Array.isArray(data)) return [];
     return data.filter(
-      (b) => typeof b.link === "string" && b.link.trim().length > 0
+      (b) => typeof b.link === "string" && b.link.trim().length > 0,
     );
   }, [data]);
 

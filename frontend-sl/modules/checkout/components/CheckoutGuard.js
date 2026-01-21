@@ -53,7 +53,11 @@ export default function CheckoutGuard({ children }) {
     return (
       <div className="container py-16 text-center">
         <p className="text-textSecondary mb-2">Redirecting to login…</p>
-        <Link href="/user/login" className="text-main underline">
+        <Link
+          prefetch={false}
+          href="/user/login"
+          className="text-main underline"
+        >
           Go to login →
         </Link>
       </div>
@@ -65,7 +69,7 @@ export default function CheckoutGuard({ children }) {
     return (
       <div className="container py-16 text-center">
         <p className="text-textSecondary mb-2">Your cart is empty.</p>
-        <Link href="/" className="text-main underline">
+        <Link prefetch href="/" className="text-main underline">
           Continue shopping →
         </Link>
       </div>
