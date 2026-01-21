@@ -1,22 +1,15 @@
-import Banner from "@/modules/home/components/Banner";
-// Hero banner section displayed at the top of the homepage
-
-import Category from "@/modules/home/components/Category";
-// Product category grid section
+import Banner from "@/modules/home/components/banner/index";
+import Category from "@/modules/home/components/category/index";
 
 import FeaturedProducts from "@/modules/home/components/FeaturedProducts";
-// Featured products showcase section
 
-// import FeaturedDeal from "@/components/home/FeaturedDeals";
-// Optional featured deals section (currently disabled)
-
-import PromoBanner from "@/modules/home/components/PromoBanner";
+import PromoBanner from "@/modules/home/components/promo_banner/index";
 // Promotional banner highlighting special campaigns
 
-import ShopByBrand from "@/modules/home/components/ShopByBrand";
+import ShopByBrand from "@/modules/home/components/shop_by_brand/index";
 // Brand showcase slider section
 
-import NewsletterHybrid from "@/modules/home/components/Newsletter";
+import NewsletterHybrid from "@/modules/home/components/newsletter/index";
 // Newsletter subscription and partner CTA section
 
 import NewArrivals from "@/modules/home/components/NewArrivals";
@@ -32,6 +25,8 @@ import TopSellingProducts from "@/modules/home/components/TopSellingProduct";
 // Best-selling products section
 
 import HelpLine from "@/components/common/HelpLine";
+import HomePrefetch from "@/modules/home/components/home_prefetch/index";
+import LazySection from "@/components/common/LazySection";
 // Customer support / helpline component
 
 export default function Home() {
@@ -39,7 +34,7 @@ export default function Home() {
     <>
       {/* Optional welcome popup */}
       {/* <WelcomePopup /> */}
-
+      <HomePrefetch />
       <main>
         {/* Global help / support banner */}
         <HelpLine />
@@ -60,19 +55,29 @@ export default function Home() {
         <TopRatingProducts />
 
         {/* Promotional campaign banner */}
-        <PromoBanner position="homepage" />
+        <LazySection>
+          <PromoBanner position="homepage" />
+        </LazySection>
 
         {/* New arrivals section */}
-        <NewArrivals />
+        <LazySection>
+          <NewArrivals />
+        </LazySection>
 
         {/* Top-selling products section */}
-        <TopSellingProducts />
+        <LazySection>
+          <TopSellingProducts />
+        </LazySection>
 
         {/* Shop by brand slider */}
-        <ShopByBrand />
+        <LazySection>
+          <ShopByBrand />
+        </LazySection>
 
         {/* Newsletter & partner CTA */}
-        <NewsletterHybrid />
+        <LazySection>
+          <NewsletterHybrid />
+        </LazySection>
       </main>
     </>
   );

@@ -92,6 +92,7 @@ const WishlistDrawer = ({ open, onClose }) => {
               </p>
               <Link
                 href="/"
+                prefetch
                 onClick={onClose}
                 className="text-main underline hover:text-main/80 text-sm"
               >
@@ -113,7 +114,7 @@ const WishlistDrawer = ({ open, onClose }) => {
                           item.image ||
                           normalizeImage(
                             item?.images?.[0],
-                            DEFAULT_MEDIA_BASE
+                            DEFAULT_MEDIA_BASE,
                           ) ||
                           "/images/placeholder.png"
                         }

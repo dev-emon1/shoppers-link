@@ -47,6 +47,7 @@ const ProductsList = ({ products = [] }) => {
             {/* Image */}
             <Link
               href={buildHref(p)}
+              prefetch
               className="relative w-full sm:w-40 h-40 shrink-0"
             >
               <Image
@@ -59,7 +60,7 @@ const ProductsList = ({ products = [] }) => {
 
             {/* Middle Info */}
             <div className="flex-1">
-              <Link href={buildHref(p)}>
+              <Link href={buildHref(p)} prefetch>
                 <h3 className="font-semibold text-textPrimary hover:text-main transition">
                   {p.name}
                 </h3>

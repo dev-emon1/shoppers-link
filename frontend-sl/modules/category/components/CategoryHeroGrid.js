@@ -20,7 +20,7 @@ export default function CategoryHeroGrid({ items = [], variant = "grid" }) {
         <div className="max-w-[1100px] mx-auto px-4">
           <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
             {items.map((item) => (
-              <Link key={item.id} href={item.href} className="block">
+              <Link key={item.id} href={item.href} prefetch className="block">
                 <div
                   className="px-6 md:px-10 py-5 md:py-6 rounded-2xl border border-border bg-white hover:shadow-md transition-all duration-200 min-w-[180px] text-center"
                   role="button"

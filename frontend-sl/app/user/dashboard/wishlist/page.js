@@ -60,6 +60,7 @@ export default function WishlistPage() {
           </p>
           <Link
             href="/"
+            prefetch
             className="px-6 py-3 bg-main text-white rounded-lg hover:bg-mainHover transition"
           >
             Continue Shopping
@@ -76,7 +77,11 @@ export default function WishlistPage() {
               className="bg-white border rounded-2xl shadow-sm p-4 group hover:shadow-md transition"
             >
               {/* Image */}
-              <Link href={buildHref(product)} className="block overflow-hidden">
+              <Link
+                href={buildHref(product)}
+                prefetch
+                className="block overflow-hidden"
+              >
                 <Image
                   src={`${IMAGE_URL}/storage/${product?.primary_image || "placeholder.png"}`}
                   alt={product.name}
@@ -88,7 +93,7 @@ export default function WishlistPage() {
 
               {/* Info */}
               <div className="mt-4 space-y-1">
-                <Link href={buildHref(product)} >
+                <Link href={`/product/${product.slug}`}>
                   <h3 className="font-semibold text-gray-800 group-hover:text-main">
                     {product.name}
                   </h3>

@@ -30,6 +30,7 @@ const Card = ({ data, href, showSoldCount = false }) => {
   return (
     <Link
       href={href || `/product/${data.slug}`}
+      prefetch
       className="block bg-bgSurface border border-border overflow-hidden
                  hover:shadow-md transition-shadow duration-300"
       onMouseEnter={() => setIsHovered(true)}

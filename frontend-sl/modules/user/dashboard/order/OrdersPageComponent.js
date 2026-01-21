@@ -5,8 +5,10 @@ import useOrders from "@/modules/user/hooks/useOrders";
 import OrdersToolbar from "./OrdersToolbar";
 import OrderCard from "./OrderCard";
 import useDebounce from "@/lib/hooks/useDebounce";
+import useOrderRealtime from "@/modules/user/hooks/useOrderRealtime";
 
 export default function OrdersPageComponent() {
+  useOrderRealtime();
   const { list, loading, fetchOrders, meta } = useOrders();
 
   const [query, setQuery] = useState("");
@@ -15,12 +17,48 @@ export default function OrdersPageComponent() {
 
   const debouncedQuery = useDebounce(query, 300);
 
-  /* INITIAL LOAD */
+  /* ----------------------------------
+     PHASE–4: Silent background refresh
+     (runs on mount)
+  ---------------------------------- */
   useEffect(() => {
-    fetchOrders({ page: 1, per_page: 10 }).catch(() => { });
+    fetchOrders({
+      page: 1,
+      per_page: 10,
+      silent: true,
+    });
   }, [fetchOrders]);
 
-  /* FILTER + SORT */
+  /* ----------------------------------
+     PHASE–4: Auto revalidate active orders
+  ---------------------------------- */
+  useEffect(() => {
+    if (!list.length) return;
+
+    const hasActiveOrders = list.some(
+      (o) =>
+        !["delivered", "cancelled"].includes((o.status ?? "").toLowerCase()),
+    );
+
+    if (!hasActiveOrders) return;
+
+    const interval = setInterval(() => {
+      fetchOrders({
+        page: 1,
+        per_page: 10,
+        force: true,
+        silent: true,
+      });
+    }, 60000); // 60 sec
+
+    return () => clearInterval(interval);
+  }, [fetchOrders, list]);
+
+  const isColdStart = loading && list.length === 0;
+
+  /* ----------------------------------
+     FILTER + SORT
+  ---------------------------------- */
   const filteredAndSortedList = useMemo(() => {
     if (!Array.isArray(list)) return [];
 
@@ -32,8 +70,8 @@ export default function OrdersPageComponent() {
         if (order.unid?.toLowerCase().includes(q)) return true;
         return order.vendor_orders?.some((vo) =>
           vo.items?.some((item) =>
-            item.product?.name?.toLowerCase().includes(q)
-          )
+            item.product?.name?.toLowerCase().includes(q),
+          ),
         );
       });
     }
@@ -67,18 +105,25 @@ export default function OrdersPageComponent() {
           onSearch={setQuery}
           onFilter={setStatus}
           onSort={setSort}
-          onRefresh={() => fetchOrders({ page: 1, per_page: 10, force: true })}
+          onRefresh={() =>
+            fetchOrders({
+              page: 1,
+              per_page: 10,
+              force: true,
+            })
+          }
         />
       </div>
 
-      {/* CONTENT */}
-      {loading && (
+      {/* COLD START LOADER */}
+      {isColdStart && (
         <div className="text-center py-10 text-gray-500">
           Loading your orders…
         </div>
       )}
 
-      {!loading && filteredAndSortedList.length === 0 && (
+      {/* EMPTY STATE */}
+      {!isColdStart && filteredAndSortedList.length === 0 && (
         <div className="text-center p-10 bg-bgSurface border rounded-xl">
           <p className="text-gray-600 font-medium">No orders found</p>
           <p className="text-sm text-gray-500 mt-1">
@@ -87,6 +132,12 @@ export default function OrdersPageComponent() {
         </div>
       )}
 
+      {/* BACKGROUND UPDATE INDICATOR */}
+      {loading && list.length > 0 && (
+        <p className="text-xs text-gray-400 text-center">Updating orders…</p>
+      )}
+
+      {/* ORDER LIST */}
       <div className="space-y-4">
         {filteredAndSortedList.map((order) => (
           <OrderCard key={order.unid ?? order.id} order={order} />
@@ -96,7 +147,7 @@ export default function OrdersPageComponent() {
       {/* PAGINATION */}
       {meta &&
         (meta.current_page ?? meta.currentPage) <
-        (meta.last_page ?? meta.lastPage) && (
+          (meta.last_page ?? meta.lastPage) && (
           <div className="flex justify-center pt-4">
             <button
               onClick={() =>
