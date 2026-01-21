@@ -44,10 +44,10 @@ export const loadOrders = createAsyncThunk(
     } catch (err) {
       // ensure we return a serializable rejection value
       return rejectWithValue(
-        err?.response?.data ?? err?.message ?? String(err)
+        err?.response?.data ?? err?.message ?? String(err),
       );
     }
-  }
+  },
 );
 
 export const cancelOrder = createAsyncThunk(
@@ -59,14 +59,14 @@ export const cancelOrder = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err?.response?.data ?? err.message ?? err);
     }
-  }
+  },
 );
 
 export const submitItemReview = createAsyncThunk(
   "userOrders/submitItemReview",
   async (
     { orderUnid, vendorOrderId, itemId, payload },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const res = await submitReviewApi(itemId, payload);
@@ -74,7 +74,7 @@ export const submitItemReview = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err.message);
     }
-  }
+  },
 );
 
 /* initial state */
@@ -110,7 +110,7 @@ const slice = createSlice({
     updateOrderLocally(state, action) {
       const { orderUnidOrId, patch } = action.payload;
       const idx = state.list.data.findIndex(
-        (x) => x.unid === orderUnidOrId || x.id === orderUnidOrId
+        (x) => x.unid === orderUnidOrId || x.id === orderUnidOrId,
       );
       if (idx !== -1)
         state.list.data[idx] = { ...state.list.data[idx], ...patch };
@@ -118,7 +118,7 @@ const slice = createSlice({
       const key = orderUnidOrId;
       if (!state.detailsByUnid[key]) {
         const found = state.list.data.find(
-          (x) => x.unid === orderUnidOrId || x.id === orderUnidOrId
+          (x) => x.unid === orderUnidOrId || x.id === orderUnidOrId,
         );
         if (found) {
           state.detailsByUnid[key] = {
@@ -143,8 +143,10 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loadOrders.pending, (s, _) => {
-        s.list.loading = true;
+      .addCase(loadOrders.pending, (s, action) => {
+        if (!action.meta.arg?.silent) {
+          s.list.loading = true;
+        }
         s.list.error = null;
       })
       .addCase(loadOrders.fulfilled, (s, action) => {
@@ -154,10 +156,10 @@ const slice = createSlice({
 
         if (page > 1) {
           const existingUnids = new Set(
-            (s.list.data || []).map((x) => x.unid ?? x.id)
+            (s.list.data || []).map((x) => x.unid ?? x.id),
           );
           const newItems = (list || []).filter(
-            (it) => !existingUnids.has(it.unid ?? it.id)
+            (it) => !existingUnids.has(it.unid ?? it.id),
           );
           s.list.data = [...(s.list.data || []), ...newItems];
         } else {
@@ -190,7 +192,7 @@ const slice = createSlice({
         if (s.detailsByUnid[orderId]?.data)
           s.detailsByUnid[orderId].data.status = "cancelled";
         const idx = s.list.data.findIndex(
-          (x) => x.unid === orderId || x.id === orderId
+          (x) => x.unid === orderId || x.id === orderId,
         );
         if (idx !== -1) s.list.data[idx].status = "cancelled";
       })
@@ -207,7 +209,7 @@ const slice = createSlice({
         if (prev && s.detailsByUnid[orderId]?.data)
           s.detailsByUnid[orderId].data.status = prev;
         const idx = s.list.data.findIndex(
-          (x) => x.unid === orderId || x.id === orderId
+          (x) => x.unid === orderId || x.id === orderId,
         );
         if (idx !== -1 && prev) s.list.data[idx].status = prev;
         s.detailsByUnid[orderId] = s.detailsByUnid[orderId] ?? {};

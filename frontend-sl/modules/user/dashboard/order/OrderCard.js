@@ -146,6 +146,10 @@ export default function OrderCard({ order }) {
   };
 
   const handleViewDetails = () => {
+    try {
+      sessionStorage.setItem("selectedOrder", JSON.stringify(order));
+    } catch {}
+
     router.push(
       `/user/dashboard/orders/${encodeURIComponent(order.unid ?? order.id)}`,
     );
