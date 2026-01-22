@@ -30,7 +30,7 @@ export default function useProductsForChildRedux({
 
   // products filtered by child
   const products = useSelector((state) =>
-    selectProductsByChild(state, childSlug)
+    selectProductsByChild(state, childSlug),
   );
 
   // derive simple filters
@@ -57,7 +57,7 @@ export default function useProductsForChildRedux({
 
   const applyFilters = (
     list = products,
-    selected = { brands: [], ratings: [], price: [] }
+    selected = { brands: [], ratings: [], price: [] },
   ) => {
     if (!Array.isArray(list)) return [];
     return list.filter((p) => {

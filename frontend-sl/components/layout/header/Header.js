@@ -29,7 +29,7 @@ const Header = () => {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const { items: categories = [] } = useSelector(
-    (state) => state.category || {}
+    (state) => state.category || {},
   );
 
   /* ----------------------------------

@@ -7,7 +7,7 @@ export const fetchProducts = createAsyncThunk(
   async (params = {}, thunkAPI) => {
     const res = await fetchProductsFromApi(params);
     return res;
-  }
+  },
 );
 
 const initialState = {
