@@ -230,6 +230,7 @@ const SearchDropdown = ({ isOpen, query, onClose, onViewAll, categoryId }) => {
                               alt={product.name}
                               fill
                               className="object-cover"
+                              loading="lazy"
                             />
                           </div>
 
