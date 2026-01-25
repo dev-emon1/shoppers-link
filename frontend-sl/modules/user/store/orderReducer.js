@@ -85,6 +85,7 @@ const initialState = {
     loading: false,
     error: null,
     lastFetchedAt: null,
+    hasFetched: false,
     params: { page: 1, per_page: 10 },
   },
   detailsByUnid: {},
@@ -168,6 +169,7 @@ const slice = createSlice({
 
         s.list.meta = meta ?? s.list.meta;
         s.list.lastFetchedAt = nowTS();
+        s.list.hasFetched = true;
         s.list.params = params ?? s.list.params;
 
         // seed details map for immediate detail rendering
@@ -178,6 +180,7 @@ const slice = createSlice({
       })
       .addCase(loadOrders.rejected, (s, action) => {
         s.list.loading = false;
+        s.list.hasFetched = true;
         s.list.error = action.payload ?? action.error?.message ?? action.error;
       });
 
