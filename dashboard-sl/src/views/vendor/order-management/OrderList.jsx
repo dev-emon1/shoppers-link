@@ -53,12 +53,24 @@ const AllOrdersPage = () => {
 
         const prevStatus = order.status;
         // Optional: cancelled-এর ক্ষেত্রে confirmation dialog
-        if (newStatus === 'cancelled') {
+        // if (newStatus === 'cancelled') {
+        //     const confirmed = window.confirm(
+        //         "আপনি কি নিশ্চিত এই অর্ডার ক্যান্সেল করতে চান?\n" +
+        //         "এটি স্টক ফিরিয়ে দেবে এবং আর ফিরিয়ে আনা যাবে না।"
+        //     );
+        //     if (!confirmed) return;
+        // }
+        // যদি নতুন স্ট্যাটাস 'cancelled' হয় এবং বর্তমান স্ট্যাটাস 'pending' হয় কেবল তখনই কনফার্মেশন দেখাবে
+        if (newStatus === 'cancelled' && prevStatus === 'pending') {
             const confirmed = window.confirm(
                 "আপনি কি নিশ্চিত এই অর্ডার ক্যান্সেল করতে চান?\n" +
                 "এটি স্টক ফিরিয়ে দেবে এবং আর ফিরিয়ে আনা যাবে না।"
             );
             if (!confirmed) return;
+        } else if (newStatus === 'cancelled' && prevStatus !== 'pending') {
+            // যদি কোনো কারণে কনফার্মড অর্ডার ক্যান্সেল করার চেষ্টা করা হয় (হ্যাক বা এরর)
+            toast.error("Confirmed orders cannot be cancelled.");
+            return;
         }
         // Optimistic update
         setOrders(prev =>
@@ -72,9 +84,11 @@ const AllOrdersPage = () => {
                 // vendor_order_id is optional — URL already has it
             });
 
-            toast.success(res.data.message || "Status updated successfully!");
-            // Optional: use fresh data
-            // setOrders(prev => prev.map(o => o.id === orderId ? res.data.vendor_order : o));
+            // স্ট্যাটাস নাম ফরম্যাট করা (যেমন: processing -> Processing)
+            const statusName = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+
+            // এখানে স্ট্যাটাসের নাম সহ মেসেজ দেখানো হচ্ছে
+            toast.success(`Status updated to ${statusName} successfully!`);
         } catch (err) {
             setOrders(prev =>
                 prev.map(o => (o.id === orderId ? { ...o, status: prevStatus } : o))

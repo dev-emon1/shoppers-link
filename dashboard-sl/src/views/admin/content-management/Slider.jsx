@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import API from "../../../utils/api";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 
 const SliderPage = () => {
   const [banners, setBanners] = useState([]);
@@ -66,7 +67,7 @@ const SliderPage = () => {
     if (selectedFile) {
       data.append("image", selectedFile);
     } else if (!editingId) {
-      alert("Please select an image");
+      toast.error("Please select an image");
       return;
     }
 
@@ -79,11 +80,11 @@ const SliderPage = () => {
         await API.post("/banners", data);
       }
 
-      alert(editingId ? "Banner updated!" : "Banner created!");
+      toast.success(editingId ? "Banner updated!" : "Banner created!");
       closeModal();
       fetchBanners();
     } catch (err) {
-      alert("Error: " + (err.response?.data?.message || "Upload failed"));
+      toast.error("Error: " + (err.response?.data?.message || "Upload failed"));
     }
   };
 
@@ -106,9 +107,9 @@ const SliderPage = () => {
     try {
       await API.delete(`/banners/${id}`);
       fetchBanners();
-      alert("Banner deleted");
+      toast.success("Banner deleted");
     } catch (err) {
-      alert("Delete failed");
+      toast.error("Delete failed");
     }
   };
 
@@ -118,8 +119,9 @@ const SliderPage = () => {
         is_active: !banner.is_active,
       });
       fetchBanners();
+      toast.success("Status updated");
     } catch (err) {
-      alert("Status update failed");
+      toast.error("Status update failed");
     }
   };
   const closeModal = () => {

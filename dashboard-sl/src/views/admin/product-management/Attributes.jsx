@@ -44,7 +44,7 @@ const Attributes = React.memo(() => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      if (!attributeName.trim()) return alert("⚠️ Attribute name is required!");
+      if (!attributeName.trim()) return toast.error("⚠️ Attribute name is required!");
 
       try {
         const payload = { name: attributeName.trim(), status };

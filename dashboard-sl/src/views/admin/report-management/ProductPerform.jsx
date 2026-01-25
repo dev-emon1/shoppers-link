@@ -3,6 +3,7 @@ import { Search, Download, TrendingUp, Package, DollarSign, ShoppingCart, Chevro
 import API from '../../../utils/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { TbCoinTaka } from 'react-icons/tb';
 
 // CSV Export
 const downloadCSV = (data, filename = 'product-performance-report.csv') => {
@@ -238,7 +239,7 @@ const ProductPerformanceReportPage = () => {
                         </div>
                         <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
                             <div className="flex items-center gap-3">
-                                <DollarSign className="text-indigo-600" size={24} />
+                                <TbCoinTaka className="text-indigo-600" size={24} />
                                 <div>
                                     <p className="text-sm text-gray-600">Period Revenue</p>
                                     <p className="text-xl font-bold text-indigo-600 mt-1">{summary.period_revenue || '৳0.00'}</p>
@@ -256,7 +257,7 @@ const ProductPerformanceReportPage = () => {
                         </div>
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <div className="flex items-center gap-3">
-                                <DollarSign className="text-orange-600" size={32} />
+                                <TbCoinTaka className="text-orange-600" size={32} />
                                 <div>
                                     <p className="text-sm text-gray-600">Top Revenue</p>
                                     <p className="text-xl font-bold text-orange-600 mt-1">{summary.top_period_revenue || '৳0.00'}</p>

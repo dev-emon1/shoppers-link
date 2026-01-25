@@ -337,16 +337,6 @@ const AllProducts = () => {
       {viewProduct && (
         <ProductQuickView product={viewProduct} onClose={() => setViewProduct(null)} />
       )}
-      {editProduct && (
-        <ProductEditModal
-          product={editProduct}
-          onClose={() => setEditProduct(null)}
-          onSuccess={() => {
-            fetchProducts();
-            setEditProduct(null);
-          }}
-        />
-      )}
     </div>
   );
 };
