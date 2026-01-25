@@ -55,9 +55,6 @@ const PaymentGetway = lazy(() =>
 const Invoices = lazy(() =>
   import("../../views/admin/payment-management/Invoices")
 );
-const ShippingMethod = lazy(() =>
-  import("../../views/admin/shipping-management/ShippingMethod")
-);
 const SalesReport = lazy(() =>
   import("../../views/admin/report-management/SalesReport")
 );
@@ -79,8 +76,20 @@ const InventoryReport = lazy(() =>
 const RevenueReport = lazy(() =>
   import("../../views/admin/report-management/RevenueReport")
 );
+const ShippingMethod = lazy(() =>
+  import("../../views/admin/shipping-management/ShippingMethod")
+);
 const ShippingZone = lazy(() =>
   import("../../views/admin/shipping-management/ShippingZone")
+);
+const ShippingCharge = lazy(() =>
+  import("../../views/admin/shipping-management/ShippingCharge")
+);
+const AddShippingCharge = lazy(() =>
+  import("../../views/admin/shipping-management/AddShippingCharge")
+);
+const EditShippingCharge = lazy(() =>
+  import("../../views/admin/shipping-management/EditShippingCharge")
 );
 const Transaction = lazy(() =>
   import("../../views/admin/payment-management/Transaction")
@@ -91,11 +100,19 @@ const Slider = lazy(() =>
 const Banner = lazy(() =>
   import("../../views/admin/content-management/Banner")
 );
+const AllCoupon = lazy(() =>
+  import("../../views/admin/offer-management/AllCoupon")
+);
+const AddCoupon = lazy(() =>
+  import("../../views/admin/offer-management/AddCoupon")
+);
 const Brand = lazy(() => import("../../views/admin/product-management/Brand"));
 const Profile = lazy(() => import("../../views/auth/Profile"));
 const protectAdmin = (component) => createElement(ProtectedRoute, { element: createElement(component), allowedRole: "admin" });
 
 export const adminRoutes = [
+  { path: "/admin/coupons/all-coupons", element: protectAdmin(AllCoupon) },
+  { path: "/admin/coupons/add-coupon", element: protectAdmin(AddCoupon) },
   { path: "/admin/content/slider", element: protectAdmin(Slider) },
   { path: "/admin/content/banner", element: protectAdmin(Banner) },
   { path: "/admin/users/customers/:id", element: protectAdmin(CustomerDetail) },
@@ -122,6 +139,9 @@ export const adminRoutes = [
   { path: "/admin/payments/gateways", element: protectAdmin(PaymentGetway) },
   { path: "/admin/shipping/methods", element: protectAdmin(ShippingMethod) },
   { path: "/admin/shipping/zones", element: protectAdmin(ShippingZone) },
+  { path: "/admin/shipping/charges", element: protectAdmin(ShippingCharge) },
+  { path: "/admin/shipping/charges/add", element: protectAdmin(AddShippingCharge) },
+  { path: "/admin/shipping-charges/edit/:id", element: protectAdmin(EditShippingCharge) },
   { path: "/admin/reports/sales", element: protectAdmin(SalesReport) },
   { path: "/admin/reports/product-performance", element: protectAdmin(ProductPerform) },
   { path: "/admin/reports/vendor-performance", element: protectAdmin(VendorPerform) },

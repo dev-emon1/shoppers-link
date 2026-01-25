@@ -10,6 +10,9 @@ import API from "../../../../src/utils/api";           // adjust path if needed
 import { useAuth } from "../../../utils/AuthContext";
 import { format } from "date-fns";
 import OrderDetailsModal from "../../../components/ui/OrderDetailsModal";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const AllOrders = () => {
     const { user } = useAuth();
@@ -89,6 +92,111 @@ const AllOrders = () => {
         return matchesSearch && matchesStatus;
     });
 
+    const getOrderData = (order) => {
+        const vo = order.vendor_orders?.[0];
+        let billing = {};
+        try {
+            const asa = vo?.order?.a_s_a;
+            if (asa) {
+                const parsed = typeof asa === "string" ? JSON.parse(asa) : asa;
+                billing = parsed?.billing || {};
+            }
+        } catch (e) { }
+
+        const customer = `${billing.fullName || order.customer?.full_name || "—"} (${billing.phone || order.customer?.contact_number || "—"})`;
+        const date = format(new Date(order.created_at), "dd MMM yyyy");
+        const items = order.vendor_orders?.reduce((sum, vo) => sum + (vo.item_count || 0), 0) || 0;
+        const total = `৳ ${(order.total_amount || 0).toLocaleString()}`;
+        const payment = order.payment_method?.toUpperCase() || "COD";
+        const status = order.status;
+
+        return {
+            "Order ID": order.unid,
+            Customer: customer,
+            Date: date,
+            Items: items,
+            Total: total,
+            Payment: payment,
+            Status: status,
+        };
+    };
+
+    const downloadData = async (format) => {
+        setLoading(true);
+        let allOrders = [];
+        try {
+            // Fetch all orders in one go by setting a large per_page (assumes API supports it; adjust if needed)
+            const res = await API.get(`/order/list?page=1&per_page=${totalItems}`);
+            const payload = res.data;
+
+            allOrders = payload.data || [];
+
+            // Optional: vendor filter if needed
+            // if (user?.role !== "admin") {
+            //     allOrders = allOrders.filter(o =>
+            //         o.vendor_orders?.some(vo => Number(vo.vendor_id) === Number(user.vendor_id))
+            //     );
+            // }
+        } catch (err) {
+            console.error("Failed to fetch all orders for download:", err);
+            setLoading(false);
+            return;
+        }
+
+        // Apply client-side filters
+        const filtered = allOrders.filter((order) => {
+            const vo = order.vendor_orders?.[0];
+            let billing = {};
+            try {
+                const asa = vo?.order?.a_s_a;
+                if (asa) {
+                    const parsed = typeof asa === "string" ? JSON.parse(asa) : asa;
+                    billing = parsed?.billing || {};
+                }
+            } catch (e) {
+                console.warn("Failed to parse a_s_a for order", order.id);
+            }
+
+            const searchLower = searchTerm.toLowerCase();
+
+            const matchesSearch =
+                order.unid?.toLowerCase().includes(searchLower) ||
+                billing.fullName?.toLowerCase().includes(searchLower) ||
+                billing.phone?.toLowerCase().includes(searchLower);
+
+            const matchesStatus =
+                !filterStatus || order.status?.toLowerCase() === filterStatus.toLowerCase();
+
+            return matchesSearch && matchesStatus;
+        });
+
+        const data = filtered.map(getOrderData);
+
+        if (format === "excel") {
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Orders");
+            XLSX.writeFile(wb, "orders.xlsx");
+        } else if (format === "pdf") {
+            const doc = new jsPDF();
+            autoTable(doc, {
+                head: [["Order ID", "Customer", "Date", "Items", "Total", "Payment", "Status"]],
+                body: data.map((d) => [
+                    d["Order ID"],
+                    d.Customer,
+                    d.Date,
+                    d.Items,
+                    d.Total,
+                    d.Payment,
+                    d.Status,
+                ]),
+            });
+            doc.save("orders.pdf");
+        }
+
+        setLoading(false);
+    };
+
     const columns = [
         {
             key: "no",
@@ -164,9 +272,7 @@ const AllOrders = () => {
         {
             key: "status",
             label: "Status",
-            render: (order) => (
-                <StatusBadge status={order.status} />
-            ),
+            render: (order) => order.status,
             className: "text-center",
         },
         {
@@ -198,10 +304,18 @@ const AllOrders = () => {
                 placeholderText="Search by order ID, customer name or phone..."
                 rightActions={
                     <div className="flex gap-2">
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 border border-red-500 text-red-600 rounded hover:bg-red-50 text-sm">
+                        <button
+                            className="flex items-center gap-1.5 px-3 py-1.5 border border-red-500 text-red-600 rounded hover:bg-red-50 text-sm"
+                            onClick={() => downloadData("pdf")}
+                            disabled={loading}
+                        >
                             <TbPdf size={18} /> PDF
                         </button>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 border border-green-600 text-green-700 rounded hover:bg-green-50 text-sm">
+                        <button
+                            className="flex items-center gap-1.5 px-3 py-1.5 border border-green-600 text-green-700 rounded hover:bg-green-50 text-sm"
+                            onClick={() => downloadData("excel")}
+                            disabled={loading}
+                        >
                             <TbFileExcel size={18} /> Excel
                         </button>
                     </div>

@@ -109,16 +109,16 @@ const OrderDetailsModal = ({ order, onClose }) => {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <div className="bg-white border rounded-xl p-4 text-center shadow-sm">
                             <p className="text-xs text-gray-500 uppercase">Items</p>
-                            <p className="text-2xl font-bold text-indigo-600 mt-1">{totalItems}</p>
+                            <p className="text-xl font-bold text-indigo-600 mt-1">{totalItems}</p>
                         </div>
                         <div className="bg-white border rounded-xl p-4 text-center shadow-sm">
                             <p className="text-xs text-gray-500 uppercase">Payment</p>
                             <p className="text-xl font-bold uppercase mt-1">
                                 {order.payment_method?.toUpperCase() || "COD"}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            {/* <p className="text-xs text-gray-500 mt-1">
                                 {order.payment_status?.toUpperCase()}
-                            </p>
+                            </p> */}
                         </div>
                         <div className="bg-white border rounded-xl p-4 text-center shadow-sm">
                             <p className="text-xs text-gray-500 uppercase">Order Date</p>

@@ -3,6 +3,7 @@ import { Search, Download, Users, Star, DollarSign, Calendar, ChevronLeft, Chevr
 import API from '../../../utils/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { TbCoinTaka } from 'react-icons/tb';
 
 // CSV Export Logic
 const downloadCSV = (data, filename = 'customer-report.csv') => {
@@ -157,7 +158,7 @@ const CustomerReportPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
                         <SummaryCard icon={<Users className="text-blue-600" />} label="Total Customers" value={summary.total_customers} />
                         <SummaryCard icon={<Star className="text-yellow-600" />} label="Top Customer" value={summary.top_customer} subValue={`LTV: ${summary.highest_ltv}`} />
-                        <SummaryCard icon={<DollarSign className="text-green-600" />} label="Total Revenue" value={summary.total_lifetime_value} />
+                        <SummaryCard icon={<TbCoinTaka className="text-green-600" />} label="Total Revenue" value={summary.total_lifetime_value} />
                         <SummaryCard icon={<Calendar className="text-purple-600" />} label="Avg. Order Value" value={summary.average_ltv} />
                     </div>
                 )}

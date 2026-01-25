@@ -236,30 +236,30 @@ export const allNavigation = {
       role: "admin",
       children: [
         { name: "Shipping Partners", path: "/admin/shipping/methods" },
+        { name: "Shipping Charges", path: "/admin/shipping/charges" },
         // { name: "Shipping Zones", path: "/admin/shipping/zones" },
         // { name: "Carriers Integration", path: "/admin/shipping/carriers" },
         // { name: "Tracking Updates", path: "/admin/shipping/tracking" },
-        // { name: "Shipping Rates", path: "/admin/shipping/rates" },
       ],
     },
-    // {
-    //   name: "Coupons & Offers Management",
-    //   path: "/admin/coupons",
-    //   icon: RiCoupon3Fill,
-    //   role: "admin",
-    //   children: [
-    //     { name: "All Coupons", path: "/admin/coupons/all-coupons" },
-    //     { name: "Create Coupon", path: "/admin/coupons/create" },
-    //     { name: "Ongoing Offers", path: "/admin/coupons/ongoing-offers" },
-    //     { name: "Expired Offers", path: "/admin/coupons/expired-offers" },
-    //     { name: "Coupon Usage Reports", path: "/admin/coupons/usage-reports" },
-    //     {
-    //       name: "Discount Campaigns",
-    //       path: "/admin/coupons/discount-campaigns",
-    //     },
-    //     { name: "Flash Sales", path: "/admin/coupons/flash-sales" },
-    //   ],
-    // },
+    {
+      name: "Coupons & Offers Management",
+      path: "/admin/coupons",
+      icon: RiCoupon3Fill,
+      role: "admin",
+      children: [
+        { name: "All Coupons", path: "/admin/coupons/all-coupons" },
+        // { name: "Create Coupon", path: "/admin/coupons/create" },
+        // { name: "Ongoing Offers", path: "/admin/coupons/ongoing-offers" },
+        // { name: "Expired Offers", path: "/admin/coupons/expired-offers" },
+        // { name: "Coupon Usage Reports", path: "/admin/coupons/usage-reports" },
+        // {
+        //   name: "Discount Campaigns",
+        //   path: "/admin/coupons/discount-campaigns",
+        // },
+        // { name: "Flash Sales", path: "/admin/coupons/flash-sales" },
+      ],
+    },
 
     // {
     //   name: "Communication Center",

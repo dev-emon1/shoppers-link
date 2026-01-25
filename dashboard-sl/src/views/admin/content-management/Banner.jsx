@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Link2, X, Upload } from "lucide-react";
 import API, { IMAGE_URL } from "../../../utils/api";
 import { format } from "date-fns";
+import { toast } from 'react-toastify';
 
 const BannersPage = () => {
     const [banners, setBanners] = useState([]);
@@ -52,7 +53,7 @@ const BannersPage = () => {
         // console.log(data);
         // Validation: Only require file if creating a NEW banner
         if (!selectedFile && !editingId) {
-            alert("Please select an image first.");
+            toast.error("Please select an image first.");
             return;
         }
         // 2. Map data to match database column names
@@ -77,11 +78,11 @@ const BannersPage = () => {
                 await API.post("/probanners", data);
             }
 
-            alert(editingId ? "Banner updated!" : "Banner created!");
+            toast.success(editingId ? "Banner updated!" : "Banner created!");
             closeModal();
             fetchBanners();
         } catch (err) {
-            alert("Error: " + (err.response?.data?.message || "Operation failed"));
+            toast.error("Error: " + (err.response?.data?.message || "Operation failed"));
         }
     };
 
@@ -110,13 +111,13 @@ const BannersPage = () => {
         try {
             // This matches your Route: /probanner/{id}/status
             const res = await API.patch(`/probanner/${banner.id}/status`);
-
+            toast.success("Status updated");
             // Update local state instead of refetching everything for better performance
             setBanners(prevBanners =>
                 prevBanners.map(b => b.id === banner.id ? res.data.data : b)
             );
         } catch (err) {
-            alert("Status update failed");
+            toast.error("Status update failed");
         }
     };
     const closeModal = () => {

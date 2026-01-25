@@ -3,6 +3,7 @@ import { Search, Download, TrendingUp, Users, DollarSign, ShoppingCart, ChevronL
 import API from '../../../utils/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { TbCoinTaka } from 'react-icons/tb';
 
 // CSV Export Helper
 const downloadCSV = (data, filename = 'vendor-performance-report.csv') => {
@@ -154,7 +155,7 @@ const VendorPerformanceReportPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
                         <SummaryCard icon={<Users className="text-blue-600" />} label="Active Vendors" value={summary.total_vendors_active} />
                         <SummaryCard icon={<TrendingUp className="text-purple-600" />} label="Top Vendor" value={summary.top_vendor} subValue={summary.top_revenue} />
-                        <SummaryCard icon={<DollarSign className="text-green-600" />} label="Platform Earnings" value={summary.total_platform_earning} />
+                        <SummaryCard icon={<TbCoinTaka className="text-green-600" />} label="Platform Earnings" value={summary.total_platform_earning} />
                         <SummaryCard icon={<ShoppingCart className="text-orange-600" />} label="Range" value={summary.date_range} />
                     </div>
                 )}

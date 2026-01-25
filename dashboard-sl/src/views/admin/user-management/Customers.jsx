@@ -1,234 +1,257 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Download, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
-import API from '../../../utils/api';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from "react";
+import PageHeader from "../../../components/common/PageHeader";
+import Table from "../../../components/table/Table";
+import Pagination from "../../../components/Pagination";
+import IconButton from "../../../components/ui/IconButton";
+import { TbFileExcel, TbPdf, TbScanEye } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
+import API, { IMAGE_URL } from "../../../../src/utils/api";
+import { toast } from "react-toastify";
+import CustomerQuickView from "../../../components/ui/CustomerQuickView";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const AllCustomersTablePage = () => {
-    const [customers, setCustomers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [cityFilter, setCityFilter] = useState('All');
-    const [segmentFilter, setSegmentFilter] = useState('All');
-    const [page, setPage] = useState(1);
-    const [meta, setMeta] = useState({ total: 0, last_page: 1 });
     const navigate = useNavigate();
-    // Real segment calculation using actual orders
-    const getSegment = (customer) => {
-        const orders = customer.orders || [];
-        const orderCount = orders.length;
-        const totalSpent = orders.reduce((sum, order) => sum + parseFloat(order.total_amount || 0), 0);
 
-        if (orderCount >= 20 || totalSpent >= 400000) return 'VIP';
-        if (orderCount >= 10 || totalSpent >= 200000) return 'Loyal';
-        if (orderCount <= 2 && orderCount > 0) return 'New';
-        if (orderCount === 0) return 'Inactive';
-        return 'Regular';
-    };
+    const [customers, setCustomers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [viewCustomer, setViewCustomer] = useState(null);
+    // মেটা ডেটা স্টেট
+    const [meta, setMeta] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 0,
+    });
+    // console.log(customers);
 
-    const fetchCustomers = async () => {
+    const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const fetchCustomers = useCallback(async () => {
         try {
             setLoading(true);
-            const params = {
-                page,
-                per_page: 10,
-                search: searchTerm || undefined,
-                with_orders: true, // This gives us the orders array
-            };
 
-            const res = await API.get('/customers', { params });
-            setCustomers(res.data.data || []);
-            setMeta(res.data.meta);
-            // console.log(res.data.meta.total[0]);
+            // ১. params ডিক্লেয়ার করা হয়েছে (এটি মিসিং ছিল)
+            const params = new URLSearchParams();
+            if (searchTerm.trim()) params.append("search", searchTerm.trim());
+            params.append("page", page.toString());
+            params.append("per_page", perPage.toString());
+            params.append("with_orders", "true"); // রিলেশন লোড করার জন্য
 
-        } catch (err) {
-            console.error('Failed to load customers:', err);
+            const response = await API.get(`/customers?${params.toString()}`);
+            const payload = response.data;
+
+            setCustomers(payload.data || []);
+
+            // ২. মেটা ডাটা ফিক্স (অ্যারে চেক এবং নাম্বার কনভার্সন)
+            setMeta({
+                current_page: Number(Array.isArray(payload.meta?.current_page) ? payload.meta.current_page[0] : (payload.meta?.current_page || 1)),
+                last_page: Number(Array.isArray(payload.meta?.last_page) ? payload.meta.last_page[0] : (payload.meta?.last_page || 1)),
+                per_page: Number(Array.isArray(payload.meta?.per_page) ? payload.meta.per_page[0] : (payload.meta?.per_page || 10)),
+                total: Number(Array.isArray(payload.meta?.total) ? payload.meta.total[0] : (payload.meta?.total || 0)),
+            });
+        } catch (error) {
+            console.error("Fetch error:", error);
+            toast.error("Failed to load customers");
         } finally {
             setLoading(false);
         }
-    };
+    }, [searchTerm, page, perPage]);
 
     useEffect(() => {
-        const timer = setTimeout(() => fetchCustomers(), 300);
-        return () => clearTimeout(timer);
-    }, [searchTerm, page]);
+        fetchCustomers();
+    }, [fetchCustomers]);
 
-    // Client-side filtering
-    const filtered = useMemo(() => {
-        return customers.filter(c => {
-            const city = c.shipping_addresses?.[0]?.city || 'Dhaka';
-            const cityMatch = cityFilter === 'All' || city === cityFilter;
-            const segment = getSegment(c);
-            const segmentMatch = segmentFilter === 'All' || segment === segmentFilter;
-            return cityMatch && segmentMatch;
+    // সার্চ করলে পেজ ১ এ সেট হবে
+    useEffect(() => {
+        setPage(1);
+    }, [searchTerm]);
+    // ১. Excel Export Function
+    const exportToExcel = () => {
+        const exportData = customers.map((item, index) => ({
+            "SL": index + 1,
+            "Name": item.full_name,
+            "Phone": item.contact_number,
+            "Email": item.user?.email || "N/A",
+            "Total Orders": item.orders?.length || 0,
+            "Total Spent": item.orders?.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0) || 0,
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Customers");
+        XLSX.writeFile(wb, "Customer_List.xlsx");
+    };
+
+    // ২. PDF Export Function
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+
+        // টাইটেল যোগ করা
+        doc.setFontSize(18);
+        doc.text("All Customer List", 14, 15);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22);
+
+        const tableColumn = ["SL", "Name", "Phone", "Email", "Total Orders", "Total Spent"];
+        const tableRows = customers.map((item, index) => {
+            // প্রতিটি কাস্টমারের জন্য আলাদা টোটাল ক্যালকুলেট করুন
+            const totalSpent = item.orders?.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0) || 0;
+
+            return [
+                index + 1,
+                item.full_name,
+                item.contact_number,
+                item.user?.email || "—",
+                item.orders?.length || 0,
+                `TK ${totalSpent.toLocaleString()}`, // কারেন্সি ফরম্যাটসহ
+            ];
         });
-    }, [customers, cityFilter, segmentFilter]);
 
-    const formatCurrency = (amount) => `৳ ${Number(amount || 0).toLocaleString()}`;
-    const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-GB') : '—';
+        // doc.autoTable এর পরিবর্তে সরাসরি autoTable ফাংশনটি ব্যবহার করুন
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 30, // টাইটেলের নিচে শুরু হবে
+            styles: { fontSize: 9, cellPadding: 3 },
+            headStyles: { fillStyle: 'f', fillColor: [251, 146, 60] }, // Orange color (your theme)
+        });
 
-    return (
-        <div className="px-6 bg-gray-50 min-h-screen">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-                <div>
-                    <h1 className="text-xl font-bold text-gray-800">All Customers</h1>
-                    {/* <p className="text-gray-600">Total: {meta.total.toLocaleString()} customers</p> */}
-                </div>
-                <div className="flex gap-3">
-                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-xs">
-                        <Download size={16} /> Export CSV
-                    </button>
-                    <button className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-xs">
-                        <Download size={16} /> Export PDF
-                    </button>
-                </div>
-            </div>
-
-            {/* Filters */}
-            <div className="bg-white rounded-lg shadow p-5 mb-6 flex flex-col md:flex-row gap-4 text-sm">
-                <div className="flex-1">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search by name, phone, email..."
-                            className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:border-main"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+        doc.save("Customer_List.pdf");
+    };
+    const columns = [
+        {
+            key: "no",
+            label: "NO",
+            render: (_, index) => {
+                // ৩. প্যাগিনেশন সিরিয়াল ক্যালকুলেশন ফিক্স
+                const cp = Number(meta.current_page) || 1;
+                const pp = Number(meta.per_page) || 10;
+                return (cp - 1) * pp + index + 1;
+            },
+            className: "text-center w-12 font-medium",
+        },
+        {
+            key: "customer_info",
+            label: "CUSTOMER INFO",
+            render: (item) => (
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+                        <img
+                            src={item.profile_picture
+                                ? `${IMAGE_URL}avatars/${item.profile_picture}`
+                                : `https://ui-avatars.com/api/?name=${item.full_name}&background=ffedd5&color=fb923c&bold=true`
+                            }
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                e.target.src = `https://ui-avatars.com/api/?name=${item.full_name}&background=ffedd5&color=fb923c`;
+                            }}
                         />
                     </div>
-                </div>
-
-                <select
-                    className="px-4 py-3 border rounded-lg"
-                    value={cityFilter}
-                    onChange={(e) => setCityFilter(e.target.value)}
-                >
-                    <option value="All">All Cities</option>
-                    <option>Dhaka</option>
-                    <option>Chattogram</option>
-                    <option>Sylhet</option>
-                    <option>Khulna</option>
-                    <option>Rajshahi</option>
-                </select>
-
-                <select
-                    className="px-4 py-3 border rounded-lg"
-                    value={segmentFilter}
-                    onChange={(e) => setSegmentFilter(e.target.value)}
-                >
-                    <option value="All">All Segments</option>
-                    <option>VIP</option>
-                    <option>Loyal</option>
-                    <option>New</option>
-                    <option>Regular</option>
-                    <option>Inactive</option>
-                </select>
-            </div>
-
-            {/* Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                            <tr>
-                                <th className="py-3 px-4 text-left">ID</th>
-                                <th className="py-3 px-4 text-left">Name</th>
-                                <th className="py-3 px-4 text-left">Contact</th>
-                                <th className="py-3 px-4 text-left">City</th>
-                                <th className="py-3 px-4 text-left">Joined</th>
-                                <th className="py-3 px-4 text-center">Orders</th>
-                                <th className="py-3 px-4 text-right">Total Spent</th>
-                                <th className="py-3 px-4 text-left">Last Order</th>
-                                <th className="py-3 px-4 text-left">Segment</th>
-                                <th className="py-3 px-4 text-left">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                            {loading ? (
-                                <tr><td colSpan="9" className="text-center py-12 text-gray-500">Loading customers...</td></tr>
-                            ) : filtered.length === 0 ? (
-                                <tr><td colSpan="9" className="text-center py-12 text-gray-500">No customers found</td></tr>
-                            ) : (
-                                filtered.map((c) => {
-                                    const orders = c.orders || [];
-                                    const orderCount = orders.length;
-                                    const totalSpent = orders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
-                                    const lastOrderDate = orders[0]?.created_at || null;
-                                    const segment = getSegment(c);
-                                    const city = c.shipping_addresses?.[0]?.city || 'Dhaka';
-
-                                    return (
-                                        <tr key={c.id} className="hover:bg-gray-50 transition">
-                                            <td className="py-3 px-4 font-bold text-main">#{c.id}</td>
-                                            <td className="py-3 px-4 font-medium">{c.full_name}</td>
-                                            <td className="py-3 px-4">
-                                                <div>{c.contact_number || c.user?.phone || '—'}</div>
-                                                <div className="text-xs text-gray-500">{c.user?.email || '—'}</div>
-                                            </td>
-                                            <td className="py-3 px-4 text-gray-700">{city}</td>
-                                            <td className="py-3 px-4 text-gray-600">{formatDate(c.created_at)}</td>
-                                            <td className="py-3 px-4 text-center font-bold text-main">
-                                                {orderCount}
-                                            </td>
-                                            <td className="py-3 px-4 text-right font-bold text-green-600">
-                                                {formatCurrency(totalSpent)}
-                                            </td>
-                                            <td className="py-3 px-4 text-gray-700">
-                                                {lastOrderDate ? formatDate(lastOrderDate) : '—'}
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-medium
-                                                    ${segment === 'VIP' ? 'bg-purple-100 text-purple-800' :
-                                                        segment === 'Loyal' ? 'bg-blue-100 text-blue-800' :
-                                                            segment === 'New' ? 'bg-green-100 text-green-800' :
-                                                                segment === 'Inactive' ? 'bg-red-100 text-red-800' :
-                                                                    'bg-gray-100 text-gray-800'}`}>
-                                                    {segment}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    onClick={() => navigate(`/vendor/users/customers/${c.id}`)}
-                                                    className="text-main hover:underline text-sm flex items-center gap-1 mx-auto"
-                                                >
-                                                    <Eye size={16} /> View Details
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination */}
-                <div className="px-6 py-4 bg-gray-50 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-                    <p className="text-gray-600">
-                        Showing {(page - 1) * 10 + 1} to {Math.min(page * 10, meta.total)} of {meta.total} customers
+                    <p className="font-bold text-gray-800 uppercase text-[11px] leading-tight">
+                        {item.full_name}
                     </p>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                            disabled={page === 1}
-                            className="p-2 rounded-lg border hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ChevronLeft size={18} />
+                </div>
+            ),
+        },
+        {
+            key: "contact",
+            label: "CONTACT",
+            render: (item) => (
+                <div className="flex flex-col">
+                    <span className="font-bold text-gray-800 text-xs">{item.contact_number}</span>
+                    <span className="text-[10px] text-gray-400">
+                        {item.user?.email || "—"}
+                    </span>
+                </div>
+            ),
+        },
+        {
+            key: "orders",
+            label: "ORDERS",
+            render: (item) => (
+                <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold text-[12px]">
+                    {item.orders?.length || 0}
+                </span>
+            ),
+        },
+        {
+            key: "total_spent",
+            label: "TOTAL SPENT",
+            render: (item) => {
+                const total = item.orders?.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0) || 0;
+                return <span className="font-bold text-xs">৳ {total.toLocaleString()}</span>;
+            },
+        },
+        {
+            key: "actions",
+            label: "ACTIONS",
+            className: "text-left w-12",
+            render: (item) => (
+                <div className="flex justify-center">
+                    <IconButton
+                        icon={TbScanEye}
+                        bgColor="bg-orange-400"
+                        hoverBgColor="bg-orange-500"
+                        onClick={() => setViewCustomer(item)} // এখানে মোডাল ওপেন হবে
+                    />
+                </div>
+            ),
+        },
+    ];
+
+    return (
+        <div className="px-4 py-2">
+            <PageHeader
+                title="All Customers"
+                searchTerm={searchTerm}
+                onSearch={(e) => setSearchTerm(e.target.value)}
+                placeholderText="Search by name or phone..."
+                rightActions={
+                    <div className="flex gap-2">
+                        <button onClick={exportToPDF} className="flex items-center gap-1 px-2 py-1 border border-main text-main rounded text-xs font-medium hover:bg-main hover:text-white transition-colors">
+                            <TbPdf size={16} /> PDF
                         </button>
-                        <span className="px-4 font-medium">
-                            Page {page} of {meta.last_page || 1}
-                        </span>
-                        <button
-                            onClick={() => setPage(p => Math.min(meta.last_page || 1, p + 1))}
-                            disabled={page === meta.last_page}
-                            className="p-2 rounded-lg border hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ChevronRight size={18} />
+                        <button onClick={exportToExcel} className="flex items-center gap-1 px-2 py-1 border border-main text-main rounded text-xs font-medium hover:bg-main hover:text-white transition-colors">
+                            <TbFileExcel size={16} /> Excel
                         </button>
                     </div>
+                }
+            />
+
+            <div className="bg-white rounded-lg shadow-sm border overflow-hidden mt-4">
+                <Table
+                    columns={columns}
+                    data={customers}
+                    loading={loading}
+                    enableCheckbox={false}
+                    showFooter={false}
+                />
+
+                <div className="p-0 border-t">
+                    <Pagination
+                        currentPage={meta.current_page}
+                        totalPages={meta.last_page}
+                        perPage={meta.per_page}
+                        totalItems={meta.total}
+                        onPageChange={(p) => setPage(p)}
+                        onPerPageChange={(pp) => setPerPage(pp)}
+                    />
                 </div>
             </div>
+            {/* কাস্টমার ডিটেইলস মোডাল */}
+            {viewCustomer && (
+                <CustomerQuickView
+                    customer={viewCustomer}
+                    onClose={() => setViewCustomer(null)}
+                />
+            )}
         </div>
     );
 };

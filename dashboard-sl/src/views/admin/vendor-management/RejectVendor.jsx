@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import API from "../../../utils/api";
 import VendorDetailsModal from "../../../components/ui/VendorDetailsModal";
+import { toast } from "react-toastify";
 
 const VendordataPage = () => {
     const [vendors, setVendors] = useState([]);
@@ -69,6 +70,7 @@ const VendordataPage = () => {
                 user: { ...prev.user, status: newStatus }
             }));
         }
+        toast.success("Vendor status updated");
     };
 
     const handleApprove = async (vendorId) => {
@@ -76,9 +78,9 @@ const VendordataPage = () => {
         try {
             await API.patch(`/vendor/${vendors.find(v => v.id === vendorId)?.user?.id}/approve`);
             updateVendorStatus(vendorId, 1);
-            alert("Vendor approved!");
+            toast.success("Vendor approved!");
         } catch (err) {
-            alert("Failed to approve");
+            toast.error("Failed to approve");
         }
     };
 
@@ -99,9 +101,9 @@ const VendordataPage = () => {
                 closeModal();
             }
 
-            alert("Vendor rejected and removed from list.");
+            toast.success("Vendor rejected and removed from list.");
         } catch (err) {
-            alert("Failed to reject vendor");
+            toast.error("Failed to reject vendor");
         }
     };
     const openModal = (vendor) => {
