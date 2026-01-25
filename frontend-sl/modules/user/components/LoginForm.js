@@ -108,7 +108,6 @@ export default function LoginForm() {
 
     // loginUser thunk
     const result = await dispatch(loginUser(payload));
-    console.log(result);
     if (loginUser.rejected.match(result)) {
       toast.error(result.payload || "Login failed");
       return;
@@ -146,6 +145,7 @@ export default function LoginForm() {
             Password
           </label>
           <Link
+            prefetch={false}
             href="/user/forgot-password"
             className="text-sm font-medium text-main hover:text-mainHover transition duration-200"
           >

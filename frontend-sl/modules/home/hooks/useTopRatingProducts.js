@@ -20,7 +20,7 @@ export default function useTopRatingProducts({ mode = "home" } = {}) {
   const state = useSelector((s) => s.home.topRating);
 
   const { data, status, page, hasMore, lastFetched, ttl } = state;
-  const loading = status === "loading";
+  const loading = status === "loading" && data.length === 0;
 
   /* ---------------------------
      Initial fetch logic

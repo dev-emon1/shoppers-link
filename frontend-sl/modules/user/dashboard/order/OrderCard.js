@@ -37,13 +37,13 @@ export default function OrderCard({ order }) {
   const primaryItem = order?.vendor_orders?.[0]?.items?.[0];
   const thumbnail = primaryItem
     ? makeImageUrl(
-        primaryItem?.image?.image_path ?? primaryItem?.product?.primary_image
+        primaryItem?.image?.image_path ?? primaryItem?.product?.primary_image,
       )
     : "/images/placeholder-square.jpg";
 
   const vendorCount = order?.vendor_orders?.length ?? 0;
   const vendorStatuses = (order.vendor_orders ?? []).map((v) =>
-    (v.status ?? "pending").toLowerCase()
+    (v.status ?? "pending").toLowerCase(),
   );
 
   const activeStatuses = vendorStatuses.filter((s) => s !== "cancelled");
@@ -58,7 +58,7 @@ export default function OrderCard({ order }) {
 
   const overallStatus = isAllCancelled
     ? "cancelled"
-    : PROGRESS_STEPS[overallIndex]?.key ?? "pending";
+    : (PROGRESS_STEPS[overallIndex]?.key ?? "pending");
 
   const progressPercent =
     overallIndex < 0
@@ -82,7 +82,7 @@ export default function OrderCard({ order }) {
   const itemCount =
     order.vendor_orders?.reduce(
       (sum, vo) => sum + (vo.item_count ?? vo.items?.length ?? 0),
-      0
+      0,
     ) ?? 0;
 
   const isSingleItemSingleVendor =
@@ -94,7 +94,7 @@ export default function OrderCard({ order }) {
   const showReviewInCard = hasDelivered && isSingleItemSingleVendor;
 
   const reviewedItemCount = (order.vendor_orders?.[0]?.items ?? []).filter(
-    (i) => i.review
+    (i) => i.review,
   ).length;
   const hasReviewed =
     reviewedItemCount === (order.vendor_orders?.[0]?.items?.length ?? 0);
@@ -107,7 +107,7 @@ export default function OrderCard({ order }) {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    }
+    },
   );
 
   const timelineMap = useMemo(() => extractTimeline(order), [order]);
@@ -116,7 +116,7 @@ export default function OrderCard({ order }) {
     !isCancelled &&
     overallStatus === "pending" &&
     order.vendor_orders?.every(
-      (vo) => (vo.status ?? "pending").toLowerCase() === "pending"
+      (vo) => (vo.status ?? "pending").toLowerCase() === "pending",
     );
 
   const { doCancelSafe, cancelling } = useOrderFromList(order.unid ?? order.id);
@@ -146,8 +146,12 @@ export default function OrderCard({ order }) {
   };
 
   const handleViewDetails = () => {
+    try {
+      sessionStorage.setItem("selectedOrder", JSON.stringify(order));
+    } catch {}
+
     router.push(
-      `/user/dashboard/orders/${encodeURIComponent(order.unid ?? order.id)}`
+      `/user/dashboard/orders/${encodeURIComponent(order.unid ?? order.id)}`,
     );
   };
 

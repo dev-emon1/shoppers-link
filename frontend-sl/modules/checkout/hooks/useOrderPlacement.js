@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "@/lib/utils/toast";
 import { orderService } from "../services/order.service";
 import { saveBillingAddress } from "../store/billingReducer";
-import { mapBillingToAddressPayload } from "../utils/billingToAddressMapper";
+import { shippingOptions } from "../hooks/useShipping";
+import { canSaveAddress } from "../utils/addressRules";
 
 export default function useOrderPlacement({
   billing,
@@ -21,80 +22,107 @@ export default function useOrderPlacement({
   const dispatch = useDispatch();
   const [isPlacing, setIsPlacing] = useState(false);
 
+  const addresses = useSelector((s) => s.address.list || []);
+
   const placeOrder = async () => {
     try {
       setIsPlacing(true);
 
       if (!user?.customer?.id) {
         showToast("Please login to place order.");
-        setIsPlacing(false);
         return;
       }
 
       if (!payment?.value) {
         showToast("Please select a payment method.");
-        setIsPlacing(false);
         return;
       }
 
-      const vendorEntries = Object.entries(cart || {});
-      if (!vendorEntries.length) {
-        showToast("Your cart is empty.");
-        setIsPlacing(false);
-        return;
+      /* ---------- vendors ---------- */
+      const vendors = Object.entries(cart || {})
+        .map(([vendorId, vendorData]) => ({
+          vendor_id: Number(vendorId),
+          items: vendorData.items.map((item) => ({
+            product_id: item.id,
+            variant_id: item.variantId,
+            qty: item.quantity,
+            price: item.price,
+          })),
+        }))
+        .filter((v) => v.items.length);
+
+      /* ---------- optional save ---------- */
+      let savedAddressId = null;
+
+      const saveCheck = canSaveAddress({
+        billing: billing.value,
+        existingAddresses: addresses,
+      });
+
+      if (saveCheck.ok) {
+        try {
+          const res = await dispatch(
+            saveBillingAddress({
+              billing: billing.value,
+              customerId: user.customer.id,
+              isDefault: billing.value.setAsDefault === true,
+            }),
+          ).unwrap();
+
+          savedAddressId = res?.id || null;
+        } catch {}
+      } else if (billing.value.saveAddress && saveCheck.reason) {
+        showToast(saveCheck.reason);
       }
 
-      const vendors = vendorEntries
-        .map(([vendorId, vendorData]) => {
-          if (!Array.isArray(vendorData?.items)) return null;
-          return {
-            vendor_id: Number(vendorId),
-            items: vendorData.items.map((item) => ({
-              product_id: item.id,
-              variant_id: item.variantId,
-              qty: item.quantity,
-              price: item.price,
-              total: item.price * item.quantity,
-            })),
-          };
-        })
-        .filter(Boolean);
-
-      // Save address (first-time user only)
-      if (billing?.value?.saveAddress === true && billing?.value?.line1) {
-        const addressPayload = mapBillingToAddressPayload({
-          billing: billing.value,
-          customerId: user.customer.id,
-        });
-
-        await dispatch(saveBillingAddress(addressPayload)).unwrap();
-      }
+      /* ---------- shipping snapshot (ALWAYS) ---------- */
+      const selectedShipping = shippingOptions.find(
+        (s) => s.id === shipping.value,
+      );
 
       const payload = {
         customer_id: user.customer.id,
         payment_method: payment.value,
-        shipping_address_id: null, // 🔥 safer for now
-        a_s_a: {
-          billing: billing.value,
-          shipping: shipping.value,
-          totals,
-        },
         vendors,
+        a_s_a: {
+          billing: {
+            fullName: billing.value.fullName,
+            phone: billing.value.phone,
+            email: billing.value.email || null,
+            line1: billing.value.line1,
+            area: billing.value.area,
+            city: billing.value.city,
+            postalCode: billing.value.postalCode || null,
+            notes: billing.value.notes || null,
+            addressType: billing.value.addressType || "home",
+          },
+          shipping: {
+            id: shipping.value,
+            label: selectedShipping?.label || null,
+            fee: selectedShipping?.fee || 0,
+          },
+          totals: {
+            subtotal: totals.subtotal,
+            shipping_charge: totals.shipping_charge,
+            grandTotal: totals.grandTotal,
+          },
+        },
       };
 
-      const response = await orderService.placeOrder(payload);
+      /* ---------- address reference ---------- */
+      if (billing.value.selectedAddressId) {
+        payload.shipping_address_id = billing.value.selectedAddressId;
+      } else if (savedAddressId) {
+        payload.shipping_address_id = savedAddressId;
+      } else {
+        payload.shipping_address_id = null;
+      }
+
+      const res = await orderService.placeOrder(payload);
 
       showToast("🎉 Order placed successfully!");
       clearCart();
-
-      const ref = response?.order?.unid;
-      router.push(ref ? `/checkout/success?ref=${ref}` : "/checkout/success");
-
-      return response;
-    } catch (error) {
-      console.error(error);
-      showToast("❌ Failed to place order. Please try again.");
-      throw error;
+      router.push(`/checkout/success?ref=${res.order.unid}`);
     } finally {
       setIsPlacing(false);
     }

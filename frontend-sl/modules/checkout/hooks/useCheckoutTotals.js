@@ -10,7 +10,7 @@ export default function useCheckoutTotals({ totalPrice, shippingId }) {
 
     return {
       subtotal: totalPrice || 0,
-      shipping: shippingFee,
+      shipping_charge: shippingFee,
       grandTotal: (totalPrice || 0) + shippingFee,
     };
   }, [totalPrice, shippingId]);

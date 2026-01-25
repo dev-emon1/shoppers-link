@@ -51,8 +51,8 @@ export default function ReviewSection({
           {paymentId === "cod"
             ? "Cash on Delivery"
             : paymentId === "bkash"
-            ? "bKash"
-            : "Not selected"}
+              ? "bKash"
+              : "Not selected"}
         </p>
       </div>
 
@@ -98,7 +98,7 @@ export default function ReviewSection({
             <span>Shipping</span>
             <span className="flex items-center gap-1">
               <TbCurrencyTaka size={13} />
-              {formatAmount(totals.shipping)}
+              {formatAmount(totals.shipping_charge)}
             </span>
           </div>
           <div className="flex justify-between font-semibold mt-1">

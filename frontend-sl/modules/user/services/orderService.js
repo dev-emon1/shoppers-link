@@ -26,13 +26,14 @@ const normalizeList = (resp) => {
 
 export const fetchOrdersApi = async (params = { page: 1, per_page: 10 }) => {
   const resp = await api.get("/customer/order/list", { params });
+  console.log(resp);
   return normalizeList(resp);
 };
 
 export const cancelOrderApi = async (orderId, payload = {}) => {
   const resp = await api.post(
     `/orders/${encodeURIComponent(orderId)}/cancel`,
-    payload
+    payload,
   );
   return resp?.data ?? null;
 };
@@ -40,7 +41,7 @@ export const cancelOrderApi = async (orderId, payload = {}) => {
 export const cancelVendorOrderApi = async (vendorOrderId, payload = {}) => {
   const resp = await api.post(
     `/vendor-orders/${encodeURIComponent(vendorOrderId)}/cancel`,
-    payload
+    payload,
   );
   return resp?.data ?? null;
 };
@@ -74,7 +75,6 @@ export const submitReviewApi = async (vendorOrderItemId, payload) => {
     throw new Error(errorMessage);
   }
 };
-
 
 export default {
   fetchOrdersApi,

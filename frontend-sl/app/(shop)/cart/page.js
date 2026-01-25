@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import useCart from "@/modules/cart/hooks/useCart";
 import VendorGroup from "@/modules/cart/components/VendorGroup";
 import CartSummary from "@/modules/cart/components/CartSummary";
@@ -8,11 +9,15 @@ import EmptyCart from "@/modules/cart/components/EmptyCart";
 const CartPage = () => {
   const { cart, totalItems, totalPrice, remove, updateQty, clear } = useCart();
 
-  const vendors = cart || {};
-  const vendorKeys = Object.keys(vendors);
-  // console.log(cart);
+  // 🔑 hydration guard
+  const [mounted, setMounted] = useState(false);
 
-  if (vendorKeys.length === 0) return <EmptyCart />;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const vendors = mounted ? cart || {} : {};
+  const vendorKeys = Object.keys(vendors);
 
   return (
     <section className="container py-10 min-h-screen">
@@ -26,28 +31,36 @@ const CartPage = () => {
         </p>
       </div>
 
-      {/* Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Cart Items */}
-        <div className="lg:col-span-2 space-y-6">
-          {vendorKeys.map((vendorId) => (
-            <VendorGroup
-              key={vendorId}
-              vendorId={vendorId}
-              vendorData={vendors[vendorId]}
-              onRemove={remove}
-              onQuantityChange={updateQty}
-            />
-          ))}
-        </div>
+      {/* Body */}
+      {!mounted ? (
+        // ✅ SSR + first client render SAME
+        <div className="text-center py-24 text-gray-400">Loading cart...</div>
+      ) : vendorKeys.length === 0 ? (
+        // Empty cart (client only)
+        <EmptyCart />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Cart Items */}
+          <div className="lg:col-span-2 space-y-6">
+            {vendorKeys.map((vendorId) => (
+              <VendorGroup
+                key={vendorId}
+                vendorId={vendorId}
+                vendorData={vendors[vendorId]}
+                onRemove={remove}
+                onQuantityChange={updateQty}
+              />
+            ))}
+          </div>
 
-        {/* Cart Summary */}
-        <CartSummary
-          totalItems={totalItems}
-          totalPrice={totalPrice}
-          onClear={clear}
-        />
-      </div>
+          {/* Cart Summary */}
+          <CartSummary
+            totalItems={totalItems}
+            totalPrice={totalPrice}
+            onClear={clear}
+          />
+        </div>
+      )}
     </section>
   );
 };

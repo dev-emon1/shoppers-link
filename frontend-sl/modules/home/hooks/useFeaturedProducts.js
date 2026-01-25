@@ -9,24 +9,17 @@ const isCacheValid = (lastFetched, ttl) => {
   return Date.now() - lastFetched < ttl;
 };
 
-/**
- * Unified hook for Featured Products
- *
- * @param {Object} options
- * @param {"home"|"listing"} options.mode
- */
 export default function useFeaturedProducts({ mode = "home" } = {}) {
   const dispatch = useDispatch();
   const state = useSelector((s) => s.home.featured);
 
   const { data, status, page, hasMore, lastFetched, ttl } = state;
-  const loading = status === "loading";
+  const loading = status === "loading" && data.length === 0;
 
   /* ---------------------------
      Initial fetch logic
   --------------------------- */
   useEffect(() => {
-    // HOME MODE → cache based
     if (mode === "home") {
       if (loading) return;
 

@@ -91,7 +91,7 @@ const MainNav = ({
         <div className="flex items-center justify-between h-[68px] md:h-20">
           {/* Logo */}
           <div className="flex items-center gap-4">
-            <Link href="/">
+            <Link href="/" prefetch>
               <ShoppersLinkLogo width={85} height={45} />
             </Link>
 
@@ -138,7 +138,7 @@ const MainNav = ({
                       clearTimeout(closeTimer.current);
                       openTimer.current = setTimeout(
                         () => setOpenDropdown(true),
-                        120
+                        120,
                       );
                     }
                   : undefined
@@ -149,7 +149,7 @@ const MainNav = ({
                       clearTimeout(openTimer.current);
                       closeTimer.current = setTimeout(
                         () => setOpenDropdown(false),
-                        180
+                        180,
                       );
                     }
                   : undefined
@@ -210,6 +210,7 @@ const MainNav = ({
                   >
                     <Link
                       href="/user/dashboard"
+                      prefetch
                       className="block px-5 py-3 text-sm hover:bg-gray-50"
                       onClick={() => setOpenDropdown(false)}
                     >
@@ -218,6 +219,7 @@ const MainNav = ({
 
                     <Link
                       href="/user/dashboard/orders"
+                      prefetch
                       className="block px-5 py-3 text-sm hover:bg-gray-50"
                       onClick={() => setOpenDropdown(false)}
                     >

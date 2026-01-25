@@ -20,8 +20,8 @@ const SubColumn = React.memo(function SubColumn({
   const children = Array.isArray(sub?.children)
     ? sub.children
     : Array.isArray(sub?.child_categories)
-    ? sub.child_categories
-    : [];
+      ? sub.child_categories
+      : [];
 
   return (
     <div className="min-h-[40px]">
@@ -34,6 +34,7 @@ const SubColumn = React.memo(function SubColumn({
           <li key={child?.id ?? child?.slug}>
             <Link
               href={`/${categorySlug}/${sub?.slug}/${child?.slug}`}
+              prefetch
               onClick={onItemClick}
               className="hover:text-main hover:underline transition-all duration-150 block"
             >
@@ -73,7 +74,7 @@ const MegaMenu = ({
 
   const cats = useMemo(
     () => (Array.isArray(categories) ? categories : []),
-    [categories]
+    [categories],
   );
 
   const openTimer = useRef(null);
@@ -96,7 +97,7 @@ const MegaMenu = ({
         setActiveMenu(index);
       }, 100);
     },
-    [setActiveMenu]
+    [setActiveMenu],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -121,8 +122,8 @@ const MegaMenu = ({
             const subcategories = Array.isArray(category?.subcategories)
               ? category.subcategories
               : Array.isArray(category?.sub_categories)
-              ? category.sub_categories
-              : [];
+                ? category.sub_categories
+                : [];
 
             return (
               <li
@@ -134,6 +135,7 @@ const MegaMenu = ({
                 {/* Category link */}
                 <Link
                   href={`/${category?.slug}`}
+                  prefetch
                   className="hover:text-main transition-all duration-200 select-none"
                   aria-haspopup={subcategories.length > 0 ? "true" : "false"}
                   aria-expanded={activeMenu === index}

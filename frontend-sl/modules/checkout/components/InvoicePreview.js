@@ -101,8 +101,8 @@ const InvoicePreview = ({ order }) => {
               order.status === "paid"
                 ? "text-green-600"
                 : order.status === "pending"
-                ? "text-yellow-600"
-                : "text-red-600"
+                  ? "text-yellow-600"
+                  : "text-red-600"
             }`}
           >
             {order.status}

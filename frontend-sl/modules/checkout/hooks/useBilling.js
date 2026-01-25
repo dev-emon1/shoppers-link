@@ -12,7 +12,7 @@ export default function useBilling() {
   const errors = useSelector((s) => s.checkoutBilling.errors);
   const hydrated = useSelector((s) => s.checkoutBilling.hydrated);
 
-  // ✅ ONLY ONCE hydrate
+  //
   useEffect(() => {
     if (hydrated || !user) return;
 
@@ -21,7 +21,7 @@ export default function useBilling() {
         fullName: user?.customer?.full_name || "",
         phone: user?.customer?.contact_number || "",
         email: user?.email || "",
-      })
+      }),
     );
   }, [user, hydrated, dispatch]);
 
@@ -29,6 +29,6 @@ export default function useBilling() {
     value: billing,
     errors,
     onChange: (next) => dispatch(updateBilling(next)),
-    validate: () => validateBilling(billing),
+    validate: () => validateBilling(billing || {}),
   };
 }
