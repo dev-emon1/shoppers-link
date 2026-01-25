@@ -46,7 +46,7 @@ export default function ListingHeader({
      Prevent duplicate "Home > Home"
   ------------------------------------------------------------ */
   const cleanBreadcrumb = breadcrumb.filter(
-    (item, index) => !(item?.label?.toLowerCase() === "home" && index !== 0)
+    (item, index) => !(item?.label?.toLowerCase() === "home" && index !== 0),
   );
 
   return (
@@ -60,7 +60,7 @@ export default function ListingHeader({
               className="flex flex-wrap items-center gap-2 text-sm text-textLight mb-2
             "
             >
-              <Link href="/" className="hover:text-main font-medium">
+              <Link href="/" prefetch className="hover:text-main font-medium">
                 <Home size={20} />
               </Link>
 
@@ -74,6 +74,7 @@ export default function ListingHeader({
                     {item.href && !isLast ? (
                       <Link
                         href={item.href}
+                        prefetch
                         className="hover:text-main font-medium capitalize"
                       >
                         {item.label}

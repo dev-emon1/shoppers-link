@@ -61,6 +61,7 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold">Recent Orders</h2>
           <Link
             href="/user/dashboard/orders"
+            prefetch
             className="text-main font-medium flex items-center gap-1 hover:underline"
           >
             View all <ChevronRight size={18} />
@@ -97,6 +98,7 @@ function QuickCard({ href, icon: Icon, title, desc }) {
   return (
     <Link
       href={href}
+      prefetch
       className="group bg-white border rounded-xl p-5 hover:shadow-md transition
                  focus:outline-none focus:ring-2 focus:ring-main"
     >

@@ -1,184 +1,226 @@
-// components/OrderInvoiceTemplate.jsx
+// modules/user/dashboard/order/OrderInvoiceTemplate.jsx
 import React from "react";
+
 const OrderInvoiceTemplate = ({
   order,
   billing,
-  activeVendorOrders,
+  activeVendorOrders = [],
   totals,
 }) => {
+  const safeTotals = totals ?? {}; // 🔒 FIX 1
+
+  const invoiceDate = new Date().toLocaleDateString();
+  const orderDate = new Date(order.created_at).toLocaleDateString();
+
   return (
     <div
       id="invoice-template"
       style={{
         width: "800px",
         padding: "40px",
-        backgroundColor: "white",
-        color: "black",
+        backgroundColor: "#ffffff",
+        color: "#000",
         fontFamily: "Arial, sans-serif",
+        fontSize: "13px",
       }}
     >
-      {/* Header */}
+      {/* HEADER */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           borderBottom: "2px solid #eee",
-          paddingBottom: "20px",
+          paddingBottom: "16px",
+          marginBottom: "24px",
         }}
       >
         <div>
-          <h1 style={{ fontSize: "28px", margin: 0 }}>INVOICE</h1>
-          <p style={{ color: "#666" }}>Order ID: {order.unid}</p>
+          <h1 style={{ fontSize: "26px", margin: 0 }}>INVOICE</h1>
+          <p style={{ margin: "6px 0", color: "#555" }}>
+            Invoice No: INV-{order.unid}
+            <br />
+            Order ID: {order.unid}
+          </p>
         </div>
+
         <div style={{ textAlign: "right" }}>
           <img
             src="/images/logo.png"
-            alt="Shop Logo"
-            style={{ width: "100px", height: "60px" }}
+            alt="ShoppersLink"
+            style={{ width: "110px" }}
           />
-          {/* <h2 style={{ fontSize: '20px', margin: 0 }}>Your Shop Name</h2> */}
-          {/* <p style={{ fontSize: '12px' }}>{new Date().toLocaleDateString()}</p> */}
         </div>
       </div>
 
-      {/* Addresses */}
-      <div style={{ display: "flex", marginTop: "30px", gap: "40px" }}>
+      {/* ADDRESS & SUMMARY */}
+      <div style={{ display: "flex", gap: "40px", marginBottom: "30px" }}>
         <div style={{ flex: 1 }}>
-          <h4 style={{ borderBottom: "1px solid #eee", paddingBottom: "5px" }}>
-            Billing To:
+          <h4 style={{ borderBottom: "1px solid #eee", paddingBottom: "6px" }}>
+            Billing To
           </h4>
-          <p style={{ fontSize: "14px", lineHeight: "1.6" }}>
-            <strong>{billing?.fullName || billing?.name}</strong>
+          <p style={{ lineHeight: "1.6" }}>
+            <strong>{billing?.fullName || billing?.name || "—"}</strong>
             <br />
-            {billing?.phone}
+            {billing?.phone || "—"}
             <br />
-            {billing?.line1}
+            {billing?.line1 || "—"}
             <br />
-            {billing?.city}, {billing?.area}
+            {[billing?.city, billing?.area, billing?.postalCode]
+              .filter(Boolean)
+              .join(", ")}
           </p>
         </div>
+
         <div style={{ flex: 1, textAlign: "right" }}>
-          <h4 style={{ borderBottom: "1px solid #eee", paddingBottom: "5px" }}>
-            Order Summary:
+          <h4 style={{ borderBottom: "1px solid #eee", paddingBottom: "6px" }}>
+            Order Summary
           </h4>
-          <p style={{ fontSize: "14px" }}>
-            Date: {new Date(order.created_at).toLocaleDateString()}
+          <p style={{ lineHeight: "1.6" }}>
+            Order Date: {orderDate}
+            <br />
+            Invoice Date: {invoiceDate}
             <br />
             Status: {order.status}
             <br />
             Payment Method: {order.payment_method}
             <br />
             Payment Status: {order.payment_status}
-            <br />
-            <strong>Total: ৳ {order.total_amount}</strong>
           </p>
         </div>
       </div>
 
-      {/* Items Table */}
-      <table
-        style={{ width: "100%", marginTop: "30px", borderCollapse: "collapse" }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: "#f9f9f9", textAlign: "left" }}>
-            <th style={{ padding: "10px", border: "1px solid #eee" }}>
-              Item (পণ্য)
-            </th>
-            <th style={{ padding: "10px", border: "1px solid #eee" }}>
-              Vendor (বিক্রেতা)
-            </th>
-            <th style={{ padding: "10px", border: "1px solid #eee" }}>Qty</th>
-            <th style={{ padding: "10px", border: "1px solid #eee" }}>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {activeVendorOrders.map((v) =>
-            v.items?.map((it, idx) => (
-              <tr key={`${v.id}-${idx}`}>
-                <td style={{ padding: "12px", border: "1px solid #eee", verticalAlign: "top" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    {/* Product Name */}
-                    <span style={{ fontWeight: "600", color: "#333", fontSize: "14px" }}>
-                      {it.product?.name}
-                    </span>
+      {/* MULTIVENDOR ITEMS */}
+      {activeVendorOrders.map((vendorOrder) => {
+        const vendorName = vendorOrder.vendor?.shop_name || "Unknown Vendor";
 
-                    {/* Attributes Wrapper */}
-                    {it.variant?.attributes && (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                        {Object.entries(JSON.parse(it.variant.attributes)).map(([key, value]) => (
-                          <span
-                            key={key}
-                            style={{
-                              fontSize: "11px",
-                              display: "inline-flex",
-                              gap: "4px"
-                            }}
-                          >
-                            <strong style={{ textTransform: "capitalize" }}>{key}:</strong>
-                            {value}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </td>
-                <td style={{ padding: "10px", border: "1px solid #eee" }}>
-                  {v.vendor?.shop_name}
-                </td>
-                <td style={{ padding: "10px", border: "1px solid #eee" }}>
-                  {it.quantity}
-                </td>
-                <td style={{ padding: "10px", border: "1px solid #eee" }}>
-                  ৳ {it.total}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+        return (
+          <div key={vendorOrder.id} style={{ marginBottom: "28px" }}>
+            <div
+              style={{
+                backgroundColor: "#f5f7fa",
+                padding: "8px 12px",
+                fontWeight: "bold",
+                border: "1px solid #eee",
+              }}
+            >
+              Vendor: {vendorName}
+            </div>
 
-      {/* Totals */}
-      <div
-        style={{
-          marginTop: "30px",
-          textAlign: "right",
-          width: "300px",
-          marginLeft: "auto",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "5px 0",
-          }}
-        >
-          <span>Subtotal:</span> <span>৳ {totals?.subtotal}</span>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr style={{ backgroundColor: "#fafafa" }}>
+                  <th style={thStyle}>Item</th>
+                  <th style={thStyle}>Qty</th>
+                  <th style={thStyle}>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vendorOrder.items?.map((it) => {
+                  let attributes = {};
+                  try {
+                    attributes =
+                      typeof it.variant?.attributes === "string"
+                        ? JSON.parse(it.variant.attributes)
+                        : {};
+                  } catch {}
+
+                  return (
+                    <tr key={it.unid}>
+                      <td style={tdStyle}>
+                        <strong>{it.product?.name}</strong>
+                        {Object.keys(attributes).length > 0 && (
+                          <div style={{ fontSize: "11px", marginTop: "4px" }}>
+                            {Object.entries(attributes).map(([k, v]) => (
+                              <span key={k} style={{ marginRight: "8px" }}>
+                                <strong>{k}:</strong> {v}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td style={tdStyle}>{it.quantity}</td>
+                      <td style={tdStyle}>৳ {it.total}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            <div
+              style={{
+                textAlign: "right",
+                marginTop: "8px",
+                fontWeight: "bold",
+              }}
+            >
+              Vendor Subtotal: ৳ {vendorOrder.subtotal ?? 0}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* TOTALS */}
+      <div style={{ marginTop: "30px", marginLeft: "auto", width: "320px" }}>
+        <div style={totalRow}>
+          <span>Subtotal:</span>
+          <span>৳ {safeTotals.subtotal ?? order.total_amount}</span>
+        </div>
+        <div style={totalRow}>
+          <span>Shipping:</span>
+          <span>৳ {safeTotals.shipping_charge ?? 0}</span>
         </div>
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "5px 0",
-          }}
-        >
-          <span>Shipping:</span> <span>৳ {totals?.shipping}</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "10px 0",
+            ...totalRow,
             borderTop: "2px solid #000",
             fontWeight: "bold",
-            fontSize: "18px",
           }}
         >
-          <span>Grand Total:</span> <span>৳ {totals?.grandTotal}</span>
+          <span>Grand Total:</span>
+          <span>৳ {safeTotals.grandTotal ?? order.total_amount}</span>
         </div>
       </div>
-    </div >
+
+      {/* FOOTER */}
+      <div
+        style={{
+          marginTop: "40px",
+          paddingTop: "16px",
+          borderTop: "1px solid #eee",
+          fontSize: "11px",
+          color: "#555",
+        }}
+      >
+        <p>This is a system-generated invoice.</p>
+        <p>
+          For support contact: info@fingertipsinnovations.com <br />
+          Return & refund policy applies.
+        </p>
+      </div>
+    </div>
   );
+};
+
+const thStyle = {
+  padding: "10px",
+  border: "1px solid #eee",
+  textAlign: "left",
+};
+
+const tdStyle = {
+  padding: "10px",
+  border: "1px solid #eee",
+};
+
+const totalRow = {
+  display: "flex",
+  justifyContent: "space-between",
+  padding: "6px 0",
 };
 
 export default OrderInvoiceTemplate;

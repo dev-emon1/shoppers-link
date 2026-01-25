@@ -43,6 +43,7 @@ const WishlistPage = () => {
           </p>
           <Link
             href="/"
+            prefetch
             className="bg-main text-white px-5 py-2 rounded-lg hover:bg-main/90 transition"
           >
             Continue Shopping →
