@@ -117,7 +117,7 @@ export default function CategoryPage({ params }) {
   /* ---------------- Sorting ---------------- */
   const sortedProducts = useSortedProducts(
     isChildPage ? filteredProducts : [],
-    sort
+    sort,
   );
 
   /* ======================================================
@@ -158,7 +158,7 @@ export default function CategoryPage({ params }) {
     }));
 
     return (
-      <div className="mt-6">
+      <div className="mt-4 lg:mt-10 mb-4">
         <ListingHeader title={cat.name} breadcrumb={breadcrumb} />
 
         <div className="container grid grid-cols-1 lg:grid-cols-12 gap-6 py-10">
@@ -191,7 +191,7 @@ export default function CategoryPage({ params }) {
     }));
 
     return (
-      <div className="mt-6">
+      <div className="mt-4 lg:mt-10 mb-4">
         <ListingHeader title={sub.name} breadcrumb={breadcrumb} />
 
         <div className="container grid grid-cols-1 lg:grid-cols-12 gap-6 py-10">

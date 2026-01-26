@@ -32,18 +32,27 @@ export default function RecentOrders() {
   /* ----------------------------------
      DATA HYDRATION
   ---------------------------------- */
+  // useEffect(() => {
+  //   if (!user?.id) return;
+  //   if (Array.isArray(list) && list.length > 0) return;
+
+  //   const cached = getSessionTTL(CACHE_KEY);
+  //   if (cached && Array.isArray(cached)) {
+  //     fetchOrders({ page: 1, per_page: 10 });
+  //     return;
+  //   }
+
+  //   fetchOrders({ page: 1, per_page: 10 });
+  // }, [user, list, fetchOrders]);
+
+  const hasFetched = useSelector((state) => state.userOrders.list.hasFetched);
+
   useEffect(() => {
     if (!user?.id) return;
-    if (Array.isArray(list) && list.length > 0) return;
-
-    const cached = getSessionTTL(CACHE_KEY);
-    if (cached && Array.isArray(cached)) {
-      fetchOrders({ page: 1, per_page: 10 });
-      return;
-    }
+    if (hasFetched) return; // 🔥 key fix
 
     fetchOrders({ page: 1, per_page: 10 });
-  }, [user, list, fetchOrders]);
+  }, [user?.id, hasFetched, fetchOrders]);
 
   /* ----------------------------------
      SYNC TO SESSION
@@ -70,13 +79,13 @@ export default function RecentOrders() {
   /* ----------------------------------
      STATES
   ---------------------------------- */
-  if (loading && recentOrders.length === 0) {
+  if (!hasFetched && loading) {
     return (
       <p className="text-gray-500 text-center py-6">Loading recent orders…</p>
     );
   }
 
-  if (!recentOrders.length) {
+  if (hasFetched && recentOrders.length === 0) {
     return (
       <p className="text-gray-500 text-center py-6">
         You have no recent orders.
