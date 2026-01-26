@@ -35,14 +35,6 @@ function Step({ active, completed, label, time, icon }) {
   return (
     <div className="flex flex-col items-center text-center relative">
       <div
-<<<<<<< HEAD
-        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${completed
-          ? "bg-green text-white"
-          : active
-            ? "bg-main text-white"
-            : "bg-gray-200 text-gray-400"
-          }`}
-=======
         className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${
           completed
             ? "bg-green text-white"
@@ -50,13 +42,13 @@ function Step({ active, completed, label, time, icon }) {
               ? "bg-main text-white"
               : "bg-gray-200 text-gray-400"
         }`}
->>>>>>> 9e3fb2bc1a68fc027e4f4ee4e094f8c224fd7067
       >
         {icon}
       </div>
       <div
-        className={`mt-3 text-sm font-medium transition-colors ${completed || active ? "text-textPrimary" : "text-textSecondary"
-          }`}
+        className={`mt-3 text-sm font-medium transition-colors ${
+          completed || active ? "text-textPrimary" : "text-textSecondary"
+        }`}
       >
         {label}
       </div>
@@ -77,14 +69,6 @@ function MobileTimeline({ steps, currentIndex, timelineMap }) {
         return (
           <div key={s.key} className="flex items-start gap-3">
             <div
-<<<<<<< HEAD
-              className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${completed
-                ? "bg-green text-white"
-                : active
-                  ? "bg-main text-white"
-                  : "bg-gray-200 text-gray-400"
-                }`}
-=======
               className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
                 completed
                   ? "bg-green text-white"
@@ -92,7 +76,6 @@ function MobileTimeline({ steps, currentIndex, timelineMap }) {
                     ? "bg-main text-white"
                     : "bg-gray-200 text-gray-400"
               }`}
->>>>>>> 9e3fb2bc1a68fc027e4f4ee4e094f8c224fd7067
             >
               {s.icon}
             </div>
@@ -157,23 +140,11 @@ export default function OrderDetailsPane({ order }) {
 
   const overallIndex = isAllCancelled
     ? -1
-<<<<<<< HEAD
-    : activeStatuses.length > 0
-      ? Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0))
-      : 0;
-
-  const overallStatus = isAllCancelled
-    ? "cancelled"
-    : activeStatuses.length > 0
-      ? PROGRESS_STEPS[overallIndex]?.key ?? "pending"
-      : "pending";
-=======
     : Math.min(...activeStatuses.map(statusToIndex).filter((i) => i >= 0));
 
   const overallStatus = isAllCancelled
     ? "cancelled"
     : (PROGRESS_STEPS[overallIndex]?.key ?? "pending");
->>>>>>> 9e3fb2bc1a68fc027e4f4ee4e094f8c224fd7067
 
   const isCancelled = overallStatus === "cancelled";
   const isDelivered = overallStatus === "delivered";
@@ -187,25 +158,11 @@ export default function OrderDetailsPane({ order }) {
   const timelineMap = useMemo(() => extractTimeline(order, order), [order]);
 
   const primaryVendorOrder = order.vendor_orders?.[0] ?? null;
-<<<<<<< HEAD
-  const a_s_a_raw =
-    primaryVendorOrder?.order?.a_s_a ?? primaryVendorOrder?.order ?? null;
-  // console.log(order);
-  let parsedASA = null;
-  if (typeof a_s_a_raw === "string") {
-    parsedASA = safeParse(a_s_a_raw);
-  } else if (typeof a_s_a_raw === "object" && a_s_a_raw) {
-    parsedASA = safeParse(a_s_a_raw.a_s_a) ?? safeParse(a_s_a_raw) ?? a_s_a_raw;
-  } else {
-    parsedASA = null;
-  }
-=======
 
   const billing = useMemo(
     () => normalizeShippingAddress(primaryVendorOrder),
     [primaryVendorOrder],
   );
->>>>>>> 9e3fb2bc1a68fc027e4f4ee4e094f8c224fd7067
 
   const parsedASA = safeParse(primaryVendorOrder?.order?.a_s_a);
   const totals = parsedASA?.totals ?? null;
@@ -268,8 +225,9 @@ export default function OrderDetailsPane({ order }) {
 
   return (
     <div
-      className={`p-4 md:p-6 bg-bgSurface rounded-lg border ${isCancelled ? "opacity-70 grayscale" : ""
-        }`}
+      className={`p-4 md:p-6 bg-bgSurface rounded-lg border ${
+        isCancelled ? "opacity-70 grayscale" : ""
+      }`}
     >
       {/* Header */}
       <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
@@ -348,8 +306,9 @@ export default function OrderDetailsPane({ order }) {
               return (
                 <div
                   key={`line-${idx}`}
-                  className={`absolute h-1 ${lineCompleted ? "bg-green" : "bg-gray-200"
-                    }`}
+                  className={`absolute h-1 ${
+                    lineCompleted ? "bg-green" : "bg-gray-200"
+                  }`}
                   style={{
                     left: `${(idx / (PROGRESS_STEPS.length - 1)) * 100}%`,
                     width: `${100 / (PROGRESS_STEPS.length - 1)}%`,
@@ -385,38 +344,38 @@ export default function OrderDetailsPane({ order }) {
         order.tracking_number ||
         order.tracking_url ||
         order.estimated_delivery) && (
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Shipment Details</h4>
-            <div className="text-sm text-blue-800 space-y-1">
-              {order.courier_name && <div>Courier: {order.courier_name}</div>}
-              {order.tracking_number && (
-                <div>Tracking #: {order.tracking_number}</div>
-              )}
-              {order.estimated_delivery && (
-                <div>
-                  Estimated Delivery:{" "}
-                  {new Date(order.estimated_delivery).toLocaleDateString()}
-                </div>
-              )}
-              {order.tracking_url && (
-                <a
-                  href={order.tracking_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-main hover:underline"
-                >
-                  <PackageSearch size={14} /> Track Shipment
-                </a>
-              )}
-              {order.vendor_orders?.length > 1 && (
-                <p className="text-xs mt-2">
-                  Note: Check vendor sections for individual tracking if multiple
-                  couriers are used.
-                </p>
-              )}
-            </div>
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">Shipment Details</h4>
+          <div className="text-sm text-blue-800 space-y-1">
+            {order.courier_name && <div>Courier: {order.courier_name}</div>}
+            {order.tracking_number && (
+              <div>Tracking #: {order.tracking_number}</div>
+            )}
+            {order.estimated_delivery && (
+              <div>
+                Estimated Delivery:{" "}
+                {new Date(order.estimated_delivery).toLocaleDateString()}
+              </div>
+            )}
+            {order.tracking_url && (
+              <a
+                href={order.tracking_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-main hover:underline"
+              >
+                <PackageSearch size={14} /> Track Shipment
+              </a>
+            )}
+            {order.vendor_orders?.length > 1 && (
+              <p className="text-xs mt-2">
+                Note: Check vendor sections for individual tracking if multiple
+                couriers are used.
+              </p>
+            )}
           </div>
-        )}
+        </div>
+      )}
 
       {/* Vendor orders list */}
       <div className="mt-6 space-y-4">
@@ -439,8 +398,9 @@ export default function OrderDetailsPane({ order }) {
           return (
             <div
               key={v.unid}
-              className={`p-4 bg-white rounded-lg border flex flex-col md:flex-row md:justify-between gap-4 ${vStatus === "cancelled" ? "opacity-70 grayscale" : ""
-                }`}
+              className={`p-4 bg-white rounded-lg border flex flex-col md:flex-row md:justify-between gap-4 ${
+                vStatus === "cancelled" ? "opacity-70 grayscale" : ""
+              }`}
             >
               <div className="flex gap-4 items-start">
                 {hasVendorImage ? (
@@ -456,8 +416,9 @@ export default function OrderDetailsPane({ order }) {
                 ) : null}
 
                 <div
-                  className={`w-20 h-20 flex items-center justify-center bg-gray-100 rounded-lg border shadow-sm ${hasVendorImage ? "hidden" : "flex"
-                    }`}
+                  className={`w-20 h-20 flex items-center justify-center bg-gray-100 rounded-lg border shadow-sm ${
+                    hasVendorImage ? "hidden" : "flex"
+                  }`}
                 >
                   <Store size={36} className="text-gray-400" />
                 </div>
@@ -500,13 +461,8 @@ export default function OrderDetailsPane({ order }) {
                   <div className="text-xs text-textSecondary mt-2">
                     {vTimeline[vStatus] || v.updated_at || v.created_at
                       ? new Date(
-<<<<<<< HEAD
-                        vTimeline[vStatus] || v.updated_at || v.created_at
-                      ).toLocaleString()
-=======
                           vTimeline[vStatus] || v.updated_at || v.created_at,
                         ).toLocaleString()
->>>>>>> 9e3fb2bc1a68fc027e4f4ee4e094f8c224fd7067
                       : ""}
                   </div>
                 </div>
