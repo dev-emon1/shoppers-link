@@ -2,7 +2,9 @@ const CACHE_PREFIX = "shopperslink:search:";
 const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
 function getCacheKey({ q, categoryId }) {
-  return `${CACHE_PREFIX}${q || "all"}:${categoryId || "all"}`;
+  return `${CACHE_PREFIX}${
+    q.trim().toLowerCase() || "all"
+  }:${categoryId || "all"}`;
 }
 
 export function readSearchCache({ q, categoryId }) {
@@ -30,7 +32,7 @@ export function writeSearchCache({ q, categoryId }, data) {
       JSON.stringify({
         ts: Date.now(),
         data,
-      })
+      }),
     );
   } catch {}
 }

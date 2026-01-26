@@ -26,7 +26,6 @@ const normalizeList = (resp) => {
 
 export const fetchOrdersApi = async (params = { page: 1, per_page: 10 }) => {
   const resp = await api.get("/customer/order/list", { params });
-  console.log(resp);
   return normalizeList(resp);
 };
 

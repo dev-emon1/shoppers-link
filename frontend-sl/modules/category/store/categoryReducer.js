@@ -35,7 +35,7 @@ export const loadAllCategories = createAsyncThunk(
     } catch (e) {
       return rejectWithValue("Failed to load categories");
     }
-  }
+  },
 );
 
 const categorySlice = createSlice({

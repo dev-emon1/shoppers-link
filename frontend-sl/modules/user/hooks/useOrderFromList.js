@@ -17,7 +17,7 @@ export const useOrderFromList = (orderId) => {
 
   // selectors
   const detailsEntry = useSelector((state) =>
-    selectOrderDetailsByUnid(state, key)
+    selectOrderDetailsByUnid(state, key),
   );
   const list = useSelector(selectOrdersData);
   const loading = useSelector(selectOrdersLoading);
@@ -42,10 +42,10 @@ export const useOrderFromList = (orderId) => {
           page: opts.page,
           per_page: opts.per_page,
           ...opts.extraParams,
-        })
+        }),
       );
     },
-    [dispatch]
+    [dispatch],
   );
 
   // seed details map from list (safe, idempotent)
@@ -61,10 +61,10 @@ export const useOrderFromList = (orderId) => {
       const oId = order?.id;
       if (!oId) return Promise.reject(new Error("No order id provided"));
       return dispatch(
-        cancelOrder({ orderId: oId, reason: payload.reason })
+        cancelOrder({ orderId: oId, reason: payload.reason }),
       ).unwrap();
     },
-    [dispatch, key, order]
+    [dispatch, key, order],
   );
 
   /**
@@ -79,7 +79,7 @@ export const useOrderFromList = (orderId) => {
    */
   const getOrderWithFallback = useCallback(
     async (
-      opts = { fallbackFetch: false, page: 1, per_page: 10, extraParams: {} }
+      opts = { fallbackFetch: false, page: 1, per_page: 10, extraParams: {} },
     ) => {
       // quick check
       if (order) return order;
@@ -98,7 +98,7 @@ export const useOrderFromList = (orderId) => {
             page: opts.page ?? 1,
             per_page: opts.per_page ?? 10,
             ...opts.extraParams,
-          })
+          }),
         );
         // action.payload should contain { list, meta, params } per our reducer contract
         const payload = action.payload ?? null;
@@ -110,7 +110,7 @@ export const useOrderFromList = (orderId) => {
         let found = null;
         if (Array.isArray(listAfter)) {
           found = listAfter.find(
-            (x) => x.unid === key || String(x.id) === String(key)
+            (x) => x.unid === key || String(x.id) === String(key),
           );
         }
 
@@ -129,7 +129,7 @@ export const useOrderFromList = (orderId) => {
         throw err;
       }
     },
-    [dispatch, ensureSeeded, key, order]
+    [dispatch, ensureSeeded, key, order],
   );
 
   return {
