@@ -9,7 +9,7 @@ import useOrderRealtime from "@/modules/user/hooks/useOrderRealtime";
 
 export default function OrdersPageComponent() {
   useOrderRealtime();
-  const { list, loading, fetchOrders, meta } = useOrders();
+  const { list, loading, fetchOrders, hasFetched, meta } = useOrders();
 
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
@@ -18,8 +18,7 @@ export default function OrdersPageComponent() {
   const debouncedQuery = useDebounce(query, 300);
 
   /* ----------------------------------
-     PHASE–4: Silent background refresh
-     (runs on mount)
+    Silent background refresh
   ---------------------------------- */
   useEffect(() => {
     fetchOrders({
@@ -30,7 +29,7 @@ export default function OrdersPageComponent() {
   }, [fetchOrders]);
 
   /* ----------------------------------
-     PHASE–4: Auto revalidate active orders
+    Auto revalidate active orders
   ---------------------------------- */
   useEffect(() => {
     if (!list.length) return;
@@ -54,7 +53,7 @@ export default function OrdersPageComponent() {
     return () => clearInterval(interval);
   }, [fetchOrders, list]);
 
-  const isColdStart = loading && list.length === 0;
+  const isColdStart = !hasFetched && loading;
 
   /* ----------------------------------
      FILTER + SORT
