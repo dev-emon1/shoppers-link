@@ -164,7 +164,7 @@ const MainNav = ({
                   }
 
                   if (!isDesktop) {
-                    setOpenDropdown((prev) => !prev); // ✅ mobile fix
+                    setOpenDropdown((prev) => !prev);
                   }
                 }}
                 className="flex items-center gap-2"
