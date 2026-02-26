@@ -29,7 +29,7 @@ export default function CategoryClient() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-10 gap-2 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-12 gap-2 sm:gap-3 md:gap-4">
           {categories.map((cat) => (
             <Link
               key={cat.id}
