@@ -10,7 +10,7 @@ const DEFAULT_MEDIA_BASE =
 function getVariantImage({ product, variant, mediaBase }) {
   if (!product || !variant) return null;
 
-  // 🔥 ALWAYS parse attributes
+  // 🔥 Always parse attributes safely
   let attrs = {};
   try {
     attrs =
@@ -21,11 +21,21 @@ function getVariantImage({ product, variant, mediaBase }) {
     attrs = {};
   }
 
-  const variantColor = attrs?.Color ? String(attrs.Color).toLowerCase() : null;
+  const variantColor = attrs?.Color
+    ? String(attrs.Color).toLowerCase()
+    : null;
 
-  if (!variantColor) return null;
+  if (!variantColor) {
+    // fallback immediately if no color
+    return (
+      (product.primary_image &&
+        normalizeImage(product.primary_image, mediaBase)) ||
+      (product.image && normalizeImage(product.image, mediaBase)) ||
+      null
+    );
+  }
 
-  // 1️⃣ Find image by COLOR (not variant id)
+  // 1️⃣ Try matching image by COLOR
   if (Array.isArray(product.images)) {
     const matched = product.images.find((img) => {
       if (!img.variant_id) return false;
@@ -41,7 +51,9 @@ function getVariantImage({ product, variant, mediaBase }) {
             ? JSON.parse(v.attributes)
             : v.attributes || {};
 
-        return String(vAttrs?.Color || "").toLowerCase() === variantColor;
+        return (
+          String(vAttrs?.Color || "").toLowerCase() === variantColor
+        );
       } catch {
         return false;
       }
@@ -52,7 +64,7 @@ function getVariantImage({ product, variant, mediaBase }) {
     }
   }
 
-  // 2️⃣ fallback
+  // 2️⃣ fallback to primary
   if (product.primary_image) {
     return normalizeImage(product.primary_image, mediaBase);
   }
@@ -78,23 +90,28 @@ function buildCartItemFromProduct({
 } = {}) {
   if (!product) return null;
 
-  const variants = Array.isArray(product.variants) ? product.variants : [];
+  const variants = Array.isArray(product.variants)
+    ? product.variants
+    : [];
 
-  // used variants (rotation support)
+  // Used variants for rotation support
   const usedVariantIds = cartItems
     .filter((i) => String(i.productId) === String(product.id))
     .map((i) => String(i.variantId));
 
   /* ----------------------------------
-     ✅ STRICT variant selection
-     (never override user choice)
+     STRICT VARIANT SELECTION
+     (Never override user choice unless out of stock)
   ---------------------------------- */
   let chosenVariant = null;
 
   if (variantId) {
-    chosenVariant = variants.find((v) => String(v.id) === String(variantId));
+    chosenVariant = variants.find(
+      (v) => String(v.id) === String(variantId)
+    );
   }
 
+  // If no variant or out of stock → auto pick next sellable
   if (!chosenVariant || Number(chosenVariant.stock) <= 0) {
     chosenVariant = selectNextSellableVariant({
       variants,
@@ -103,6 +120,9 @@ function buildCartItemFromProduct({
     });
   }
 
+  /* ----------------------------------
+     PRICE & STOCK
+  ---------------------------------- */
   const price =
     chosenVariant?.price ??
     chosenVariant?.base_price ??
@@ -110,9 +130,26 @@ function buildCartItemFromProduct({
     product.base_price ??
     0;
 
-  const stock = chosenVariant ? Number(chosenVariant.stock) : 0;
+  const stock = chosenVariant
+    ? Number(chosenVariant.stock)
+    : Number(product.stock) || 0;
 
-  // FINAL IMAGE SNAPSHOT
+  /* ----------------------------------
+     VARIANT ATTRIBUTES SNAPSHOT
+  ---------------------------------- */
+  let variantAttributes = {};
+  try {
+    variantAttributes =
+      typeof chosenVariant?.attributes === "string"
+        ? JSON.parse(chosenVariant.attributes)
+        : chosenVariant?.attributes || {};
+  } catch {
+    variantAttributes = {};
+  }
+
+  /* ----------------------------------
+     IMAGE SNAPSHOT
+  ---------------------------------- */
   const image = getVariantImage({
     product,
     variant: chosenVariant,
@@ -120,28 +157,38 @@ function buildCartItemFromProduct({
   });
 
   /* ----------------------------------
-     FINAL RETURN (THIS IS IMPORTANT)
+     FINAL CART OBJECT
   ---------------------------------- */
   return {
-    id: product.id,
+    // 🔥 Unique cart row ID (prevents merge issues)
+    id: `${product.id}-${chosenVariant?.id ?? "base"}`,
+
     productId: product.id,
     variantId: chosenVariant?.id ?? null,
 
     name: product.name,
+
     sku: chosenVariant?.sku ?? product.sku ?? null,
+
+    // 🔥 Important: enables showing Color, Size, etc in cart
+    variantAttributes,
 
     price: Number(price) || 0,
     stock,
     quantity: Number(quantity) || 1,
 
-    // 🔥 cart will ALWAYS use this
     image,
-    // images: image ? [image] : [],
 
-    vendorId: vendorId ?? product?.vendor?.id ?? null,
+    vendorId:
+      vendorId ?? product?.vendor?.id ?? null,
+
     vendorName:
-      vendorName ?? product?.vendor?.shop_name ?? product?.vendor?.name ?? null,
+      vendorName ??
+      product?.vendor?.shop_name ??
+      product?.vendor?.name ??
+      null,
 
+    // Keep raw product if needed
     rawProduct: product,
   };
 }

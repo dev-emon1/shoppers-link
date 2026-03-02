@@ -5,18 +5,21 @@ import { X, Star } from "lucide-react";
 import { makeImageUrl } from "@/lib/utils/image";
 
 /* ================== SENTIMENT ================== */
-function detectSentiment(text, rating = 0) {
-  const t = text.toLowerCase();
+function detectSentiment(text = "", rating = 0) {
+  const t = (text || "").toLowerCase();
+
   if (
     rating <= 2 ||
     /(bad|poor|worst|delay|broken|hate|disappoint|issue|problem)/.test(t)
   )
     return "negative";
+
   if (
     rating >= 4 ||
     /(good|great|excellent|love|perfect|nice|amazing|awesome|recommend)/.test(t)
   )
     return "positive";
+
   return "neutral";
 }
 
