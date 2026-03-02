@@ -43,9 +43,9 @@ export default function useOrderPlacement({
         .map(([vendorId, vendorData]) => ({
           vendor_id: Number(vendorId),
           items: vendorData.items.map((item) => ({
-            product_id: item.id,
-            variant_id: item.variantId,
-            qty: item.quantity,
+            product_id: item.productId, // ✅ correct
+            variant_id: item.variantId, // ✅ MUST match backend
+            qty: item.quantity, // ✅ MUST match backend
             price: item.price,
           })),
         }))
