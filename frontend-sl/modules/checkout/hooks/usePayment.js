@@ -24,11 +24,12 @@ export const paymentOptions = [
     id: "surjopay",
     label: "Online Payment (Surjopay)",
     description: "Pay securely with card / bKash / Nagad",
+    disabled: true
   },
 ];
 
 export default function usePayment() {
-  const [value, setValue] = useState({});
+  const [value, setValue] = useState("cod"); // default to cod for now
   const [errors, setErrors] = useState({});
 
   const onChange = (id) => {
