@@ -14,16 +14,22 @@ export const paymentOptions = [
     description: "Instant payment with bKash",
     disabled: true,
   },
+  // {
+  //   id: "card",
+  //   label: "Card (Coming soon)",
+  //   description: "Secure online payment",
+  //   disabled: true,
+  // },
   {
-    id: "card",
-    label: "Card (Coming soon)",
-    description: "Secure online payment",
-    disabled: true,
+    id: "surjopay",
+    label: "Online Payment (Surjopay)",
+    description: "Pay securely with card / bKash / Nagad",
+    disabled: true
   },
 ];
 
 export default function usePayment() {
-  const [value, setValue] = useState("cod");
+  const [value, setValue] = useState("cod"); // default to cod for now
   const [errors, setErrors] = useState({});
 
   const onChange = (id) => {
