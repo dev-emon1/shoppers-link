@@ -1,6 +1,7 @@
 import * as bkash from "./payments/bkash";
 import * as nagad from "./payments/nagad";
 import * as ssl from "./payments/sslcommerz";
+import * as sp from "./payments/surjopay";
 
 export const payWith = async (method, payload) => {
   switch (method) {
@@ -8,6 +9,8 @@ export const payWith = async (method, payload) => {
       return bkash.pay(payload);
     case "nagad":
       return nagad.pay(payload);
+    case "surjopay":
+      return sp.pay(payload);
     case "sslcommerz":
       return ssl.pay(payload);
     case "cod":

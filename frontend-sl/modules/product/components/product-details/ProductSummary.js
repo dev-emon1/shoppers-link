@@ -46,7 +46,7 @@ export default function ProductSummary({
   const categoryId = product?.category?.id;
 
   /* ----------------------------------
-     Variants normalization
+     Normalize Variants
   ---------------------------------- */
   const variants = useMemo(() => {
     if (!Array.isArray(product.variants)) return [];
@@ -57,52 +57,63 @@ export default function ProductSummary({
   }, [product.variants]);
 
   /* ----------------------------------
-     Attribute options
+     Dynamic Attribute Groups
   ---------------------------------- */
-  const colors = useMemo(() => {
-    const set = new Set();
-    variants.forEach((v) => v.attr?.Color && set.add(v.attr.Color));
-    return Array.from(set);
-  }, [variants]);
+  const attributeGroups = useMemo(() => {
+    const groups = {};
 
-  const sizes = useMemo(() => {
-    const set = new Set();
-    variants.forEach((v) => v.attr?.Size && set.add(v.attr.Size));
-    return Array.from(set);
+    variants.forEach((v) => {
+      Object.entries(v.attr || {}).forEach(([key, value]) => {
+        if (!groups[key]) groups[key] = new Set();
+        groups[key].add(value);
+      });
+    });
+
+    return Object.fromEntries(
+      Object.entries(groups).map(([k, v]) => [k, Array.from(v)])
+    );
   }, [variants]);
 
   /* ----------------------------------
-     UI State (controlled by variant)
+     Selected Attributes State
   ---------------------------------- */
-  const [selectedColor, setSelectedColor] = useState(null);
-  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedAttributes, setSelectedAttributes] = useState({});
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
   /* ----------------------------------
-     Sync UI from parent variant
+     Auto Select First Variant
   ---------------------------------- */
   useEffect(() => {
-    if (selectedVariant?.attr?.Color) {
-      setSelectedColor(selectedVariant.attr.Color);
+    if (!selectedVariant && variants.length) {
+      onVariantSelect?.(variants[0]);
+      setSelectedAttributes(variants[0].attr);
     }
-    if (selectedVariant?.attr?.Size) {
-      setSelectedSize(selectedVariant.attr.Size);
+  }, [variants.length]);
+
+  /* ----------------------------------
+     Sync From Parent Variant
+  ---------------------------------- */
+  useEffect(() => {
+    if (selectedVariant?.attr) {
+      setSelectedAttributes(selectedVariant.attr);
     }
   }, [selectedVariant?.id]);
 
   /* ----------------------------------
-     Default selection (first load only)
+     Find Matching Variant
   ---------------------------------- */
   useEffect(() => {
-    if (
-      !selectedVariant &&
-      variants.length &&
-      typeof onVariantSelect === "function"
-    ) {
-      onVariantSelect(variants[0]);
+    const match = variants.find((v) =>
+      Object.entries(selectedAttributes).every(
+        ([key, val]) => v.attr?.[key] === val
+      )
+    );
+
+    if (match && match.id !== selectedVariant?.id) {
+      onVariantSelect?.(match);
     }
-  }, [variants.length]);
+  }, [selectedAttributes]);
 
   /* ----------------------------------
      Stock & Quantity safety
@@ -235,58 +246,47 @@ export default function ProductSummary({
 
       <ProductPriceBlock product={product} selectedVariant={selectedVariant} />
 
-      {colors.length > 0 && (
-        <div>
-          <h4 className="font-medium mb-2">Color</h4>
-          <div className="flex gap-3 flex-wrap">
-            {colors.map((c) => (
-              <ColorSwatch
-                key={c}
-                value={c}
-                selected={c === selectedColor}
-                onClick={() => {
-                  setSelectedColor(c);
-                  const v = variants.find(
-                    (x) =>
-                      x.attr?.Color === c &&
-                      (!selectedSize || x.attr?.Size === selectedSize)
-                  );
-                  if (v) onVariantSelect?.(v);
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+       {/* 🔥 Dynamic Attribute Rendering */}
+      {Object.entries(attributeGroups).map(([attrName, options]) => (
+        <div key={attrName}>
+          <h4 className="font-medium mb-2">{attrName}</h4>
 
-      {sizes.length > 0 && (
-        <div>
-          <h4 className="font-medium mb-2">Size</h4>
           <div className="flex gap-2 flex-wrap">
-            {sizes.map((s) => (
-              <button
-                key={s}
-                onClick={() => {
-                  setSelectedSize(s);
-                  const v = variants.find(
-                    (x) =>
-                      x.attr?.Size === s &&
-                      (!selectedColor || x.attr?.Color === selectedColor)
-                  );
-                  if (v) onVariantSelect?.(v);
-                }}
-                className={`px-3 py-1 text-sm rounded border ${
-                  s === selectedSize
-                    ? "bg-main text-white border-main"
-                    : "bg-white border-border"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+            {options.map((value) =>
+              attrName.toLowerCase() === "color" ? (
+                <ColorSwatch
+                  key={value}
+                  value={value}
+                  selected={selectedAttributes[attrName] === value}
+                  onClick={() =>
+                    setSelectedAttributes((prev) => ({
+                      ...prev,
+                      [attrName]: value,
+                    }))
+                  }
+                />
+              ) : (
+                <button
+                  key={value}
+                  onClick={() =>
+                    setSelectedAttributes((prev) => ({
+                      ...prev,
+                      [attrName]: value,
+                    }))
+                  }
+                  className={`px-3 py-1 text-sm rounded border ${
+                    selectedAttributes[attrName] === value
+                      ? "bg-main text-white border-main"
+                      : "bg-white border-border"
+                  }`}
+                >
+                  {value}
+                </button>
+              )
+            )}
           </div>
         </div>
-      )}
+      ))}
 
       {categoryId !== 8 ? (
         <>
