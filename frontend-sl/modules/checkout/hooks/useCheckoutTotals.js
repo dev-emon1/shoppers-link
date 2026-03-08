@@ -1,17 +1,18 @@
 "use client";
 
 import { useMemo } from "react";
-import { shippingOptions } from "./useShipping";
+import useShipping from "./useShipping";
 
-export default function useCheckoutTotals({ totalPrice, shippingId }) {
+export default function useCheckoutTotals({ totalPrice }) {
+  const { shippingFee } = useShipping();
+
   return useMemo(() => {
-    const shippingFee =
-      shippingOptions.find((s) => s.id === shippingId)?.fee || 0;
+    const subtotal = totalPrice || 0;
 
     return {
-      subtotal: totalPrice || 0,
+      subtotal,
       shipping_charge: shippingFee,
-      grandTotal: (totalPrice || 0) + shippingFee,
+      grandTotal: subtotal + shippingFee,
     };
-  }, [totalPrice, shippingId]);
+  }, [totalPrice, shippingFee]);
 }
