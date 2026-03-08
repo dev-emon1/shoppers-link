@@ -12,6 +12,7 @@ import orderReducer from "@/modules/user/store/orderReducer";
 import searchReducer from "@/modules/search/store/searchReducer";
 import homeReducer from "@/modules/home/store/homeReducer";
 import checkoutBillingReducer from "@/modules/checkout/store/billingReducer";
+import shippingReducer from "@/modules/checkout/store/shippingReducer";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   home: homeReducer,
   checkoutBilling: checkoutBillingReducer,
   address: addressReducer,
+  checkoutShipping: shippingReducer,
 });
 
 export default rootReducer;

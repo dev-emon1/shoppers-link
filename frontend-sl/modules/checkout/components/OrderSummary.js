@@ -132,10 +132,11 @@
 import { TbCurrencyTaka } from "react-icons/tb";
 import { formatAmount } from "../utils/format";
 import useCart from "@/modules/cart/hooks/useCart"; // <-- UPDATED
+import useShipping from "../hooks/useShipping";
 
 export default function OrderSummary({ totals }) {
   const { cart, totalItems, totalPrice } = useCart();
-  console.log(totals);
+  const { shippingFee, grandTotal } = useShipping();
 
   const flatCartItems = [];
   Object.values(cart || {}).forEach((vendor) => {
@@ -202,7 +203,7 @@ export default function OrderSummary({ totals }) {
             <span>Shipping</span>
             <span className="flex items-center gap-1">
               <TbCurrencyTaka size={13} />
-              {formatAmount(totals.shipping_charge)}
+              {formatAmount(shippingFee)}
             </span>
           </div>
 
@@ -210,7 +211,7 @@ export default function OrderSummary({ totals }) {
             <span>Grand total</span>
             <span className="flex items-center gap-1 text-main">
               <TbCurrencyTaka size={15} />
-              {formatAmount(totals.grandTotal)}
+              {formatAmount(grandTotal || totalPrice + shippingFee)}
             </span>
           </div>
         </div>
