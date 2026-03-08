@@ -1,6 +1,9 @@
 "use client";
 
 import { Lock } from "lucide-react";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
+
 import useCart from "@/modules/cart/hooks/useCart";
 
 import CheckoutGuard from "@/modules/checkout/components/CheckoutGuard";
@@ -21,30 +24,64 @@ import useCheckoutSteps, {
 import useCheckoutTotals from "@/modules/checkout/hooks/useCheckoutTotals";
 import useOrderPlacement from "@/modules/checkout/hooks/useOrderPlacement";
 
-import { useSelector } from "react-redux";
-
 export default function CheckoutPage() {
-  // --- CART ---
-  const { cart, totalItems, totalPrice, clear: clearCart } = useCart();
-  // console.log(cart);
+  /* CART */
 
-  // --- USER ---
+  const { cart, totalItems, totalPrice, clear: clearCart } = useCart();
+
+  /* USER */
+
   const user = useSelector((state) => state.auth.user);
 
-  // --- CHECKOUT STEPS ---
+  /* STEPS */
+
   const steps = checkoutSteps;
   const { activeStep, goNext, goBack, registerValidator } = useCheckoutSteps();
+
+  /* HOOKS */
 
   const billing = useBilling();
   const shipping = useShipping();
   const payment = usePayment();
 
+  const { calculateShipping } = shipping;
+
+  /* BUILD SHIPPING PAYLOAD */
+
+  const buildShippingPayload = (cart, area) => {
+    const vendors = Object.entries(cart || {}).map(([vendorId, vendor]) => ({
+      vendor_id: Number(vendorId),
+      items: (vendor.items || []).map((item) => ({
+        weight: item.weight || 0.5,
+        qty: item.quantity,
+        price: item.price,
+      })),
+    }));
+
+    return {
+      vendors,
+      area,
+    };
+  };
+
+  /* SHIPPING CALCULATION */
+
+  useEffect(() => {
+    if (billing.value?.area && Object.keys(cart || {}).length) {
+      const payload = buildShippingPayload(cart, billing.value.area);
+
+      calculateShipping(payload);
+    }
+  }, [billing.value?.area, cart]);
+
+  /* TOTALS */
+
   const totals = useCheckoutTotals({
     totalPrice,
-    shippingId: shipping.value,
   });
 
-  // --- ORDER PLACEMENT (SEND cart + user) ---
+  /* ORDER */
+
   const order = useOrderPlacement({
     billing,
     shipping,
@@ -70,28 +107,30 @@ export default function CheckoutPage() {
       <div className="bg-gray-50 min-h-screen pb-10 pt-10">
         <div className="container max-w-6xl pt-6 pb-4">
           {/* Header */}
+
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">Checkout</h1>
+
               <p className="text-xs md:text-sm text-textSecondary">
                 Complete your order in just a few simple steps.
               </p>
             </div>
+
             <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1 shadow-sm border border-border">
               <Lock size={16} className="text-emerald-600" />
+
               <span className="text-xs font-medium text-gray-700">
                 Secure checkout powered by ShoppersLink
               </span>
             </div>
           </div>
 
-          {/* Stepper */}
           <Stepper active={activeStep} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6 items-start mt-2">
-            {/* Left: steps */}
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-2">
             <section className="space-y-6">
-              <div className="rounded-2xl border border-border bg-white p-4 md:p-5 shadow-sm">
+              <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
                 {activeStep === 1 && (
                   <BillingForm
                     value={billing.value}
@@ -103,15 +142,7 @@ export default function CheckoutPage() {
                   />
                 )}
 
-                {activeStep === 2 && (
-                  <ShippingOptions
-                    value={shipping.value}
-                    onChange={shipping.onChange}
-                    errors={shipping.errors}
-                    options={shipping.options}
-                    registerValidate={(fn) => registerValidator("shipping", fn)}
-                  />
-                )}
+                {activeStep === 2 && <ShippingOptions />}
 
                 {activeStep === 3 && (
                   <PaymentOptions
@@ -126,7 +157,6 @@ export default function CheckoutPage() {
                 {activeStep === 4 && (
                   <ReviewSection
                     billing={billing.value}
-                    shippingId={shipping.value}
                     paymentId={payment.value}
                     cart={cart}
                     totals={totals}
@@ -144,7 +174,6 @@ export default function CheckoutPage() {
               />
             </section>
 
-            {/* Right: summary */}
             <OrderSummary totals={totals} />
           </div>
         </div>

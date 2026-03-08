@@ -51,8 +51,8 @@ export default function PaymentOptions({
               option.disabled
                 ? "border-dashed border-border bg-gray-50 cursor-not-allowed opacity-70"
                 : value === option.id
-                ? "border-main bg-main/5"
-                : "border-border bg-white hover:border-main/60",
+                  ? "border-main bg-main/5"
+                  : "border-border bg-white hover:border-main/60",
             ].join(" ")}
           >
             <div>

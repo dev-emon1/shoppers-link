@@ -6,12 +6,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "@/lib/utils/toast";
 import { orderService } from "../services/order.service";
 import { saveBillingAddress } from "../store/billingReducer";
-import { shippingOptions } from "../hooks/useShipping";
+import useShipping from "../hooks/useShipping";
 import { canSaveAddress } from "../utils/addressRules";
 
 export default function useOrderPlacement({
   billing,
-  shipping,
   payment,
   totals,
   clearCart,
@@ -21,6 +20,8 @@ export default function useOrderPlacement({
   const router = useRouter();
   const dispatch = useDispatch();
   const [isPlacing, setIsPlacing] = useState(false);
+
+  const { shippingFee } = useShipping();
 
   const addresses = useSelector((s) => s.address.list || []);
 
@@ -43,15 +44,15 @@ export default function useOrderPlacement({
         .map(([vendorId, vendorData]) => ({
           vendor_id: Number(vendorId),
           items: vendorData.items.map((item) => ({
-            product_id: item.productId, // ✅ correct
-            variant_id: item.variantId, // ✅ MUST match backend
-            qty: item.quantity, // ✅ MUST match backend
+            product_id: item.productId,
+            variant_id: item.variantId,
+            qty: item.quantity,
             price: item.price,
           })),
         }))
         .filter((v) => v.items.length);
 
-      /* ---------- optional save ---------- */
+      /* ---------- optional save address ---------- */
       let savedAddressId = null;
 
       const saveCheck = canSaveAddress({
@@ -75,11 +76,7 @@ export default function useOrderPlacement({
         showToast(saveCheck.reason);
       }
 
-      /* ---------- shipping snapshot (ALWAYS) ---------- */
-      const selectedShipping = shippingOptions.find(
-        (s) => s.id === shipping.value,
-      );
-
+      /* ---------- payload ---------- */
       const payload = {
         customer_id: user.customer.id,
         payment_method: payment.value,
@@ -96,11 +93,13 @@ export default function useOrderPlacement({
             notes: billing.value.notes || null,
             addressType: billing.value.addressType || "home",
           },
+
           shipping: {
-            id: shipping.value,
-            label: selectedShipping?.label || null,
-            fee: selectedShipping?.fee || 0,
+            id: null,
+            label: "Calculated by system",
+            fee: shippingFee,
           },
+
           totals: {
             subtotal: totals.subtotal,
             shipping_charge: totals.shipping_charge,
@@ -118,10 +117,13 @@ export default function useOrderPlacement({
         payload.shipping_address_id = null;
       }
 
+      /* ---------- place order ---------- */
       const res = await orderService.placeOrder(payload);
 
       showToast("🎉 Order placed successfully!");
+
       clearCart();
+
       router.push(`/checkout/success?ref=${res.order.unid}`);
     } finally {
       setIsPlacing(false);
