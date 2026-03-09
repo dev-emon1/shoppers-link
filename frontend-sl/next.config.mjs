@@ -2,7 +2,12 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    domains: ["localhost", "your-cdn-domain.com", "127.0.0.1", "randomuser.me"], // Added randomuser.me
+    domains: [
+      "localhost",
+      "backend.bonikbook.com",
+      "127.0.0.1",
+      "randomuser.me",
+    ], // Added randomuser.me
     remotePatterns: [
       {
         protocol: "http",
@@ -12,7 +17,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "cdn.example.com",
+        hostname: "backend.bonikbook.com",
         pathname: "/**",
       },
       {

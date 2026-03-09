@@ -6,7 +6,7 @@ import { ShoppingBag, Trash2 } from "lucide-react";
 import { showToast } from "@/lib/utils/toast";
 import { normalizeImage } from "@/modules/wishlist/utils/image";
 import { formatPrice } from "@/modules/wishlist/utils/utils";
-import { useWishlistSession } from "@/modules/wishlist/hooks/useWishlist";
+import { useWishlistSession } from "@/modules/wishlist/hooks/useWishlistSession";
 import useCart from "@/modules/cart/hooks/useCart";
 
 const DEFAULT_MEDIA_BASE =
