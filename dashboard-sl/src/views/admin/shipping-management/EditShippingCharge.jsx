@@ -37,11 +37,11 @@ const EditShippingCharge = () => {
             try {
                 const response = await API.get(`/shipping-charges/${id}`);
                 const data = response.data.data || response.data; // API structure অনুযায়ী
-
+console.log("FORM DATA:", data);
                 // Form state আপডেট করা
                 setFormData({
                     ...data,
-                    // null ভ্যালু থাকলে সেগুলোকে empty string করে দেওয়া যাতে ইনপুট এরর না দেয়
+                   
                     extra_charge: data.extra_charge ?? '',
                     free_above: data.free_above ?? '',
                     min_weight: data.min_weight ?? '',
@@ -100,9 +100,11 @@ const EditShippingCharge = () => {
         setLoading(true);
         try {
             // ডাটা আপডেট করার জন্য PUT রিকোয়েস্ট
-            await API.put(`/shipping-charges/${id}`, formData);
-            toast.success("Shipping charge updated successfully!");
-            navigate('/admin/shipping/charges');
+        const res = await API.put(`/shipping-charges/${id}`, formData);
+
+toast.success(res.data.message || "Shipping charge updated successfully!");
+
+navigate('/admin/shipping/charges');
         } catch (err) {
             const errorMsg = err.response?.data?.message || "Update failed";
             toast.error(errorMsg);
@@ -197,10 +199,20 @@ const EditShippingCharge = () => {
                                     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-tighter ml-1">Charge Amount (৳)</label>
                                     <input type="number" required name="charge" value={formData.charge} onChange={handleChange} className="w-full px-5 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-main outline-none text-sm font-bold text-main" />
                                 </div>
-                                {/* <div className="space-y-1">
-                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-tighter ml-1">Extra Charge (৳)</label>
-                                    <input type="number" step="0.01" name="extra_charge" value={formData.extra_charge} onChange={handleChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-main outline-none text-sm" placeholder="Handling Fee" />
-                                </div> */}
+                               <div className="space-y-1">
+    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-tighter ml-1">
+        Extra Charge (৳)
+    </label>
+    <input
+        type="number"
+        step="0.01"
+        name="extra_charge"
+        value={formData.extra_charge}
+        onChange={handleChange}
+        className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-main outline-none text-sm"
+        placeholder="Handling/Service Fee"
+    />
+</div>
                                 <div className="space-y-1">
                                     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-tighter ml-1">Free Above (৳)</label>
                                     <input type="number" name="free_above" value={formData.free_above} onChange={handleChange} className="w-full px-5 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-main outline-none text-sm" />

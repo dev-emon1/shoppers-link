@@ -1,5 +1,5 @@
 "use client";
-import { useWishlistSession } from "@/modules/wishlist/hooks/useWishlist";
+import { useWishlistSession } from "@/modules/wishlist/hooks/useWishlistSession";
 import WishlistGrid from "@/modules/wishlist/components/WishlistGrid";
 import { Heart } from "lucide-react";
 import Link from "next/link";
@@ -7,7 +7,6 @@ import Image from "next/image";
 
 const WishlistPage = () => {
   const { wishlist, clearWishlist } = useWishlistSession();
-  // console.log(wishlist);
 
   return (
     <section className="container py-12 min-h-screen">
@@ -28,13 +27,6 @@ const WishlistPage = () => {
 
       {wishlist.length === 0 ? (
         <div className="flex flex-col items-center justify-center text-center py-20">
-          <Image
-            src="/images/empty-wishlist.svg"
-            alt="Empty wishlist"
-            width={200}
-            height={200}
-            className="opacity-80 mb-4"
-          />
           <h2 className="text-lg font-semibold text-gray-700 mb-2">
             Your wishlist is empty 💔
           </h2>
