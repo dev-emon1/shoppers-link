@@ -62,70 +62,61 @@ export default function ProductsPage() {
   const [filterOpen, setFilterOpen] = useState(false);
 
   /* -----------------------------
-     Resolve product source
-     (LOGIC FIXED HERE)
+     🔑 Call all hooks at top level
   ----------------------------- */
-  const hookResult = useMemo(() => {
-    switch (type) {
-      case "featured":
-        return {
-          title: "Featured Products",
-          hook: () => useFeaturedProducts({ mode: "listing" }),
-        };
+  const featured = useFeaturedProducts({ mode: "listing" });
+  const newArrivals = useNewArrivalsProducts({ mode: "listing" });
+  const topSelling = useTopSellingProducts({ mode: "listing" });
+  const topRating = useTopRatingProducts({ mode: "listing" });
 
-      case "new-arrivals":
-        return {
-          title: "New Arrivals",
-          hook: () => useNewArrivalsProducts({ mode: "listing" }),
-        };
+  let hookResult = null;
 
-      case "top-selling":
-        return {
-          title: "Top Selling Products",
-          hook: () => useTopSellingProducts({ mode: "listing" }),
-        };
+  switch (type) {
+    case "featured":
+      hookResult = {
+        title: "Featured Products",
+        data: featured,
+      };
+      break;
 
-      case "top-rating":
-        return {
-          title: "Top Rated Products",
-          hook: () => useTopRatingProducts({ mode: "listing" }),
-        };
+    case "new-arrivals":
+      hookResult = {
+        title: "New Arrivals",
+        data: newArrivals,
+      };
+      break;
 
-      default:
-        return null;
-    }
-  }, [type]);
+    case "top-selling":
+      hookResult = {
+        title: "Top Selling Products",
+        data: topSelling,
+      };
+      break;
 
-  const dataHook =
-    hookResult?.hook ??
-    (() => ({
-      products: [],
-      loading: false,
-      error: false,
-      hasMore: false,
-      loadMore: undefined,
-    }));
+    case "top-rating":
+      hookResult = {
+        title: "Top Rated Products",
+        data: topRating,
+      };
+      break;
 
-  /**
-   * 🔑 IMPORTANT FIX
-   * Handle paginated + non-paginated hooks safely
-   */
+    default:
+      hookResult = null;
+  }
+
   const {
     products = [],
     loading,
     error,
     hasMore = false,
     loadMore,
-  } = dataHook();
+  } = hookResult?.data || {};
 
   /* -----------------------------
-     URL -> filters (PAGE LEVEL)
+     URL -> filters
   ----------------------------- */
-  const initialFilters = useMemo(() => parseFilters(sp), [sp.toString()]);
+  const initialFilters = useMemo(() => parseFilters(sp), [sp]);
 
-  /* -----------------------------
-     Filters hook (PURE)
-  ----------------------------- */
   const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
     useProductFilters({
       products,
