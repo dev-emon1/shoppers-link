@@ -48,6 +48,16 @@ const AllOrders = () => {
     }
   };
 
+  const getCustomer = (order) => {
+    if (!order?.customer) return {};
+
+    return {
+      name: order.customer.full_name,
+      phone: order.customer.contact_number,
+      email: order.customer?.user?.email,
+    };
+  };
+
   // =============================
   // Fetch Orders
   // =============================
@@ -57,7 +67,7 @@ const AllOrders = () => {
       setLoading(true);
 
       const res = await API.get(`/order/list?page=${page}&per_page=${perPage}`);
-
+      console.log(res);
       const payload = res.data;
 
       const fetchedOrders = payload.data || [];
@@ -86,10 +96,15 @@ const AllOrders = () => {
 
     const searchLower = searchTerm.toLowerCase();
 
+    // const matchesSearch =
+    //   order.unid?.toLowerCase().includes(searchLower) ||
+    //   billing.fullName?.toLowerCase().includes(searchLower) ||
+    //   billing.phone?.toLowerCase().includes(searchLower);
+
     const matchesSearch =
       order.unid?.toLowerCase().includes(searchLower) ||
-      billing.fullName?.toLowerCase().includes(searchLower) ||
-      billing.phone?.toLowerCase().includes(searchLower);
+      customer.name?.toLowerCase().includes(searchLower) ||
+      customer.phone?.toLowerCase().includes(searchLower);
 
     const matchesStatus =
       !filterStatus ||
@@ -122,13 +137,12 @@ const AllOrders = () => {
       key: "customer",
       label: "Customer",
       render: (order) => {
-        const billing = getBilling(order);
+        const customer = getCustomer(order);
 
         return (
           <div className="min-w-[140px]">
-            <div className="font-medium">{billing.fullName || "—"}</div>
-
-            <div className="text-xs text-gray-500">{billing.phone || "—"}</div>
+            <div className="font-medium">{customer.name || "—"}</div>
+            <div className="text-xs text-gray-500">{customer.phone || "—"}</div>
           </div>
         );
       },
@@ -210,12 +224,12 @@ const AllOrders = () => {
 
   const downloadData = async (format) => {
     const data = filteredOrders.map((order) => {
-      const billing = getBilling(order);
+      const customer = getCustomer(order);
 
       return {
         "Order ID": order.unid,
-        Customer: billing.fullName,
-        Phone: billing.phone,
+        Customer: customer.name,
+        Phone: customer.phone,
         Date: format(new Date(order.created_at), "dd MMM yyyy"),
         Items: order.total_item,
         Total: order.total_amount,
