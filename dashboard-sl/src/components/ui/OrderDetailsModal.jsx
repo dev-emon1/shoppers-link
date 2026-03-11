@@ -6,6 +6,12 @@ const OrderDetailsModal = ({ order, onClose }) => {
   if (!order) return null;
 
   // ==============================
+  // Customer (from relation)
+  // ==============================
+
+  const customer = order?.customer || {};
+
+  // ==============================
   // Parse billing & shipping info
   // ==============================
 
@@ -14,7 +20,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
   let totals = {};
 
   try {
-    const asaStr = order?.a_s_a;
+    const asaStr = order?.vendor_orders?.[0]?.order?.a_s_a;
 
     if (asaStr) {
       const parsed = typeof asaStr === "string" ? JSON.parse(asaStr) : asaStr;
@@ -43,10 +49,10 @@ const OrderDetailsModal = ({ order, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto relative">
         {/* Header */}
 
-        <div className="sticky top-0 z-10 bg-white border-b px-6 py-3 flex items-center justify-between">
+        <div className="sticky top-0 z-[9999] bg-white border-b px-6 py-3 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Order Details</h2>
 
@@ -78,19 +84,25 @@ const OrderDetailsModal = ({ order, onClose }) => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Name</span>
 
-                  <span className="font-medium">{billing.fullName || "—"}</span>
+                  <span className="font-medium">
+                    {customer.full_name || billing.fullName || "—"}
+                  </span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Phone</span>
 
-                  <span className="font-medium">{billing.phone || "—"}</span>
+                  <span className="font-medium">
+                    {customer.contact_number || billing.phone || "—"}
+                  </span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Email</span>
 
-                  <span className="font-medium">{billing.email || "—"}</span>
+                  <span className="font-medium">
+                    {customer?.user?.email || billing.email || "—"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -223,8 +235,6 @@ const OrderDetailsModal = ({ order, onClose }) => {
                             <p className="text-xs text-gray-500">
                               SKU: {product.sku || variant.sku || "—"}
                             </p>
-
-                            {/* Variant Attributes */}
 
                             {Object.keys(attributes).length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
