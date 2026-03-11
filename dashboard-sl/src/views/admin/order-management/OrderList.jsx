@@ -67,7 +67,7 @@ const AllOrders = () => {
       setLoading(true);
 
       const res = await API.get(`/order/list?page=${page}&per_page=${perPage}`);
-      console.log(res);
+
       const payload = res.data;
 
       const fetchedOrders = payload.data || [];
