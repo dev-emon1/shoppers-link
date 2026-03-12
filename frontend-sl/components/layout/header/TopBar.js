@@ -59,7 +59,7 @@ const TopBar = () => {
         <div className="flex gap-6 font-medium text-xs">
           {/* Partner Access */}
           <Link
-            href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}/login`}
+            href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}`}
             target="_blank"
             prefetch={false}
             className="text-white flex items-center gap-2 hover:text-secondary"

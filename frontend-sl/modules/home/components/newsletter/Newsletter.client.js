@@ -81,7 +81,7 @@ export default function NewsletterClient() {
 
               <button className="mt-6 bg-main hover:bg-mainHover active:bg-mainActive text-white font-medium px-6 py-3 rounded-md transition">
                 <Link
-                  href={`${process.env.NEXT_PUBLIC_CLIENT_ACCESS_URL}/login`}
+                  href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}`}
                   target="_blank"
                 >
                   Join as Partner
