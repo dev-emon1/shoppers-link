@@ -29,7 +29,10 @@ const Card = ({ data, href, showSoldCount = false }) => {
 
   return (
     <Link
-      href={href || `/product/${data.slug}`}
+      href={
+        href ||
+        `/${data?.category?.slug}/${data?.sub_category?.slug}/${data?.child_category?.slug}/${data?.slug}`
+      }
       prefetch
       className="block bg-bgSurface border border-border overflow-hidden
                  hover:shadow-md transition-shadow duration-300"
