@@ -33,7 +33,7 @@ export const footerLinks = [
       { label: "Become a Partner", href: "/partner/become-partner" },
       {
         label: "Partner Login",
-        href: `${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}/login`,
+        href: `${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}`,
       },
       { label: "Partner Policy", href: "/partner/policy" },
       { label: "Partner Support", href: "/partner/support" },
