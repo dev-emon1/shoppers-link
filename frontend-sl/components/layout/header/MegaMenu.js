@@ -150,7 +150,8 @@ const MegaMenu = ({
                       fixed left-1/2 -translate-x-1/2 w-full
                       bg-white border-t border-border
                       shadow-[0_12px_24px_rgba(0,0,0,0.08)]
-                      py-10 px-6 z-[900]
+                      py-6 px-4 z-[900]
+                      mt-2
                     "
                     style={{
                       top: showTopBar ? "140px" : "108px",

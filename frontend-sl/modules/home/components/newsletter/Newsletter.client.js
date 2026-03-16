@@ -8,7 +8,6 @@ export default function NewsletterClient() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Subscribed with:", email);
     setEmail("");
   };
 
