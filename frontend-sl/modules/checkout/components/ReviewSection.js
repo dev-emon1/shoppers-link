@@ -35,8 +35,9 @@ export default function ReviewSection({ billing, paymentId, cart, totals }) {
       {/* Shipping */}
       <div className="rounded-2xl border border-border bg-white p-4">
         <h3 className="text-sm font-semibold mb-3">Shipping</h3>
-        <p className="text-sm">
-          {shipping ? shipping.label : "Not selected yet"}
+        <p className="text-sm flex items-center gap-1">
+          <TbCurrencyTaka size={14} />
+          {formatAmount(shippingFee)}
         </p>
       </div>
 
