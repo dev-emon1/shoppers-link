@@ -6,7 +6,7 @@ import { Star, Flame } from "lucide-react";
 import { TbCurrencyTaka } from "react-icons/tb";
 
 import ProductImageSlider from "../product/ProductImageSlider";
-import ProductActions from "../product/ProductActions";
+// ❌ ProductActions removed
 
 const Card = ({ data, href, showSoldCount = false }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -42,7 +42,7 @@ const Card = ({ data, href, showSoldCount = false }) => {
       {/* Image */}
       <div className="relative w-full aspect-square bg-white">
         <ProductImageSlider images={data?.images || []} isHovered={isHovered} />
-        <ProductActions product={data} isHovered={isHovered} />
+        {/* ❌ Removed hover actions */}
       </div>
 
       {/* Content */}
@@ -52,7 +52,7 @@ const Card = ({ data, href, showSoldCount = false }) => {
           {data.name}
         </h3>
 
-        {/* Rating (always reserved) */}
+        {/* Rating */}
         <div className="mt-1 min-h-[18px]">
           {rating > 0 && !isITProduct && (
             <div className="flex items-center gap-1 text-xs">
@@ -72,9 +72,9 @@ const Card = ({ data, href, showSoldCount = false }) => {
           )}
         </div>
 
-        {/* Bottom section */}
+        {/* Bottom */}
         <div className="mt-auto space-y-1">
-          {/* Price slot (always reserved) */}
+          {/* Price */}
           <div className="min-h-[24px] flex items-center">
             {isITProduct ? (
               <span className="text-sm font-semibold text-main">
@@ -96,7 +96,7 @@ const Card = ({ data, href, showSoldCount = false }) => {
             )}
           </div>
 
-          {/* Sold slot (always reserved) */}
+          {/* Sold */}
           <div className="min-h-[22px]">
             {!isITProduct && showSoldCount && soldCount && (
               <div

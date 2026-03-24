@@ -18,7 +18,7 @@ const ProductSection = ({
   viewAllHref,
   showSoldCount = false,
 }) => {
-  // ✅ ALL HOOKS FIRST (NO CONDITION BEFORE)
+  // ALL HOOKS FIRST (NO CONDITION BEFORE)
   const swiperRef = useRef(null);
   const [showExpiringSoon, setShowExpiringSoon] = useState(false);
 
@@ -139,14 +139,14 @@ const ProductSection = ({
             <>
               <button
                 onClick={() => swiperRef.current?.slidePrev()}
-                className="hidden lg:flex absolute -left-5 top-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition"
+                className="hidden lg:flex absolute -left-5 top-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition z-50"
               >
                 <ChevronLeft size={36} />
               </button>
 
               <button
                 onClick={() => swiperRef.current?.slideNext()}
-                className="hidden lg:flex absolute -right-5 top-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition"
+                className="hidden lg:flex absolute -right-5 top-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition z-50"
               >
                 <ChevronRight size={36} />
               </button>

@@ -1,23 +1,29 @@
 let socket = null;
 let isConnected = false;
-let listeners = new Set();
 
 export function connectSocket(onMessage, onStatusChange) {
-  if (socket) return socket;
+  // 🔥 prevent duplicate connection
+  if (socket && isConnected) return socket;
 
-  socket = new WebSocket("wss://your-api.com/ws");
+  const WS_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace("http", "ws") + "/ws";
+
+  socket = new WebSocket(WS_URL);
 
   socket.onopen = () => {
     isConnected = true;
     onStatusChange?.(true);
-    console.log("🔌 Socket connected");
+    console.log("🔌 Socket connected:", WS_URL);
   };
 
   socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
+      console.log("🔥 SOCKET EVENT:", data); // 👈 debug
       onMessage?.(data);
-    } catch {}
+    } catch (err) {
+      console.log("Socket parse error:", err);
+    }
   };
 
   socket.onclose = () => {
@@ -25,11 +31,17 @@ export function connectSocket(onMessage, onStatusChange) {
     onStatusChange?.(false);
     socket = null;
     console.log("❌ Socket disconnected");
+
+    // 🔁 auto reconnect
+    setTimeout(() => {
+      connectSocket(onMessage, onStatusChange);
+    }, 3000);
   };
 
   socket.onerror = () => {
     isConnected = false;
     onStatusChange?.(false);
+    console.log("⚠️ Socket error");
   };
 
   return socket;
