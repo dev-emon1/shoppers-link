@@ -141,6 +141,24 @@ const slice = createSlice({
       state.detailsByUnid = {};
       state.actions = initialState.actions;
     },
+    addNewOrder(state, action) {
+      const order = action.payload;
+
+      const exists = state.list.data.some(
+        (o) => o.unid === order.unid || o.id === order.id,
+      );
+
+      if (!exists) {
+        state.list.data.unshift(order); // 🔥 newest top e
+      }
+
+      const key = order.unid ?? order.id;
+
+      state.detailsByUnid[key] = {
+        data: order,
+        lastSyncedAt: Math.floor(Date.now() / 1000),
+      };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -270,8 +288,12 @@ const slice = createSlice({
   },
 });
 
-export const { seedDetailsFromList, updateOrderLocally, clearOrdersState } =
-  slice.actions;
+export const {
+  seedDetailsFromList,
+  updateOrderLocally,
+  clearOrdersState,
+  addNewOrder,
+} = slice.actions;
 export default slice.reducer;
 
 /* selectors - use these from components/hooks */
