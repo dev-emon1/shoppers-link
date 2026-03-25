@@ -23,7 +23,6 @@ const StepVariants = ({ formData, onChange }) => {
   const {
     formState: { errors },
   } = useFormContext();
-  // console.log(formData);
 
   const [attributes, setAttributes] = useState([]);
   const [useGlobalPricing, setUseGlobalPricing] = useState(false);
@@ -35,7 +34,6 @@ const StepVariants = ({ formData, onChange }) => {
   const [searchMap, setSearchMap] = useState({});
   const [newValueMap, setNewValueMap] = useState({});
   const [bulk, setBulk] = useState({ price: "", discount: "", stock: "" });
-  // console.log(attributes);
 
   // Fetch attributes from API
   useEffect(() => {

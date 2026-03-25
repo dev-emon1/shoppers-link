@@ -11,7 +11,6 @@ export default function CategoryHeroGrid({ items = [], variant = "grid" }) {
         No items found.
       </div>
     );
-  // console.log(items);
 
   // ===== Pill Variant (centered large rounded buttons) =====
   if (variant === "pill") {

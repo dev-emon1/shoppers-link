@@ -20,7 +20,6 @@ const Subcategory = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  // console.log(categories);
 
   const [editingSubcategory, setEditingSubcategory] = useState(null);
 
@@ -57,7 +56,7 @@ const Subcategory = () => {
         setLoading(false);
       }
     },
-    [page, perPage, searchTerm]
+    [page, perPage, searchTerm],
   );
 
   useEffect(() => {
@@ -65,12 +64,12 @@ const Subcategory = () => {
     fetchSubcategories();
   }, [fetchCategories, fetchSubcategories]);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!selectedCategory) return alert("⚠️ Please select a category!");
-    if (!subCategoryName.trim()) return alert("⚠️ Subcategory name is required!");
+    if (!subCategoryName.trim())
+      return alert("⚠️ Subcategory name is required!");
 
     try {
       const formData = new FormData();
@@ -79,23 +78,24 @@ const Subcategory = () => {
       formData.append("description", subCategoryDetails || "");
       if (imageFile) formData.append("image", imageFile);
 
-      // for (let [key, value] of formData.entries()) {
-      //   console.log("FormData:", key, value);
-      // }
       let res;
 
       if (editingSubcategory) {
         // Update
-        res = await axios.post(`${API_URL}/${editingSubcategory.id}?_method=PUT`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        res = await axios.post(
+          `${API_URL}/${editingSubcategory.id}?_method=PUT`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          },
+        );
       } else {
         // Create
         res = await axios.post(API_URL, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
-      // console.log("Response:", res.data);
+
       const { success, data, message } = res.data;
       if (success) {
         alert(message || "Subcategory saved successfully!");
@@ -128,9 +128,7 @@ const Subcategory = () => {
     setSubCategoryName(sub.name);
     setSubCategoryDetails(sub.description || "");
     setImagePreview(
-      sub.image?.startsWith("http")
-        ? sub.image
-        : `${IMAGE_URL}${sub.image}`
+      sub.image?.startsWith("http") ? sub.image : `${IMAGE_URL}${sub.image}`,
     );
     setShow(true);
   };
@@ -148,10 +146,13 @@ const Subcategory = () => {
     setPage(1);
   }, []);
   // ===== Table Columns =====
-  // console.log(subcategories);
 
   const columns = [
-    { key: "no", label: "No", render: (item, i) => (page - 1) * perPage + i + 1 },
+    {
+      key: "no",
+      label: "No",
+      render: (item, i) => (page - 1) * perPage + i + 1,
+    },
     {
       key: "image",
       label: "Image",
@@ -170,7 +171,11 @@ const Subcategory = () => {
       ),
     },
     { key: "name", label: "Subcategory", sortable: true },
-    { key: "category", label: "Category", render: (item) => item.category.name },
+    {
+      key: "category",
+      label: "Category",
+      render: (item) => item.category.name,
+    },
     {
       key: "actions",
       label: "Actions",
@@ -180,11 +185,14 @@ const Subcategory = () => {
   // ===== Pagination + Search =====
   const { currentData, totalPages } = useMemo(() => {
     const filtered = subcategories.filter((cat) =>
-      cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+      cat.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     const total = Math.ceil(filtered.length / perPage);
     const start = (page - 1) * perPage;
-    return { currentData: filtered.slice(start, start + perPage), totalPages: total };
+    return {
+      currentData: filtered.slice(start, start + perPage),
+      totalPages: total,
+    };
   }, [subcategories, searchTerm, perPage, page]);
   return (
     <div className="px-4">
@@ -206,10 +214,7 @@ const Subcategory = () => {
       />
       {/* ===== Filter Bar ===== */}
       <div className="mb-4 bg-white p-3 rounded-md shadow-sm">
-        <FilterBar
-          perPage={perPage}
-          onPerPageChange={handlePerPageChange}
-        />
+        <FilterBar perPage={perPage} onPerPageChange={handlePerPageChange} />
       </div>
       <div className="flex flex-wrap w-full">
         <div className="w-full lg:w-7/12">
@@ -227,34 +232,61 @@ const Subcategory = () => {
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
-                onPageChange={setPage} />
+                onPageChange={setPage}
+              />
             </div>
           </div>
         </div>
 
-        <SlidePanel show={show} title={editingSubcategory ? "Edit Subcategory" : "Add Subcategory"} onClose={() => setShow(false)}>
+        <SlidePanel
+          show={show}
+          title={editingSubcategory ? "Edit Subcategory" : "Add Subcategory"}
+          onClose={() => setShow(false)}
+        >
           <form onSubmit={handleSubmit}>
             {/* Category Select */}
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Select Category <span className="text-red">*</span></label>
-              <select className="px-2 py-2 border rounded-md" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+              <label className="text-sm font-medium">
+                Select Category <span className="text-red">*</span>
+              </label>
+              <select
+                className="px-2 py-2 border rounded-md"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
                 <option value="">-- Choose Category --</option>
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Subcategory Name */}
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Subcategory Name <span className="text-red">*</span></label>
-              <input type="text" className="px-2 py-2 border rounded-md" value={subCategoryName} onChange={(e) => setSubCategoryName(e.target.value)} />
+              <label className="text-sm font-medium">
+                Subcategory Name <span className="text-red">*</span>
+              </label>
+              <input
+                type="text"
+                className="px-2 py-2 border rounded-md"
+                value={subCategoryName}
+                onChange={(e) => setSubCategoryName(e.target.value)}
+              />
             </div>
 
             {/* Description */}
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Description (optional)</label>
-              <textarea className="px-2 py-2 border rounded-md" value={subCategoryDetails} onChange={(e) => setSubCategoryDetails(e.target.value)} rows={3} />
+              <label className="text-sm font-medium">
+                Description (optional)
+              </label>
+              <textarea
+                className="px-2 py-2 border rounded-md"
+                value={subCategoryDetails}
+                onChange={(e) => setSubCategoryDetails(e.target.value)}
+                rows={3}
+              />
             </div>
 
             {/* Image Upload */}
@@ -273,7 +305,10 @@ const Subcategory = () => {
             </div>
 
             {/* Submit */}
-            <button type="submit" className="w-full bg-main text-white py-2 rounded-md">
+            <button
+              type="submit"
+              className="w-full bg-main text-white py-2 rounded-md"
+            >
               {editingSubcategory ? "Update Subcategory" : "Add Subcategory"}
             </button>
           </form>

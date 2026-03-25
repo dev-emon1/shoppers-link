@@ -30,7 +30,6 @@ const ChildCategory = () => {
   const [childCategoryDetails, setChildCategoryDetails] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  // console.log(childCats);
 
   // ===== Fetch Subcategories =====
   const fetchSubcategories = useCallback(async () => {
@@ -60,7 +59,7 @@ const ChildCategory = () => {
         setLoading(false);
       }
     },
-    [page, perPage, searchTerm]
+    [page, perPage, searchTerm],
   );
 
   useEffect(() => {
@@ -81,15 +80,13 @@ const ChildCategory = () => {
       formData.append("name", childCategoryName.trim());
       formData.append("description", childCategoryDetails || "");
       if (imageFile) formData.append("image", imageFile);
-      // for (let [key, value] of formData.entries()) {
-      //   console.log("FormData:", key, value);
-      // }
+
       let res;
       if (editingChild) {
         res = await axios.post(
           `${ChildCategory_API_URL}/${editingChild.id}?_method=PUT`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" } },
         );
       } else {
         res = await axios.post(ChildCategory_API_URL, formData, {
@@ -128,7 +125,11 @@ const ChildCategory = () => {
     setSelectedSubcategory(child.sub_category_id);
     setChildCategoryName(child.name);
     setChildCategoryDetails(child.description || "");
-    setImagePreview(child.image?.startsWith("http") ? child.image : `${IMAGE_URL}${child.image}`);
+    setImagePreview(
+      child.image?.startsWith("http")
+        ? child.image
+        : `${IMAGE_URL}${child.image}`,
+    );
     setShow(true);
   };
   // ==== Handlers ====
@@ -146,7 +147,11 @@ const ChildCategory = () => {
   }, []);
   // ===== Table Columns =====
   const columns = [
-    { key: "no", label: "No", render: (item, i) => (page - 1) * perPage + i + 1 },
+    {
+      key: "no",
+      label: "No",
+      render: (item, i) => (page - 1) * perPage + i + 1,
+    },
     {
       key: "image",
       label: "Image",
@@ -164,8 +169,16 @@ const ChildCategory = () => {
         />
       ),
     },
-    { key: "category", label: "Category", render: (item) => item.sub_category.category.name },
-    { key: "subcategory", label: "Subcategory", render: (item) => item.sub_category.name },
+    {
+      key: "category",
+      label: "Category",
+      render: (item) => item.sub_category.category.name,
+    },
+    {
+      key: "subcategory",
+      label: "Subcategory",
+      render: (item) => item.sub_category.name,
+    },
     { key: "name", label: "Child Category", sortable: true },
     {
       key: "actions",
@@ -176,11 +189,14 @@ const ChildCategory = () => {
   // ===== Pagination + Search =====
   const { currentData, totalPages } = useMemo(() => {
     const filtered = childCats.filter((cat) =>
-      cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+      cat.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     const total = Math.ceil(filtered.length / perPage);
     const start = (page - 1) * perPage;
-    return { currentData: filtered.slice(start, start + perPage), totalPages: total };
+    return {
+      currentData: filtered.slice(start, start + perPage),
+      totalPages: total,
+    };
   }, [childCats, searchTerm, perPage, page]);
   return (
     <div className="px-4">
@@ -202,10 +218,7 @@ const ChildCategory = () => {
       />
       {/* ===== Filter Bar ===== */}
       <div className="mb-4 bg-white p-3 rounded-md shadow-sm">
-        <FilterBar
-          perPage={perPage}
-          onPerPageChange={handlePerPageChange}
-        />
+        <FilterBar perPage={perPage} onPerPageChange={handlePerPageChange} />
       </div>
       <div className="flex flex-wrap w-full">
         <div className="w-full lg:w-7/12">
@@ -223,16 +236,27 @@ const ChildCategory = () => {
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
-                onPageChange={setPage} />
+                onPageChange={setPage}
+              />
             </div>
           </div>
         </div>
 
-        <SlidePanel show={show} title={editingChild ? "Edit Child Category" : "Add Child Category"} onClose={() => setShow(false)}>
+        <SlidePanel
+          show={show}
+          title={editingChild ? "Edit Child Category" : "Add Child Category"}
+          onClose={() => setShow(false)}
+        >
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Select Subcategory <span className="text-red">*</span></label>
-              <select className="px-2 py-2 border rounded-md" value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)}>
+              <label className="text-sm font-medium">
+                Select Subcategory <span className="text-red">*</span>
+              </label>
+              <select
+                className="px-2 py-2 border rounded-md"
+                value={selectedSubcategory}
+                onChange={(e) => setSelectedSubcategory(e.target.value)}
+              >
                 <option value="">-- Choose Subcategory --</option>
                 {subcategories.map((sub) => (
                   <option key={sub.id} value={sub.id}>
@@ -243,13 +267,27 @@ const ChildCategory = () => {
             </div>
 
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Child Category Name <span className="text-red">*</span></label>
-              <input type="text" className="px-2 py-2 border rounded-md" value={childCategoryName} onChange={(e) => setChildCategoryName(e.target.value)} />
+              <label className="text-sm font-medium">
+                Child Category Name <span className="text-red">*</span>
+              </label>
+              <input
+                type="text"
+                className="px-2 py-2 border rounded-md"
+                value={childCategoryName}
+                onChange={(e) => setChildCategoryName(e.target.value)}
+              />
             </div>
 
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Description (optional)</label>
-              <textarea className="px-2 py-2 border rounded-md" value={childCategoryDetails} onChange={(e) => setChildCategoryDetails(e.target.value)} rows={3} />
+              <label className="text-sm font-medium">
+                Description (optional)
+              </label>
+              <textarea
+                className="px-2 py-2 border rounded-md"
+                value={childCategoryDetails}
+                onChange={(e) => setChildCategoryDetails(e.target.value)}
+                rows={3}
+              />
             </div>
 
             <div className="flex flex-col w-full gap-1 mb-5">
@@ -266,7 +304,10 @@ const ChildCategory = () => {
               )}
             </div>
 
-            <button type="submit" className="w-full bg-main text-white py-2 rounded-md">
+            <button
+              type="submit"
+              className="w-full bg-main text-white py-2 rounded-md"
+            >
               {editingChild ? "Update Child Category" : "Add Child Category"}
             </button>
           </form>

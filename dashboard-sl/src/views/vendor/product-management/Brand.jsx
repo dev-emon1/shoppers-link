@@ -47,7 +47,6 @@ const Brand = React.memo(() => {
       };
 
       setBrands((prev) => [...prev, newBrand]);
-      console.log("✅ New Brand Added:", newBrand);
 
       setBrandName("");
       setBrandDetails("");
@@ -55,7 +54,7 @@ const Brand = React.memo(() => {
       setShow(false);
       alert("✅ Brand added successfully!");
     },
-    [brandName, brandDetails, imageFile]
+    [brandName, brandDetails, imageFile],
   );
 
   // ==== Filter + Pagination ====
@@ -63,7 +62,7 @@ const Brand = React.memo(() => {
     let filtered = brands;
     if (searchTerm.trim()) {
       filtered = filtered.filter((brand) =>
-        brand.name.toLowerCase().includes(searchTerm.toLowerCase())
+        brand.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 

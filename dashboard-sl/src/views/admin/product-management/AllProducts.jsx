@@ -28,7 +28,6 @@ const AllProducts = () => {
     per_page: 10,
     total: 0,
   });
-  // console.log(meta);
 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -51,15 +50,14 @@ const AllProducts = () => {
       if (searchTerm.trim()) params.append("search", searchTerm.trim());
       if (filterCategory) params.append("category", filterCategory);
       if (filterVendor) params.append("vendor", filterVendor);
-      if (filterStatus !== "" && filterStatus !== null) params.append("status", filterStatus);
+      if (filterStatus !== "" && filterStatus !== null)
+        params.append("status", filterStatus);
       params.append("page", page.toString());
       params.append("per_page", perPage.toString());
 
       const response = await API.get(`/products?${params.toString()}`);
 
-      // এটাই আপনার বর্তমান সঠিক API রেসপন্স স্ট্রাকচার
-      const payload = response.data; // { data: [...], meta: { ... } }
-      // console.log(payload);
+      const payload = response.data;
 
       setProducts(payload.data || []);
       setMeta({
@@ -107,7 +105,8 @@ const AllProducts = () => {
         Category: p.category?.name || "",
         SubCategory: p.sub_category?.name || "",
         ChildCategory: p.child_category?.name || "",
-        TotalStock: p.variants?.reduce((t, v) => t + Number(v.stock || 0), 0) || 0,
+        TotalStock:
+          p.variants?.reduce((t, v) => t + Number(v.stock || 0), 0) || 0,
         Variants: variantList || "No variants",
       };
     });
@@ -119,11 +118,15 @@ const AllProducts = () => {
   const exportToPDF = () => {
     if (!products.length) return toast.error("No data to export!");
 
-    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
 
     // Header
     doc.setFontSize(20);
-    doc.setTextColor('#E07D42');
+    doc.setTextColor("#E07D42");
     doc.text("Products Export Report", 14, 20);
     doc.setFontSize(11);
     doc.setTextColor(100);
@@ -132,21 +135,24 @@ const AllProducts = () => {
 
     // Table Data
     const tableData = products.map((p, index) => {
-      const variantList = p.variants
-        ?.map((v) => {
-          const attrs = JSON.parse(v.attributes || "{}");
-          const attrString = Object.entries(attrs)
-            .map(([key, val]) => `${key}: ${val}`)
-            .join(", ");
-          return `SKU: ${v.sku} | Price: ${v.price} | Stock: ${v.stock} | ${attrString}`;
-        })
-        .join("\n") || "No variants";
+      const variantList =
+        p.variants
+          ?.map((v) => {
+            const attrs = JSON.parse(v.attributes || "{}");
+            const attrString = Object.entries(attrs)
+              .map(([key, val]) => `${key}: ${val}`)
+              .join(", ");
+            return `SKU: ${v.sku} | Price: ${v.price} | Stock: ${v.stock} | ${attrString}`;
+          })
+          .join("\n") || "No variants";
 
-      const categoryPath = [p.category?.name, p.sub_category?.name, p.child_category?.name]
-        .filter(Boolean)
-        .join(" > ") || "Uncategorized";
+      const categoryPath =
+        [p.category?.name, p.sub_category?.name, p.child_category?.name]
+          .filter(Boolean)
+          .join(" > ") || "Uncategorized";
 
-      const totalStock = p.variants?.reduce((t, v) => t + Number(v.stock || 0), 0) || 0;
+      const totalStock =
+        p.variants?.reduce((t, v) => t + Number(v.stock || 0), 0) || 0;
 
       return {
         SN: (meta.current_page - 1) * meta.per_page + index + 1, // পেজিনেশন সহ সিরিয়াল
@@ -160,8 +166,17 @@ const AllProducts = () => {
 
     // PDF Table
     autoTable(doc, {
-      head: [["SN", "Product Name", "Product SKU", "Category Path", "Total Stock", "Variants Details"]],
-      body: tableData.map(row => [
+      head: [
+        [
+          "SN",
+          "Product Name",
+          "Product SKU",
+          "Category Path",
+          "Total Stock",
+          "Variants Details",
+        ],
+      ],
+      body: tableData.map((row) => [
         row.SN,
         row.Name.length > 35 ? row.Name.substring(0, 35) + "..." : row.Name,
         row.SKU,
@@ -186,12 +201,12 @@ const AllProducts = () => {
         minCellHeight: 15,
       },
       columnStyles: {
-        0: { cellWidth: 15, halign: "center" },     // SN
-        1: { cellWidth: 50 },                       // Name
-        2: { cellWidth: 35, halign: "center" },     // SKU
-        3: { cellWidth: 50 },                       // Category
-        4: { cellWidth: 22, halign: "center" },     // Total Stock
-        5: { cellWidth: 90 },                       // Variants
+        0: { cellWidth: 15, halign: "center" }, // SN
+        1: { cellWidth: 50 }, // Name
+        2: { cellWidth: 35, halign: "center" }, // SKU
+        3: { cellWidth: 50 }, // Category
+        4: { cellWidth: 22, halign: "center" }, // Total Stock
+        5: { cellWidth: 90 }, // Variants
       },
       margin: { top: 40, left: 10, right: 10 },
       didDrawPage: (data) => {
@@ -202,7 +217,7 @@ const AllProducts = () => {
           `Page ${data.pageNumber} of ${pageCount}`,
           doc.internal.pageSize.getWidth() / 2,
           doc.internal.pageSize.getHeight() - 10,
-          { align: "center" }
+          { align: "center" },
         );
       },
     });
@@ -229,7 +244,11 @@ const AllProducts = () => {
         const primary = item.images?.find((img) => img.is_primary);
         return (
           <img
-            src={primary ? `${IMAGE_URL}/${primary.image_path}` : "/placeholder.png"}
+            src={
+              primary
+                ? `${IMAGE_URL}/${primary.image_path}`
+                : "/placeholder.png"
+            }
             alt={item.name}
             className="w-10 h-10 rounded object-cover border"
           />
@@ -335,7 +354,10 @@ const AllProducts = () => {
       </div>
 
       {viewProduct && (
-        <ProductQuickView product={viewProduct} onClose={() => setViewProduct(null)} />
+        <ProductQuickView
+          product={viewProduct}
+          onClose={() => setViewProduct(null)}
+        />
       )}
     </div>
   );

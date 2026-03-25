@@ -2,9 +2,6 @@ import ReactApexChart from "react-apexcharts";
 
 export const Chart = ({ chartData, role }) => {
   const isAdmin = role === "admin";
-  // console.log(chartData.total_orders, role);
-  // console.log(chartData.total_sale, role);
-
 
   /**
    * DATA MAPPING
@@ -33,7 +30,7 @@ export const Chart = ({ chartData, role }) => {
       name: isAdmin ? "Total Sales (৳)" : "My Sales (৳)",
       type: "line",
       data: sales,
-    }
+    },
   ];
 
   const options = {
@@ -44,12 +41,12 @@ export const Chart = ({ chartData, role }) => {
       background: "transparent",
       dropShadow: {
         enabled: true,
-        color: '#000',
+        color: "#000",
         top: 18,
         left: 7,
         blur: 10,
-        opacity: 0.2
-      }
+        opacity: 0.2,
+      },
     },
     stroke: {
       width: [0, 4],
@@ -59,15 +56,28 @@ export const Chart = ({ chartData, role }) => {
       text: isAdmin ? "Platform Growth Analysis" : "Shop Performance Analysis",
       align: "left",
       style: {
-        fontSize: '18px',
-        fontWeight: 'bold',
-        color: isAdmin ? "#1a3353" : "#333"
-      }
+        fontSize: "18px",
+        fontWeight: "bold",
+        color: isAdmin ? "#1a3353" : "#333",
+      },
     },
     // Using your specific colors: Blue for columns, Green/Orange for lines
     colors: isAdmin ? ["#3b82f6", "#fdd008ff"] : ["#3801b9ff", "#f5740bff"],
     xaxis: {
-      categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      categories: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
       axisBorder: { show: false },
     },
     yaxis: [
@@ -76,7 +86,7 @@ export const Chart = ({ chartData, role }) => {
         min: 0,
         // Calculate max dynamically or set a sensible floor
         max: Math.max(...orders) + 5,
-        labels: { formatter: (val) => val.toFixed(0) }
+        labels: { formatter: (val) => val.toFixed(0) },
       },
       {
         opposite: true,
@@ -84,8 +94,8 @@ export const Chart = ({ chartData, role }) => {
         min: 0,
         max: Math.max(...sales) + 1000,
         labels: {
-          formatter: (val) => `৳${val.toLocaleString()}`
-        }
+          formatter: (val) => `৳${val.toLocaleString()}`,
+        },
       },
     ],
     tooltip: {
@@ -97,16 +107,16 @@ export const Chart = ({ chartData, role }) => {
             return y.toLocaleString();
           }
           return y;
-        }
-      }
+        },
+      },
     },
     legend: {
-      position: 'top',
-      horizontalAlign: 'right',
+      position: "top",
+      horizontalAlign: "right",
     },
     grid: {
-      borderColor: '#f1f1f1',
-    }
+      borderColor: "#f1f1f1",
+    },
   };
 
   return (

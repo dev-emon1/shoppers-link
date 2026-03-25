@@ -12,7 +12,6 @@ const OrderDetailsModal = ({ order, onClose }) => {
     vendor_earning,
     order: orderInfo,
   } = order;
-  // console.log(orderInfo.a_s_a);
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">

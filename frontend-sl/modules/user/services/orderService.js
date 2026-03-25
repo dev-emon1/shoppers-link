@@ -46,7 +46,6 @@ export const cancelVendorOrderApi = async (vendorOrderId, payload = {}) => {
 };
 
 export const submitReviewApi = async (vendorOrderItemId, payload) => {
-  console.log(vendorOrderItemId);
   const formData = new FormData();
   formData.append("vendor_order_item_id", vendorOrderItemId);
   formData.append("rating", payload.rating);

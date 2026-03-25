@@ -52,7 +52,7 @@ const AllSalesTable = () => {
         };
 
         const res = await API.get("/reports/sales", { params });
-        console.log(res);
+
         const {
           data = [],
           summary = null,

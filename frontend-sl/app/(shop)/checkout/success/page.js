@@ -12,7 +12,6 @@ export default function CheckoutSuccessPage() {
   const ref = sp.get("ref"); // checkout_unid
   const [orders, setOrders] = useState(null);
   const [loading, setLoading] = useState(true);
-  // console.log(orders);
 
   const orderId = sp.get("order_id");
   const fetchOrders = async () => {

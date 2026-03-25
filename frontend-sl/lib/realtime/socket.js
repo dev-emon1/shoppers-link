@@ -13,24 +13,19 @@ export function connectSocket(onMessage, onStatusChange) {
   socket.onopen = () => {
     isConnected = true;
     onStatusChange?.(true);
-    console.log("🔌 Socket connected:", WS_URL);
   };
 
   socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      console.log("🔥 SOCKET EVENT:", data); // 👈 debug
       onMessage?.(data);
-    } catch (err) {
-      console.log("Socket parse error:", err);
-    }
+    } catch (err) {}
   };
 
   socket.onclose = () => {
     isConnected = false;
     onStatusChange?.(false);
     socket = null;
-    console.log("❌ Socket disconnected");
 
     // 🔁 auto reconnect
     setTimeout(() => {
@@ -41,7 +36,6 @@ export function connectSocket(onMessage, onStatusChange) {
   socket.onerror = () => {
     isConnected = false;
     onStatusChange?.(false);
-    console.log("⚠️ Socket error");
   };
 
   return socket;

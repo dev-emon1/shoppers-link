@@ -2,10 +2,10 @@ import React from "react";
 
 const ProductQuickView = ({ product, onClose }) => {
   if (!product) return null;
-  // console.log(product);
 
   const IMAGE_URL = import.meta.env.VITE_IMAGE_URL;
-  const isDigitalProduct = product.category_id == 8 || product.category?.id == 8;
+  const isDigitalProduct =
+    product.category_id == 8 || product.category?.id == 8;
   // Parse variant attributes and handle images
   const parsedVariants =
     product.variants?.map((v) => ({
@@ -22,7 +22,7 @@ const ProductQuickView = ({ product, onClose }) => {
   // Total stock across variants
   const totalStock = parsedVariants.reduce(
     (total, v) => total + Number(v.stock || 0),
-    0
+    0,
   );
 
   return (
@@ -47,9 +47,10 @@ const ProductQuickView = ({ product, onClose }) => {
             </h2>
             <p className="text-sm text-gray-600">{product.sku}</p>
             <p className="mt-2 text-sm">
-              <strong>Category:</strong>{" "}
-              {product.category?.name || "N/A"}
-              {product.sub_category?.name ? ` › ${product.sub_category.name}` : ""}
+              <strong>Category:</strong> {product.category?.name || "N/A"}
+              {product.sub_category?.name
+                ? ` › ${product.sub_category.name}`
+                : ""}
               {product.child_category?.name
                 ? ` › ${product.child_category.name}`
                 : ""}
@@ -61,7 +62,8 @@ const ProductQuickView = ({ product, onClose }) => {
               <strong>Brand:</strong> {product.brand?.name || "N/A"}
             </p> */}
             <p className="text-sm">
-              <strong>Total Stock:</strong> {isDigitalProduct ? (
+              <strong>Total Stock:</strong>{" "}
+              {isDigitalProduct ? (
                 <span className="text-green font-bold">In-stock</span>
               ) : (
                 `${totalStock} pcs`
@@ -107,18 +109,24 @@ const ProductQuickView = ({ product, onClose }) => {
               {parsedVariants.map((variant) => {
                 return (
                   <tr key={variant.id}>
-                    <td className="px-2 py-1 border border-border">{variant.sku}</td>
+                    <td className="px-2 py-1 border border-border">
+                      {variant.sku}
+                    </td>
                     <td className="px-2 py-1 border border-border">
                       ৳{variant.price}
                     </td>
                     {/* <td className="px-2 py-1 border border-border">
                       {variant.discount || 0}%
                     </td> */}
-                    <td className="px-2 py-1 border border-border">{isDigitalProduct ? (
-                      <span className="text-green-600 font-bold">In-stock</span>
-                    ) : (
-                      variant.stock
-                    )}</td>
+                    <td className="px-2 py-1 border border-border">
+                      {isDigitalProduct ? (
+                        <span className="text-green-600 font-bold">
+                          In-stock
+                        </span>
+                      ) : (
+                        variant.stock
+                      )}
+                    </td>
                     {attributeKeys.map((key) => (
                       <td key={key} className="px-2 py-1 border border-border">
                         {variant.attributes[key] || "-"}

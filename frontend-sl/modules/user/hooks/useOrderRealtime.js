@@ -19,7 +19,6 @@ export default function useOrderRealtime() {
   useEffect(() => {
     // ❌ SOCKET DISABLED
     if (!ENABLE_SOCKET) {
-      console.log("🚫 Socket disabled from env");
       return;
     }
 
