@@ -41,13 +41,15 @@ export default function useOrders() {
   ---------------------------------- */
   const fetchOrders = useCallback(
     async (opts = { page: 1, per_page: 10, force: false, silent: false }) => {
-      // 1️⃣ Redux data already fresh → skip
-      if (!opts.force && hasFetched && isFresh) {
+      const page = opts.page ?? 1;
+
+      // ✅ ONLY BLOCK FIRST PAGE
+      if (!opts.force && hasFetched && isFresh && page === 1) {
         return { skipped: "fresh-redux" };
       }
 
-      // 2️⃣ Try session cache (only first time)
-      if (!hasFetched && !opts.force) {
+      // ✅ ONLY CACHE FIRST PAGE
+      if (!hasFetched && !opts.force && page === 1) {
         const cached = getSessionTTL(CACHE_KEY);
         if (Array.isArray(cached)) {
           dispatch({
@@ -62,17 +64,15 @@ export default function useOrders() {
         }
       }
 
-      // 3️⃣ Real API call
       const action = await dispatch(
         loadOrders({
-          page: opts.page ?? 1,
+          page,
           per_page: opts.per_page ?? 10,
           silent: opts.silent,
         }),
       );
 
-      // 4️⃣ Sync to session cache
-      if (action?.payload?.list) {
+      if (action?.payload?.list && page === 1) {
         setSessionTTL(CACHE_KEY, action.payload.list, CACHE_TTL);
       }
 

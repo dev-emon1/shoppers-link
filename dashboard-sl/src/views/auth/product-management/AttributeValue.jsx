@@ -25,7 +25,6 @@ const AttributeValue = () => {
   const [valueName, setValueName] = useState("");
   const [status, setStatus] = useState("active");
   const [editingValue, setEditingValue] = useState(null);
-  // console.log(attributes);
 
   // ==== Fetch Attributes ====
   const fetchAttributes = useCallback(async () => {
@@ -58,11 +57,9 @@ const AttributeValue = () => {
       .filter((item) =>
         searchTerm
           ? item.value.toLowerCase().includes(searchTerm.toLowerCase())
-          : true
+          : true,
       )
-      .filter((item) =>
-        filterStatus ? item.status === filterStatus : true
-      );
+      .filter((item) => (filterStatus ? item.status === filterStatus : true));
   }, [values, searchTerm, filterStatus]);
 
   // ==== Derived Paginated Values ====
@@ -84,7 +81,6 @@ const AttributeValue = () => {
       value: valueName.trim(),
       status,
     };
-    // console.log(payload);
 
     try {
       if (editingValue) {
@@ -105,7 +101,10 @@ const AttributeValue = () => {
       // Refresh values
       fetchValues();
     } catch (error) {
-      console.error("❌ Failed to save:", error.response?.data || error.message);
+      console.error(
+        "❌ Failed to save:",
+        error.response?.data || error.message,
+      );
       alert("⚠️ " + (error.response?.data?.message || "Operation failed!"));
     }
   };
@@ -121,21 +120,34 @@ const AttributeValue = () => {
 
   // ==== Delete Handler ====
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this attribute value?")) return;
+    if (!confirm("Are you sure you want to delete this attribute value?"))
+      return;
     try {
       await axios.delete(`${API_VALUES}/${id}`);
       alert("✅ Attribute Value deleted successfully!");
       fetchValues();
     } catch (error) {
-      console.error("❌ Failed to delete:", error.response?.data || error.message);
+      console.error(
+        "❌ Failed to delete:",
+        error.response?.data || error.message,
+      );
       alert("⚠️ Could not delete!");
     }
   };
 
   // ==== Table Columns ====
   const columns = [
-    { key: "no", label: "No", render: (item, i) => (page - 1) * perPage + i + 1, className: "text-center w-[50px]" },
-    { key: "attribute", label: "Attribute", render: (item) => item.attribute.name },
+    {
+      key: "no",
+      label: "No",
+      render: (item, i) => (page - 1) * perPage + i + 1,
+      className: "text-center w-[50px]",
+    },
+    {
+      key: "attribute",
+      label: "Attribute",
+      render: (item) => item.attribute.name,
+    },
     { key: "value", label: "Value" },
     {
       key: "actions",
@@ -155,7 +167,10 @@ const AttributeValue = () => {
       <PageHeader
         title="Attribute Values"
         searchTerm={searchTerm}
-        onSearch={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+        onSearch={(e) => {
+          setSearchTerm(e.target.value);
+          setPage(1);
+        }}
         onAddClick={() => {
           setEditingValue(null);
           setSelectedAttribute("");
@@ -173,7 +188,10 @@ const AttributeValue = () => {
             if (type === "status") setFilterStatus(value);
             setPage(1);
           }}
-          onPerPageChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+          onPerPageChange={(e) => {
+            setPerPage(Number(e.target.value));
+            setPage(1);
+          }}
         />
       </div>
 
@@ -201,7 +219,10 @@ const AttributeValue = () => {
         <SlidePanel
           show={show}
           title={editingValue ? "Edit Attribute Value" : "Add Attribute Value"}
-          onClose={() => { setShow(false); setEditingValue(null); }}
+          onClose={() => {
+            setShow(false);
+            setEditingValue(null);
+          }}
         >
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col w-full gap-1 mb-5">
@@ -236,15 +257,15 @@ const AttributeValue = () => {
               />
             </div>
 
-
             <div className="mt-8">
               <button
                 type="submit"
                 disabled={!selectedAttribute || !valueName}
-                className={`${!selectedAttribute || !valueName
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-main hover:bg-mainHover"
-                  } transition-all duration-150 w-full text-white rounded-md px-7 py-2`}
+                className={`${
+                  !selectedAttribute || !valueName
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-main hover:bg-mainHover"
+                } transition-all duration-150 w-full text-white rounded-md px-7 py-2`}
               >
                 {editingValue ? "Update Value" : "Add Value"}
               </button>

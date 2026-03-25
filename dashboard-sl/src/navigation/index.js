@@ -5,7 +5,6 @@ export const getNavigation = (role) => {
   if (role && allNavigation[role]) {
     return allNavigation[role];
   }
-  // console.log(role);
 
   return [];
 };

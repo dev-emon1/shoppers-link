@@ -5,13 +5,13 @@ const FeatureProductQuickView = ({ product, onClose }) => {
 
   const IMAGE_URL = import.meta.env.VITE_IMAGE_URL;
 
-  const variant = product.featured_variant
-  // console.log(product);
+  const variant = product.featured_variant;
   let parsedAttributes = {};
   try {
-    parsedAttributes = typeof variant.attributes === "string"
-      ? JSON.parse(variant.attributes)
-      : variant.attributes || {};
+    parsedAttributes =
+      typeof variant.attributes === "string"
+        ? JSON.parse(variant.attributes)
+        : variant.attributes || {};
   } catch (e) {
     console.warn("Failed to parse variant attributes", variant.attributes);
   }
@@ -19,8 +19,12 @@ const FeatureProductQuickView = ({ product, onClose }) => {
   // Get attribute keys in correct order
   const attributeKeys = Object.keys(parsedAttributes);
   // LOGIC: Find the specific image for this variant
-  const variantImgPath = product.images?.find(img => img.variant_id === product.product_variant_id)?.image_path;
-  const primaryImgPath = product.images?.find(img => img.is_primary === 1)?.image_path;
+  const variantImgPath = product.images?.find(
+    (img) => img.variant_id === product.product_variant_id,
+  )?.image_path;
+  const primaryImgPath = product.images?.find(
+    (img) => img.is_primary === 1,
+  )?.image_path;
   const mainImage = variantImgPath || primaryImgPath;
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
@@ -44,9 +48,10 @@ const FeatureProductQuickView = ({ product, onClose }) => {
             </h2>
             <p className="text-sm text-gray-600">{product.sku}</p>
             <p className="mt-2 text-sm">
-              <strong>Category:</strong>{" "}
-              {product.category?.name || "N/A"}
-              {product.sub_category?.name ? ` › ${product.sub_category.name}` : ""}
+              <strong>Category:</strong> {product.category?.name || "N/A"}
+              {product.sub_category?.name
+                ? ` › ${product.sub_category.name}`
+                : ""}
               {product.child_category?.name
                 ? ` › ${product.child_category.name}`
                 : ""}
@@ -112,14 +117,18 @@ const FeatureProductQuickView = ({ product, onClose }) => {
             </thead>
             <tbody>
               <tr>
-                <td className="px-2 py-1 border border-border">{variant.sku}</td>
+                <td className="px-2 py-1 border border-border">
+                  {variant.sku}
+                </td>
                 <td className="px-2 py-1 border border-border">
                   ৳{variant.price}
                 </td>
                 {/* <td className="px-2 py-1 border border-border">
                       {variant.discount || 0}%
                     </td> */}
-                <td className="px-2 py-1 border border-border">{variant.stock}</td>
+                <td className="px-2 py-1 border border-border">
+                  {variant.stock}
+                </td>
                 {attributeKeys.map((key) => (
                   <td key={key} className="px-2 py-1 border border-border">
                     {parsedAttributes[key] || "-"}
@@ -130,7 +139,7 @@ const FeatureProductQuickView = ({ product, onClose }) => {
           </table>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

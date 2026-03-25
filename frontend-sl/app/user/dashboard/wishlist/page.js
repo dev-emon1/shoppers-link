@@ -30,14 +30,12 @@ export default function WishlistPage() {
       quantity: 1,
       variantId: product?.variants?.[0]?.id || null,
     };
-    // console.log(payload);
 
     // 3. Execute actions
     add(payload);
     remove(product.id); // Uncommented so it actually "moves" the item
     toast.success(`🛒 ${product.name} moved to cart`);
   };
-  console.log(wishlist);
   const buildHref = (p) =>
     `/${[p.category?.slug, p.sub_category?.slug, p.child_category?.slug, p.slug]
       .filter(Boolean)

@@ -18,14 +18,13 @@ const AllCustomersTablePage = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [viewCustomer, setViewCustomer] = useState(null);
-  // মেটা ডেটা স্টেট
+
   const [meta, setMeta] = useState({
     current_page: 1,
     last_page: 1,
     per_page: 10,
     total: 0,
   });
-  // console.log(customers);
 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -35,7 +34,6 @@ const AllCustomersTablePage = () => {
     try {
       setLoading(true);
 
-      // ১. params ডিক্লেয়ার করা হয়েছে (এটি মিসিং ছিল)
       const params = new URLSearchParams();
       if (searchTerm.trim()) params.append("search", searchTerm.trim());
       params.append("page", page.toString());

@@ -18,6 +18,7 @@ export const fetchShippingCharge = createAsyncThunk(
 const initialState = {
   shippingFee: 0,
   grandTotal: 0,
+  packages: [],
   loading: false,
   error: null,
 };
@@ -36,6 +37,7 @@ const shippingSlice = createSlice({
         state.loading = false;
         state.shippingFee = action.payload.summary.delivery_fee;
         state.grandTotal = action.payload.summary.grand_total;
+        state.packages = action.payload.data.packages;
       })
       .addCase(fetchShippingCharge.rejected, (state, action) => {
         state.loading = false;

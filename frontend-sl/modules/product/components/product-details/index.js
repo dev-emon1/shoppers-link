@@ -15,7 +15,6 @@ export default function ProductDetails({ product, breadcrumb = [] }) {
       </div>
     );
   }
-  // console.log(product);
   const categoryId = product.category.id;
   const [selectedVariant, setSelectedVariant] = useState(null);
 

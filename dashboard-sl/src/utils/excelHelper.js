@@ -12,7 +12,7 @@ export const exportToExcel = (
   data,
   fileName = "export",
   sheetName = "Sheet1",
-  format = "xlsx"
+  format = "xlsx",
 ) => {
   if (!Array.isArray(data) || data.length === 0) {
     // alert("⚠️ No data available to export!");
@@ -30,8 +30,6 @@ export const exportToExcel = (
     } else {
       XLSX.writeFile(wb, `${fileName}.xlsx`, { bookType: "xlsx" });
     }
-
-    // console.log(`✅ Exported ${data.length} rows successfully.`);
     toast.success(`Exported ${data.length} rows successfully.`);
   } catch (err) {
     console.error("❌ Export failed:", err);
@@ -62,7 +60,6 @@ export const importFromExcel = (file) => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-        console.log(`📥 Imported ${jsonData.length} rows`);
         resolve(jsonData);
       };
       reader.onerror = (error) => {

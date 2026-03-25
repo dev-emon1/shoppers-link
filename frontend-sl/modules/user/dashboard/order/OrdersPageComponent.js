@@ -10,6 +10,10 @@ import useOrderRealtime from "@/modules/user/hooks/useOrderRealtime";
 export default function OrdersPageComponent() {
   useOrderRealtime();
   const { list, loading, fetchOrders, hasFetched, meta } = useOrders();
+  const currentPage = meta?.current_page ?? meta?.currentPage ?? 1;
+  const lastPage = meta?.last_page ?? meta?.lastPage ?? 1;
+
+  const hasMore = currentPage < lastPage;
 
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
@@ -21,12 +25,14 @@ export default function OrdersPageComponent() {
     Silent background refresh
   ---------------------------------- */
   useEffect(() => {
-    fetchOrders({
-      page: 1,
-      per_page: 10,
-      silent: true,
-    });
-  }, [fetchOrders]);
+    if ((meta?.current_page ?? 1) === 1) {
+      fetchOrders({
+        page: 1,
+        per_page: 10,
+        silent: true,
+      });
+    }
+  }, [fetchOrders, meta]);
 
   /* ----------------------------------
     Auto revalidate active orders
@@ -133,7 +139,9 @@ export default function OrdersPageComponent() {
 
       {/* BACKGROUND UPDATE INDICATOR */}
       {loading && list.length > 0 && (
-        <p className="text-xs text-gray-400 text-center">Updating orders…</p>
+        <p className="text-xs text-gray-400 text-center mt-2">
+          Updating orders...
+        </p>
       )}
 
       {/* ORDER LIST */}
@@ -144,23 +152,26 @@ export default function OrdersPageComponent() {
       </div>
 
       {/* PAGINATION */}
-      {meta &&
-        (meta.current_page ?? meta.currentPage) <
-          (meta.last_page ?? meta.lastPage) && (
-          <div className="flex justify-center pt-4">
+      {meta && (
+        <div className="flex justify-center pt-4">
+          {hasMore ? (
             <button
+              disabled={loading}
               onClick={() =>
                 fetchOrders({
-                  page: (meta.current_page ?? meta.currentPage) + 1,
+                  page: currentPage + 1,
                   per_page: 10,
                 })
               }
-              className="px-6 py-2 border rounded-lg text-sm font-medium hover:bg-gray-100 transition"
+              className="px-6 py-2 border rounded-lg text-sm font-medium hover:bg-gray-100 transition disabled:opacity-50"
             >
-              Load more orders
+              {loading ? "Loading..." : "Load more orders"}
             </button>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs text-gray-400">No more orders</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

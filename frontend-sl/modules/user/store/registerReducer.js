@@ -12,14 +12,13 @@ export const registerUser = createAsyncThunk(
   async ({ name, email, phone, password }, { rejectWithValue }) => {
     try {
       const data = await registerUserApi({ name, email, phone, password });
-      console.log(data);
       return data;
     } catch (err) {
       return rejectWithValue(
-        err?.response?.data?.error || err?.response?.data?.message
+        err?.response?.data?.error || err?.response?.data?.message,
       );
     }
-  }
+  },
 );
 
 // VERIFY OTP (email/phone + purpose)
@@ -28,16 +27,15 @@ export const verifyOtp = createAsyncThunk(
   async ({ email, phone, otp, purpose }, { rejectWithValue }) => {
     try {
       const data = await verifyOtpApi({ email, phone, otp, purpose });
-      console.log(data);
       return data;
     } catch (err) {
       return rejectWithValue(
         err?.response?.data?.message ||
           err?.response?.data?.errors?.otp?.[0] ||
-          "Invalid OTP"
+          "Invalid OTP",
       );
     }
-  }
+  },
 );
 
 const registerSlice = createSlice({

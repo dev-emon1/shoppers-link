@@ -30,15 +30,12 @@ const SliderPage = () => {
     cta_link: "",
     is_active: true,
   });
-  // console.log(banners);
 
   const fetchBanners = async () => {
     try {
       const res = await API.get("/active/banners");
       setBanners(res.data.data || []);
     } catch (err) {
-      // alert("Failed to load banners");
-      console.log("Failed to load banners");
     } finally {
       setLoading(false);
     }
@@ -71,7 +68,6 @@ const SliderPage = () => {
       return;
     }
 
-    console.log(data);
     try {
       if (editingId) {
         data.append("_method", "PUT"); // ← THIS FIXES THE EMPTY LOG
@@ -140,7 +136,9 @@ const SliderPage = () => {
   return (
     <div className="px-6 max-w-7xl mx-auto">
       <div className="sm:flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">Slider Management</h1>
+        <h1 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">
+          Slider Management
+        </h1>
         <button
           onClick={() => setShowForm(true)}
           className="flex items-center gap-2 bg-main text-white px-2 py-2 rounded-lg hover:bg-mainHover transition text-sm"
@@ -330,10 +328,11 @@ const SliderPage = () => {
           {banners.map((banner) => (
             <div
               key={banner.id}
-              className={`group relative bg-white rounded-2xl shadow-xl overflow-hidden border-4 transition-all ${banner.is_active
-                ? "border-green-400"
-                : "border-gray-300 opacity-80"
-                }`}
+              className={`group relative bg-white rounded-2xl shadow-xl overflow-hidden border-4 transition-all ${
+                banner.is_active
+                  ? "border-green-400"
+                  : "border-gray-300 opacity-80"
+              }`}
             >
               <div className="relative h-48 overflow-hidden">
                 <img
@@ -369,10 +368,11 @@ const SliderPage = () => {
 
                 <div className="flex justify-between items-center mt-4">
                   <span
-                    className={`px-4 py-2 rounded-full text-xs font-bold ${banner.is_active
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-600"
-                      }`}
+                    className={`px-4 py-2 rounded-full text-xs font-bold ${
+                      banner.is_active
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
                   >
                     {banner.is_active ? "ACTIVE" : "INACTIVE"}
                   </span>
@@ -410,7 +410,7 @@ const SliderPage = () => {
                   Created:{" "}
                   {format(
                     new Date(banner.created_at),
-                    "dd MMM yyyy 'at' hh:mm a"
+                    "dd MMM yyyy 'at' hh:mm a",
                   )}
                 </p>
               </div>

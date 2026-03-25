@@ -27,31 +27,32 @@ const AllFeaturedProducts = () => {
 
   const IMAGE_URL = import.meta.env.VITE_IMAGE_URL;
 
-  // console.log(featuredItems);
   // Fetch Featured Products
   const fetchFeatured = useCallback(async () => {
     try {
       setLoading(true);
       const res = await API.get("/vendor/featured");
       const items = res.data.data || [];
-      // console.log("data", items);
 
       const formatted = items.map((item) => {
         // Find the specific variant that matches the featured variant ID
         const specificVariant = item.product.variants?.find(
-          (v) => v.id === item.product_variant_id
+          (v) => v.id === item.product_variant_id,
         );
         const variantSpecificImage = item.product.images?.find(
-          (img) => img.variant_id === item.product_variant_id
+          (img) => img.variant_id === item.product_variant_id,
         );
 
         // 3. Fallback to the product's primary image if no variant image exists
-        const primaryImage = item.product.images?.find((img) => img.is_primary === 1);
+        const primaryImage = item.product.images?.find(
+          (img) => img.is_primary === 1,
+        );
         return {
           id: item.id, // Use the Featured record ID for the 'Remove' action
           name: item.product.name,
           sku: item.product.sku,
-          display_image: variantSpecificImage?.image_path || primaryImage?.image_path,
+          display_image:
+            variantSpecificImage?.image_path || primaryImage?.image_path,
           images: item.product.images || [],
           category: item.product.category || {},
           sub_category: item.product.sub_category || {},
@@ -85,7 +86,7 @@ const AllFeaturedProducts = () => {
   const filtered = featuredItems.filter(
     (item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.sku.toLowerCase().includes(searchTerm.toLowerCase())
+      item.sku.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filtered.length / perPage);
@@ -110,8 +111,8 @@ const AllFeaturedProducts = () => {
       item.badge_text || "—",
       item.featured_variant
         ? Object.values(
-          JSON.parse(item.featured_variant.attributes || "{}")
-        ).join(" • ")
+            JSON.parse(item.featured_variant.attributes || "{}"),
+          ).join(" • ")
         : "Whole Product",
       item.featured_variant?.price || "—",
       item.featured_variant?.stock || "—",
@@ -183,7 +184,11 @@ const AllFeaturedProducts = () => {
       label: "Image",
       render: (item) => (
         <img
-          src={item.display_image ? `${IMAGE_URL}/${item.display_image}` : "/placeholder.png"}
+          src={
+            item.display_image
+              ? `${IMAGE_URL}/${item.display_image}`
+              : "/placeholder.png"
+          }
           alt={item.name}
           className="w-12 h-12 rounded object-cover border shadow-sm hover:scale-110 transition-transform"
         />
@@ -217,7 +222,7 @@ const AllFeaturedProducts = () => {
               <div className="font-medium">{item.featured_variant.sku}</div>
               <div className="text-xs text-gray-600">
                 {Object.values(
-                  JSON.parse(item.featured_variant.attributes || "{}")
+                  JSON.parse(item.featured_variant.attributes || "{}"),
                 ).join(" • ")}
               </div>
             </>
@@ -294,15 +299,15 @@ const AllFeaturedProducts = () => {
                     Badge: i.badge_text || "—",
                     Variant: i.featured_variant
                       ? Object.values(
-                        JSON.parse(i.featured_variant.attributes || "{}")
-                      ).join(" • ")
+                          JSON.parse(i.featured_variant.attributes || "{}"),
+                        ).join(" • ")
                       : "Whole Product",
                     Expires: i.ends_at
                       ? format(new Date(i.ends_at), "dd MMM yyyy")
                       : "No expiry",
                     Status: i.is_active ? "Active" : "Inactive",
                   })),
-                  "featured-products"
+                  "featured-products",
                 )
               }
               className="flex items-center gap-2 px-4 py-2 border border-green-600 text-green-600 rounded hover:bg-green-50"

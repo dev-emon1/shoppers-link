@@ -141,7 +141,7 @@ const CustomerReportPage = () => {
     try {
       setLoading(true);
       const res = await API.get("/reports/customer", { params: { page } });
-      console.log(res);
+
       const {
         data = [],
         summary = null,

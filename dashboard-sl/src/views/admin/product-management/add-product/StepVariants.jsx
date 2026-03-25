@@ -20,7 +20,6 @@ const StepVariants = ({ formData, onChange }) => {
   const {
     formState: { errors },
   } = useFormContext();
-  console.log(formData);
 
   const [attributes, setAttributes] = useState([]);
   const [useGlobalPricing, setUseGlobalPricing] = useState(false);
@@ -32,12 +31,10 @@ const StepVariants = ({ formData, onChange }) => {
   const [searchMap, setSearchMap] = useState({});
   const [newValueMap, setNewValueMap] = useState({});
   const [bulk, setBulk] = useState({ price: "", discount: "", stock: "" });
-  // console.log(attributes);
 
   // Fetch attributes from API
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/attributes")
-
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -50,7 +47,7 @@ const StepVariants = ({ formData, onChange }) => {
   // ===== Active attributes (from API) =====
   const activeAttributes = useMemo(
     () => attributes.filter((a) => a.status == null || a.status === 1),
-    [attributes]
+    [attributes],
   );
 
   useEffect(() => {
@@ -100,7 +97,7 @@ const StepVariants = ({ formData, onChange }) => {
     const val = (newValueMap[attrId] || "").trim();
     if (!val) return alert("Enter a value first");
     const exists = (selectedValues[attrId] || []).some(
-      (v) => v.toLowerCase() === val.toLowerCase()
+      (v) => v.toLowerCase() === val.toLowerCase(),
     );
     if (exists) return alert("Value already selected!");
 
@@ -118,13 +115,13 @@ const StepVariants = ({ formData, onChange }) => {
   const cartesian = (arrays) =>
     arrays.reduce(
       (acc, curr) => acc.flatMap((a) => curr.map((b) => a.concat([b]))),
-      [[]]
+      [[]],
     );
 
   // ===== Generate row matrix whenever selection changes =====
   useEffect(() => {
     const selectedAttrs = activeAttributes.filter((a) =>
-      selectedAttributes.includes(a.id)
+      selectedAttributes.includes(a.id),
     );
     const matrix = selectedAttrs.map((attr) => selectedValues[attr.id] || []);
 
@@ -146,7 +143,7 @@ const StepVariants = ({ formData, onChange }) => {
       const existing = rows.find(
         (r) =>
           JSON.stringify(Object.entries(r.attributes).sort()) ===
-          JSON.stringify(Object.entries(attributes).sort())
+          JSON.stringify(Object.entries(attributes).sort()),
       );
 
       return (
@@ -175,10 +172,10 @@ const StepVariants = ({ formData, onChange }) => {
   const updateRow = useCallback(
     (id, key, value) => {
       setRows((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, [key]: value } : r))
+        prev.map((r) => (r.id === id ? { ...r, [key]: value } : r)),
       );
     },
-    [setRows]
+    [setRows],
   );
 
   const removeRow = (id) => setRows((prev) => prev.filter((r) => r.id !== id));
@@ -191,7 +188,7 @@ const StepVariants = ({ formData, onChange }) => {
         ...r,
         price: globalPrice !== "" ? globalPrice : r.price,
         discount: globalDiscount !== "" ? globalDiscount : r.discount,
-      }))
+      })),
     );
   }, [useGlobalPricing, globalPrice, globalDiscount]);
 
@@ -203,7 +200,7 @@ const StepVariants = ({ formData, onChange }) => {
         price: bulk.price !== "" ? bulk.price : r.price,
         discount: bulk.discount !== "" ? bulk.discount : r.discount,
         stock: bulk.stock !== "" ? bulk.stock : r.stock,
-      }))
+      })),
     );
   };
   const resetBulk = () => setBulk({ price: "", discount: "", stock: "" });
@@ -224,7 +221,7 @@ const StepVariants = ({ formData, onChange }) => {
 
   const genSkuForRow = (row) => {
     const parts = Object.entries(row.attributes).map(([_, v]) =>
-      slug(`${v}`).replace(/-/g, "")
+      slug(`${v}`).replace(/-/g, ""),
     );
     return `${getBaseSku()}-${parts.join("-")}`;
   };
@@ -234,7 +231,7 @@ const StepVariants = ({ formData, onChange }) => {
       prev.map((r) => ({
         ...r,
         sku: overwrite || !r.sku ? genSkuForRow(r) : r.sku,
-      }))
+      })),
     );
   };
 
@@ -257,10 +254,11 @@ const StepVariants = ({ formData, onChange }) => {
                 key={attr.id}
                 type="button"
                 onClick={() => toggleAttribute(attr.id)}
-                className={`px-3 py-1 rounded-full text-sm border transition ${active
-                  ? "bg-main text-white border-main"
-                  : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
-                  }`}
+                className={`px-3 py-1 rounded-full text-sm border transition ${
+                  active
+                    ? "bg-main text-white border-main"
+                    : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
               >
                 {attr.name}
               </button>
@@ -278,7 +276,7 @@ const StepVariants = ({ formData, onChange }) => {
             attr.values?.filter(
               (v) =>
                 (v.status == null || v.status === 1) &&
-                v.value.toLowerCase().includes(search)
+                v.value.toLowerCase().includes(search),
             ) || [];
 
           const selected = selectedValues[attrId] || [];
@@ -310,10 +308,11 @@ const StepVariants = ({ formData, onChange }) => {
                       key={v.id}
                       type="button"
                       onClick={() => handleValueSelect(attrId, v.value)}
-                      className={`px-2.5 py-1 rounded-full text-xs border transition ${active
-                        ? "bg-main text-white border-main"
-                        : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
-                        }`}
+                      className={`px-2.5 py-1 rounded-full text-xs border transition ${
+                        active
+                          ? "bg-main text-white border-main"
+                          : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
+                      }`}
                     >
                       {v.value}
                     </button>
@@ -376,10 +375,11 @@ const StepVariants = ({ formData, onChange }) => {
             <button
               type="button"
               onClick={() => setUseGlobalPricing((p) => !p)}
-              className={`px-4 py-1 rounded-full text-sm font-medium border ${useGlobalPricing
-                ? "bg-green/15 text-green border-green"
-                : "bg-gray-100 text-gray-600 border-gray-300"
-                }`}
+              className={`px-4 py-1 rounded-full text-sm font-medium border ${
+                useGlobalPricing
+                  ? "bg-green/15 text-green border-green"
+                  : "bg-gray-100 text-gray-600 border-gray-300"
+              }`}
             >
               {useGlobalPricing ? "Enabled" : "Disabled"}
             </button>

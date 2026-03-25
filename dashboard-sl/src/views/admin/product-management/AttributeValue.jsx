@@ -9,7 +9,6 @@ import FilterBar from "../../../components/common/FilterBar";
 import API from "../../../utils/api";
 import { toast } from "react-toastify";
 
-
 const AttributeValue = () => {
   // ==== States ====
   const [values, setValues] = useState([]);
@@ -24,7 +23,6 @@ const AttributeValue = () => {
   const [valueName, setValueName] = useState("");
   const [status, setStatus] = useState("active");
   const [editingValue, setEditingValue] = useState(null);
-  // console.log(attributes);
 
   // ==== Fetch Attributes ====
   const fetchAttributes = useCallback(async () => {
@@ -57,11 +55,9 @@ const AttributeValue = () => {
       .filter((item) =>
         searchTerm
           ? item.value.toLowerCase().includes(searchTerm.toLowerCase())
-          : true
+          : true,
       )
-      .filter((item) =>
-        filterStatus ? item.status === filterStatus : true
-      );
+      .filter((item) => (filterStatus ? item.status === filterStatus : true));
   }, [values, searchTerm, filterStatus]);
 
   // ==== Derived Paginated Values ====
@@ -75,7 +71,8 @@ const AttributeValue = () => {
   // ==== Add / Update ====
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedAttribute) return toast.error("⚠️ Please select an attribute!");
+    if (!selectedAttribute)
+      return toast.error("⚠️ Please select an attribute!");
     if (!valueName.trim()) return toast.error("⚠️ Enter attribute value!");
 
     const payload = {
@@ -83,7 +80,6 @@ const AttributeValue = () => {
       value: valueName.trim(),
       status,
     };
-    // console.log(payload);
 
     try {
       if (editingValue) {
@@ -105,7 +101,9 @@ const AttributeValue = () => {
       fetchValues();
     } catch (error) {
       // console.error("❌ Failed to save:", error.response?.data || error.message);
-      toast.error("⚠️ " + (error.response?.data?.message || "Operation failed!"));
+      toast.error(
+        "⚠️ " + (error.response?.data?.message || "Operation failed!"),
+      );
     }
   };
 
@@ -120,8 +118,17 @@ const AttributeValue = () => {
 
   // ==== Table Columns ====
   const columns = [
-    { key: "no", label: "No", render: (item, i) => (page - 1) * perPage + i + 1, className: "text-center w-[50px]" },
-    { key: "attribute", label: "Attribute", render: (item) => item.attribute.name },
+    {
+      key: "no",
+      label: "No",
+      render: (item, i) => (page - 1) * perPage + i + 1,
+      className: "text-center w-[50px]",
+    },
+    {
+      key: "attribute",
+      label: "Attribute",
+      render: (item) => item.attribute.name,
+    },
     { key: "value", label: "Value" },
     {
       key: "actions",
@@ -130,7 +137,7 @@ const AttributeValue = () => {
       render: (item) => (
         <TableActions
           onEdit={() => handleEdit(item)}
-        // onDelete={() => handleDelete(item.id)}
+          // onDelete={() => handleDelete(item.id)}
         />
       ),
     },
@@ -141,7 +148,10 @@ const AttributeValue = () => {
       <PageHeader
         title="Attribute Values"
         searchTerm={searchTerm}
-        onSearch={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+        onSearch={(e) => {
+          setSearchTerm(e.target.value);
+          setPage(1);
+        }}
         onAddClick={() => {
           setEditingValue(null);
           setSelectedAttribute("");
@@ -159,7 +169,10 @@ const AttributeValue = () => {
             if (type === "status") setFilterStatus(value);
             setPage(1);
           }}
-          onPerPageChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+          onPerPageChange={(e) => {
+            setPerPage(Number(e.target.value));
+            setPage(1);
+          }}
         />
       </div>
 
@@ -187,7 +200,10 @@ const AttributeValue = () => {
         <SlidePanel
           show={show}
           title={editingValue ? "Edit Attribute Value" : "Add Attribute Value"}
-          onClose={() => { setShow(false); setEditingValue(null); }}
+          onClose={() => {
+            setShow(false);
+            setEditingValue(null);
+          }}
         >
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col w-full gap-1 mb-5">
@@ -222,15 +238,15 @@ const AttributeValue = () => {
               />
             </div>
 
-
             <div className="mt-8">
               <button
                 type="submit"
                 disabled={!selectedAttribute || !valueName}
-                className={`${!selectedAttribute || !valueName
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-main hover:bg-mainHover"
-                  } transition-all duration-150 w-full text-white rounded-md px-7 py-2`}
+                className={`${
+                  !selectedAttribute || !valueName
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-main hover:bg-mainHover"
+                } transition-all duration-150 w-full text-white rounded-md px-7 py-2`}
               >
                 {editingValue ? "Update Value" : "Add Value"}
               </button>

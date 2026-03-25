@@ -23,13 +23,11 @@ const StepReview = ({ formData, onEdit, onBack, onSubmit }) => {
     setOpenSection((prev) =>
       prev.includes(section)
         ? prev.filter((s) => s !== section)
-        : [...prev, section]
+        : [...prev, section],
     );
 
   const expandAll = () => setOpenSection(sections);
   const collapseAll = () => setOpenSection([]);
-  // console.log(formData);
-  // console.log(formData.basicInfo);
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -101,10 +99,11 @@ const StepReview = ({ formData, onEdit, onBack, onSubmit }) => {
             label="Status"
             value={
               <span
-                className={`px-2 py-0.5 rounded text-xs font-medium ${formData.basicInfo.status === "active"
-                  ? "bg-green/10 text-green"
-                  : "bg-red/10 text-red"
-                  }`}
+                className={`px-2 py-0.5 rounded text-xs font-medium ${
+                  formData.basicInfo.status === "active"
+                    ? "bg-green/10 text-green"
+                    : "bg-red/10 text-red"
+                }`}
               >
                 {formData.basicInfo.status}
               </span>
@@ -130,7 +129,7 @@ const StepReview = ({ formData, onEdit, onBack, onSubmit }) => {
                       <th key={attr} className="px-3 py-2 text-left capitalize">
                         {attr}
                       </th>
-                    )
+                    ),
                   )}
                   <th className="px-3 py-2 text-left">SKU</th>
                   <th className="px-3 py-2 text-left">Price</th>
@@ -172,10 +171,11 @@ const StepReview = ({ formData, onEdit, onBack, onSubmit }) => {
             {formData.images.map((img, i) => (
               <div
                 key={i}
-                className={`relative w-24 h-24 rounded-lg overflow-hidden border ${img.id === formData.featured
-                  ? "border-main ring-2 ring-main"
-                  : "border-gray-200"
-                  }`}
+                className={`relative w-24 h-24 rounded-lg overflow-hidden border ${
+                  img.id === formData.featured
+                    ? "border-main ring-2 ring-main"
+                    : "border-gray-200"
+                }`}
               >
                 <img
                   src={img.preview || img.url}
