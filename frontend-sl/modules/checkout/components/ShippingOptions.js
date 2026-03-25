@@ -8,6 +8,8 @@ import useShipping from "../hooks/useShipping";
 export default function ShippingOptions() {
   const { shippingFee, loading } = useShipping();
 
+  console.log(shippingFee);
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">

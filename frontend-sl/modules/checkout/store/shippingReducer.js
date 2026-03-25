@@ -40,6 +40,7 @@ const shippingSlice = createSlice({
       .addCase(fetchShippingCharge.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.shippingFee = 120;
       });
   },
 });

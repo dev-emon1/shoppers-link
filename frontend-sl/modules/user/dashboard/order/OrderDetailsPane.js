@@ -116,7 +116,7 @@ function extractTimeline(order, entity = order) {
   return map;
 }
 export default function OrderDetailsPane({ order }) {
-  // console.log(order);
+  console.log(order);
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);
@@ -166,6 +166,15 @@ export default function OrderDetailsPane({ order }) {
 
   const parsedASA = safeParse(primaryVendorOrder?.order?.a_s_a);
   const totals = parsedASA?.totals ?? null;
+
+  // SAFE TOTAL CALCULATION
+  const subtotal = Number(totals?.subtotal ?? order.total_amount ?? 0);
+
+  const shipping = Number(totals?.shipping_charge ?? order.total_shipping ?? 0);
+
+  const grandTotal = totals?.grandTotal
+    ? Number(totals.grandTotal)
+    : subtotal + shipping;
 
   const handleVendorCancel = async (vendorOrder) => {
     if (!vendorOrder || !vendorOrder.id) return;
@@ -277,10 +286,10 @@ export default function OrderDetailsPane({ order }) {
         <div className="p-4 border rounded-lg bg-white">
           <h4 className="font-medium mb-2">Order Totals</h4>
           <div className="text-sm text-textSecondary space-y-1">
-            <div>Subtotal: ৳ {totals?.subtotal ?? order.total_amount}</div>
-            <div>Shipping: ৳ {totals?.shipping_charge ?? "—"}</div>
+            <div>Subtotal: ৳ {subtotal}</div>
+            <div>Shipping: ৳ {shipping}</div>
             <div className="font-semibold mt-2">
-              Grand Total: ৳ {totals?.grandTotal ?? order.total_amount}
+              Grand Total: ৳ {grandTotal}
             </div>
           </div>
         </div>
