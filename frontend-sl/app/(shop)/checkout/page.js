@@ -2,9 +2,11 @@
 
 import { Lock } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
-
+import { useEffect, useState, useRef } from "react";
+import AddressSelector from "@/modules/checkout/components/AddressSelector";
+import AddressModal from "@/modules/user/dashboard/address/AddressModal";
 import useCart from "@/modules/cart/hooks/useCart";
+import useCachedAddresses from "@/modules/user/hooks/useCachedAddresses";
 
 import CheckoutGuard from "@/modules/checkout/components/CheckoutGuard";
 import Stepper from "@/modules/checkout/components/Stepper";
@@ -25,62 +27,134 @@ import useCheckoutTotals from "@/modules/checkout/hooks/useCheckoutTotals";
 import useOrderPlacement from "@/modules/checkout/hooks/useOrderPlacement";
 
 export default function CheckoutPage() {
-  /* CART */
+  // State
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [editingAddress, setEditingAddress] = useState(null);
+  const [openAddressModal, setOpenAddressModal] = useState(false);
 
+  // Shipping optimization
+  const [debouncedArea, setDebouncedArea] = useState(null);
+  const lastPayloadRef = useRef(null);
+
+  /* CART */
   const { cart, totalItems, totalPrice, clear: clearCart } = useCart();
 
   /* USER */
-
   const user = useSelector((state) => state.auth.user);
+  const { addresses } = useCachedAddresses(user?.customer?.id);
 
   /* STEPS */
-
   const steps = checkoutSteps;
   const { activeStep, goNext, goBack, registerValidator } = useCheckoutSteps();
 
   /* HOOKS */
-
   const billing = useBilling();
   const shipping = useShipping();
   const payment = usePayment();
 
   const { calculateShipping } = shipping;
 
-  /* BUILD SHIPPING PAYLOAD */
+  /* ---------------- HELPERS ---------------- */
+
+  const isValidArea = (area) =>
+    typeof area === "string" && area.trim().length >= 3;
 
   const buildShippingPayload = (cart, area) => {
-    const vendors = Object.entries(cart || {}).map(([vendorId, vendor]) => ({
-      vendor_id: Number(vendorId),
-      items: (vendor.items || []).map((item) => ({
-        weight: item.weight || 0.5,
-        qty: item.quantity,
-        price: item.price,
-      })),
-    }));
+    const vendorMap = {};
+
+    Object.entries(cart || {}).forEach(([vendorId, vendor]) => {
+      if (!vendorMap[vendorId]) {
+        vendorMap[vendorId] = {
+          vendor_id: Number(vendorId),
+          items: [],
+        };
+      }
+
+      vendor.items.forEach((item) => {
+        vendorMap[vendorId].items.push({
+          weight: item.weight || 0.5,
+          qty: item.quantity,
+          price: item.price,
+        });
+      });
+    });
 
     return {
-      vendors,
+      vendors: Object.values(vendorMap),
       area,
     };
   };
 
-  /* SHIPPING CALCULATION */
+  /* ---------------- DEBOUNCE AREA ---------------- */
 
   useEffect(() => {
-    if (billing.value?.area && Object.keys(cart || {}).length) {
-      const payload = buildShippingPayload(cart, billing.value.area);
+    const area = selectedAddress?.area || billing.value?.area;
 
-      calculateShipping(payload);
+    const t = setTimeout(() => {
+      setDebouncedArea(area);
+    }, 400);
+
+    return () => clearTimeout(t);
+  }, [selectedAddress, billing.value?.area]);
+
+  /* ---------------- SHIPPING ---------------- */
+
+  useEffect(() => {
+    if (!isValidArea(debouncedArea)) return;
+    if (!Object.keys(cart || {}).length) return;
+
+    const payload = buildShippingPayload(cart, debouncedArea);
+
+    if (JSON.stringify(payload) === JSON.stringify(lastPayloadRef.current)) {
+      return;
     }
-  }, [billing.value?.area, cart]);
 
-  /* TOTALS */
+    lastPayloadRef.current = payload;
+
+    calculateShipping(payload);
+  }, [debouncedArea, cart]);
+
+  /* ---------------- VALIDATOR ---------------- */
+
+  useEffect(() => {
+    if (!registerValidator) return;
+
+    registerValidator("billing", () => {
+      if (selectedAddress) return { valid: true };
+      return billing.validate();
+    });
+  }, [selectedAddress, billing.value, registerValidator]);
+
+  /* ---------------- DEFAULT ADDRESS AUTO SELECT ---------------- */
+
+  useEffect(() => {
+    if (!addresses.length) return;
+    if (selectedAddress?.id) return;
+
+    const defaultAddr =
+      addresses.find((a) => a.is_default === 1) || addresses[0];
+
+    if (defaultAddr) {
+      setSelectedAddress(defaultAddr);
+
+      billing.onChange({
+        ...billing.value,
+        selectedAddressId: defaultAddr.id,
+        line1: defaultAddr.address_line1,
+        area: defaultAddr.area,
+        city: defaultAddr.city,
+        postalCode: defaultAddr.postal_code,
+      });
+    }
+  }, [addresses]);
+
+  /* ---------------- TOTALS ---------------- */
 
   const totals = useCheckoutTotals({
     totalPrice,
   });
 
-  /* ORDER */
+  /* ---------------- ORDER ---------------- */
 
   const order = useOrderPlacement({
     billing,
@@ -107,11 +181,9 @@ export default function CheckoutPage() {
       <div className="bg-gray-50 min-h-screen pb-10 pt-10">
         <div className="container max-w-6xl pt-6 pb-4">
           {/* Header */}
-
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">Checkout</h1>
-
               <p className="text-xs md:text-sm text-textSecondary">
                 Complete your order in just a few simple steps.
               </p>
@@ -119,7 +191,6 @@ export default function CheckoutPage() {
 
             <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1 shadow-sm border border-border">
               <Lock size={16} className="text-emerald-600" />
-
               <span className="text-xs font-medium text-gray-700">
                 Secure checkout powered by ShoppersLink
               </span>
@@ -132,14 +203,28 @@ export default function CheckoutPage() {
             <section className="space-y-6">
               <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
                 {activeStep === 1 && (
-                  <BillingForm
-                    value={billing.value}
-                    errors={billing.errors}
-                    onChange={billing.onChange}
-                    hasSavedBilling={billing.hasSavedBilling}
-                    onUseSaved={billing.useSavedBilling}
-                    registerValidate={(fn) => registerValidator("billing", fn)}
-                  />
+                  <div className="space-y-4">
+                    <AddressSelector
+                      selectedAddressId={selectedAddress?.id}
+                      onSelect={(addr) => {
+                        setSelectedAddress(addr);
+
+                        billing.onChange({
+                          ...billing.value,
+                          selectedAddressId: addr.id,
+                          line1: addr.address_line1,
+                          area: addr.area,
+                          city: addr.city,
+                          postalCode: addr.postal_code,
+                        });
+                      }}
+                      onAddNew={() => setOpenAddressModal(true)}
+                      onEdit={(addr) => {
+                        setEditingAddress(addr);
+                        setOpenAddressModal(true);
+                      }}
+                    />
+                  </div>
                 )}
 
                 {activeStep === 2 && <ShippingOptions />}
@@ -178,6 +263,18 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* ADDRESS MODAL */}
+      <AddressModal
+        open={openAddressModal}
+        onClose={() => {
+          setOpenAddressModal(false);
+          setEditingAddress(null);
+        }}
+        customerId={user?.customer?.id}
+        mode={editingAddress ? "edit" : "add"}
+        initialData={editingAddress}
+      />
     </CheckoutGuard>
   );
 }
