@@ -120,7 +120,7 @@ export default function OrderDetailsPane({ order }) {
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);
   const [viewReviewVendorId, setViewReviewVendorId] = useState(null);
-
+  const [downloading, setDownloading] = useState(false);
   if (!order)
     return (
       <div className="p-6 bg-bgSurface rounded-2xl border">
@@ -218,17 +218,23 @@ export default function OrderDetailsPane({ order }) {
   };
 
   const handleDownloadInvoice = async () => {
-    const activeVendorOrders =
-      order.vendor_orders?.filter(
-        (v) => (v.status ?? "").toLowerCase() !== "cancelled",
-      ) ?? [];
+    try {
+      setDownloading(true);
 
-    await generateInvoicePdf({
-      order,
-      billing,
-      activeVendorOrders,
-      totals,
-    });
+      const activeVendorOrders =
+        order.vendor_orders?.filter(
+          (v) => (v.status ?? "").toLowerCase() !== "cancelled",
+        ) ?? [];
+
+      await generateInvoicePdf({
+        order,
+        billing,
+        activeVendorOrders,
+        totals,
+      });
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -565,9 +571,11 @@ export default function OrderDetailsPane({ order }) {
           {!isCancelled && (
             <button
               onClick={handleDownloadInvoice}
-              className="px-5 py-2 bg-main text-white rounded-md hover:opacity-90 transition flex items-center gap-2"
+              disabled={downloading}
+              className="px-5 py-2 bg-main text-white rounded-md hover:opacity-90 transition flex items-center gap-2 disabled:opacity-50"
             >
-              <Download size={18} /> Download Invoice
+              <Download size={18} />
+              {downloading ? "Generating PDF..." : "Download Invoice"}
             </button>
           )}
           {!isCancelled &&
