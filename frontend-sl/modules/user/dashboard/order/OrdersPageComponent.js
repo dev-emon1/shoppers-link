@@ -12,7 +12,7 @@ export default function OrdersPageComponent() {
   const { list, loading, fetchOrders, hasFetched, meta } = useOrders();
   const currentPage = meta?.current_page ?? meta?.currentPage ?? 1;
   const lastPage = meta?.last_page ?? meta?.lastPage ?? 1;
-
+  console.log(list);
   const hasMore = currentPage < lastPage;
 
   const [query, setQuery] = useState("");
@@ -25,14 +25,19 @@ export default function OrdersPageComponent() {
     Silent background refresh
   ---------------------------------- */
   useEffect(() => {
-    if ((meta?.current_page ?? 1) === 1) {
-      fetchOrders({
-        page: 1,
-        per_page: 10,
-        silent: true,
-      });
-    }
-  }, [fetchOrders, meta]);
+    // if ((meta?.current_page ?? 1) === 1) {
+    //   fetchOrders({
+    //     page: 1,
+    //     per_page: 10,
+    //     silent: true,
+    //   });
+    // }
+    fetchOrders({
+      page: 1,
+      per_page: 5,
+      silent: true,
+    });
+  }, [fetchOrders]);
 
   /* ----------------------------------
     Auto revalidate active orders

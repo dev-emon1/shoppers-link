@@ -169,7 +169,7 @@ const MainNav = ({
                 }}
                 className="flex items-center gap-2"
               >
-                {user?.customer?.profile_picture ? (
+                {mounted && user?.customer?.profile_picture ? (
                   <Image
                     src={makeImageUrl(user.customer.profile_picture)}
                     alt={user?.user_name || "User"}
