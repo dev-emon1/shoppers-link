@@ -59,7 +59,7 @@ export default function OrderDetailRoutePage() {
         fallbackFetch: true,
         force: true,
       });
-    }, 60000);
+    }, 15000);
 
     return () => clearInterval(interval);
   }, [finalOrder, getOrderWithFallback]);

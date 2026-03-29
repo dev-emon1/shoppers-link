@@ -27,7 +27,7 @@ function extractTimeline(order) {
   return map;
 }
 
-export default function OrderCard({ order }) {
+export default function OrderCard({ order, isNew }) {
   const router = useRouter();
   const undoTimerRef = useRef(null);
   const [optimisticCancelled, setOptimisticCancelled] = useState(false);
@@ -157,10 +157,16 @@ export default function OrderCard({ order }) {
 
   return (
     <article
-      className={`rounded-xl border bg-white transition-all duration-200 ${
-        isCancelled ? "opacity-70 bg-gray-50" : ""
-      }`}
+      id={`order-${order.unid}`}
+      className={`relative rounded-xl border bg-white transition-all duration-500 ${
+        isNew ? "ring-2 ring-green-400 shadow-xl animate-pulse" : ""
+      } ${isCancelled ? "opacity-70 bg-gray-50" : ""}`}
     >
+      {isNew && (
+        <span className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-bounce">
+          NEW
+        </span>
+      )}
       <div className="p-4">
         {/* Header */}
         <div className="flex gap-4">

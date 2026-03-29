@@ -10,11 +10,10 @@ import {
 } from "@/modules/user/store/orderReducer";
 import { getSessionTTL, setSessionTTL } from "@/lib/cache/sessionTTL";
 
-/* ----------------------------------
-   CONFIG
----------------------------------- */
+/* ---------------------------------- */
 const CACHE_KEY = "orders_list";
-const CACHE_TTL = 120; // seconds
+const CACHE_TTL = 120;
+/* ---------------------------------- */
 
 export default function useOrders() {
   const dispatch = useDispatch();
@@ -37,18 +36,20 @@ export default function useOrders() {
   }, [lastFetchedAt]);
 
   /* ----------------------------------
-     SMART FETCH (CACHE + TTL)
+     SMART FETCH
   ---------------------------------- */
   const fetchOrders = useCallback(
     async (opts = { page: 1, per_page: 10, force: false, silent: false }) => {
       const page = opts.page ?? 1;
 
-      // ✅ ONLY BLOCK FIRST PAGE
+      // 1. Skip if fresh (ZERO unnecessary call)
       if (!opts.force && hasFetched && isFresh && page === 1) {
-        return { skipped: "fresh-redux" };
+        if (list.length > 0) {
+          return { skipped: "fresh-cache" };
+        }
       }
 
-      // ✅ ONLY CACHE FIRST PAGE
+      // 2. Session cache (first load only)
       if (!hasFetched && !opts.force && page === 1) {
         const cached = getSessionTTL(CACHE_KEY);
         if (Array.isArray(cached)) {
@@ -60,10 +61,21 @@ export default function useOrders() {
               params: opts,
             },
           });
+
+          // 🔥 background refresh (silent)
+          dispatch(
+            loadOrders({
+              page: 1,
+              per_page: 10,
+              silent: true,
+            }),
+          );
+
           return { skipped: "session-cache" };
         }
       }
 
+      // ✅ 3. API call
       const action = await dispatch(
         loadOrders({
           page,
@@ -72,13 +84,14 @@ export default function useOrders() {
         }),
       );
 
+      // ✅ 4. Save cache
       if (action?.payload?.list && page === 1) {
         setSessionTTL(CACHE_KEY, action.payload.list, CACHE_TTL);
       }
 
       return action;
     },
-    [dispatch, hasFetched, isFresh],
+    [dispatch, hasFetched, isFresh, list],
   );
 
   return {
