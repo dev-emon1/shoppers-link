@@ -537,7 +537,7 @@ export default function OrderDetailsPane({ order }) {
                     )
                   ) : (
                     <button
-                      onClick={() => (window.location.href = "/support")}
+                      onClick={() => (window.location.href = "/help/contact")}
                       className="px-3 py-1 border rounded-md text-xs hover:bg-gray-100 transition"
                     >
                       Contact Support
