@@ -66,14 +66,13 @@ const AllOrders = () => {
     try {
       setLoading(true);
 
-      const res = await API.get(`/order/list?page=${page}&per_page=${perPage}`);
+      const res = await API.get(
+        `/order/list?page=${page}&per_page=${perPage}&search=${searchTerm}&status=${filterStatus}`,
+      );
 
       const payload = res.data;
 
-      const fetchedOrders = payload.data || [];
-
-      setOrders(fetchedOrders);
-
+      setOrders(payload.data || []);
       setTotalItems(payload.total || 0);
       setTotalPages(payload.last_page || 1);
     } catch (err) {
@@ -81,37 +80,15 @@ const AllOrders = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage]);
+  }, [page, perPage, searchTerm, filterStatus]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // =============================
-  // Client Filter
-  // =============================
-
-  const filteredOrders = orders.filter((order) => {
-    const billing = getBilling(order);
-
-    const searchLower = searchTerm.toLowerCase();
-
-    // const matchesSearch =
-    //   order.unid?.toLowerCase().includes(searchLower) ||
-    //   billing.fullName?.toLowerCase().includes(searchLower) ||
-    //   billing.phone?.toLowerCase().includes(searchLower);
-
-    const matchesSearch =
-      order.unid?.toLowerCase().includes(searchLower) ||
-      customer.name?.toLowerCase().includes(searchLower) ||
-      customer.phone?.toLowerCase().includes(searchLower);
-
-    const matchesStatus =
-      !filterStatus ||
-      order.status?.toLowerCase() === filterStatus.toLowerCase();
-
-    return matchesSearch && matchesStatus;
-  });
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, filterStatus, perPage]);
 
   // =============================
   // Table Columns
@@ -289,7 +266,7 @@ const AllOrders = () => {
       <div className="bg-white rounded-xl shadow border overflow-hidden">
         <Table
           columns={columns}
-          data={filteredOrders}
+          data={orders}
           loading={loading}
           enableCheckbox={false}
           emptyMessage="No orders found"

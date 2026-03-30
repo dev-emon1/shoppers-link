@@ -115,19 +115,48 @@ const OrderDetailsModal = ({ order, onClose }) => {
               </h3>
 
               <div className="text-sm text-gray-700">
-                {billing.line1 && <p>{billing.line1}</p>}
+                {(() => {
+                  const addr =
+                    order?.vendor_orders?.[0]?.order?.shipping_address;
 
-                {(billing.area || billing.city) && (
-                  <p>
-                    {billing.area && `${billing.area}, `}
-                    {billing.city}
-                    {billing.postalCode && ` - ${billing.postalCode}`}
-                  </p>
-                )}
+                  // ✅ DB address first priority
+                  if (addr) {
+                    return (
+                      <>
+                        {addr.address_line1 && <p>{addr.address_line1}</p>}
 
-                {!billing.line1 && !billing.city && (
-                  <p className="text-gray-500">— No address provided —</p>
-                )}
+                        {(addr.area || addr.city) && (
+                          <p>
+                            {addr.area && `${addr.area}, `}
+                            {addr.city}
+                            {addr.postal_code && ` - ${addr.postal_code}`}
+                          </p>
+                        )}
+                      </>
+                    );
+                  }
+
+                  // ✅ fallback: a_s_a billing
+                  if (billing.line1) {
+                    return (
+                      <>
+                        <p>{billing.line1}</p>
+                        {(billing.area || billing.city) && (
+                          <p>
+                            {billing.area && `${billing.area}, `}
+                            {billing.city}
+                            {billing.postalCode && ` - ${billing.postalCode}`}
+                          </p>
+                        )}
+                      </>
+                    );
+                  }
+
+                  // ❌ fallback empty
+                  return (
+                    <p className="text-gray-500">— No address provided —</p>
+                  );
+                })()}
               </div>
 
               <p className="mt-2 text-xs text-gray-500">

@@ -1,73 +1,97 @@
 import React from "react";
 import { User, MapPin, X } from "lucide-react";
-import { format } from "date-fns";
 
 const OrderDetailsModal = ({ order, onClose }) => {
   if (!order) return null;
+
   const {
-    parsedData,
-    items,
+    items = [],
     unid,
-    subtotal,
-    vendor_earning,
-    order: orderInfo,
+    subtotal = 0,
+    shipping_charge = 0,
+    vendor_earning = 0,
+    order: orderInfo = {},
+    parsedData = {},
   } = order;
+
+  // 🔥 Safe parsed totals
+  const parsedTotals = parsedData?.totals || {};
+  const parsedBilling = parsedData?.billing || {};
+
+  // ✅ FINAL VALUES (priority: parsed → API)
+  const finalShipping = parsedTotals?.shipping ?? Number(shipping_charge) ?? 0;
+
+  const finalSubtotal = parsedTotals?.subtotal ?? Number(subtotal) ?? 0;
+
+  const finalGrandTotal =
+    parsedTotals?.grandTotal ?? Number(subtotal) + Number(shipping_charge);
+
+  const finalName = parsedBilling?.fullName || orderInfo?.customer_name || "—";
+
+  const finalPhone = parsedBilling?.phone || orderInfo?.customer_number || "—";
+
+  const shippingAddress = orderInfo?.shipping_address;
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
-      {/* Scrollable Modal Container */}
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh]">
-        {/* Sticky Header */}
-        <div className="bg-white border-b border-gray-200 px-2 py-2 flex justify-between items-center z-10 rounded-t-2xl">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-2 py-2 flex justify-between items-center">
           <h2 className="text-lg font-bold text-gray-800">
             Order Details - {unid}
           </h2>
+
           <button
             onClick={onClose}
-            className="text-main hover:text-mainHover transition font-light fixed left-auto right-4 top-8"
-            aria-label="Close modal"
+            className="text-main hover:text-mainHover transition"
           >
             <X size={24} />
           </button>
         </div>
 
         <div className="px-2 md:p-2 space-y-4">
-          {/* Customer & Shipping Info */}
+          {/* Customer & Shipping */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Customer Info */}
-            <div className="bg-gray-50 rounded-xl p-2">
-              <h3 className="font-bold text-md mb-4 flex items-center gap-2 text-gray-800">
-                <User className="w-5 h-5" /> Customer Information
+            {/* Customer */}
+            <div className="bg-gray-50 rounded-xl p-3">
+              <h3 className="font-bold text-md mb-3 flex items-center gap-2">
+                <User size={18} /> Customer Information
               </h3>
-              <div className="space-y-2 text-gray-700 text-sm">
+
+              <div className="space-y-2 text-sm">
                 <p className="flex justify-between">
-                  <span className="font-medium">Name:</span>
-                  <span>{parsedData?.billing?.fullName || "—"}</span>
+                  <span>Name:</span>
+                  <span>{finalName}</span>
                 </p>
+
                 <p className="flex justify-between">
-                  <span className="font-medium">Phone:</span>
-                  <span>{parsedData?.billing?.phone || "—"}</span>
+                  <span>Phone:</span>
+                  <span>{finalPhone}</span>
                 </p>
+
                 <p className="flex justify-between">
-                  <span className="font-medium">Email:</span>
-                  <span>{parsedData?.billing?.email || "—"}</span>
+                  <span>Payment:</span>
+                  <span className="uppercase">
+                    {orderInfo?.payment_method || "COD"}
+                  </span>
                 </p>
               </div>
             </div>
 
-            {/* Shipping Address */}
-            <div className="bg-gray-50 rounded-xl p-2">
-              <h3 className="font-bold text-md mb-4 flex items-center gap-2 text-gray-800">
-                <MapPin className="w-5 h-5" /> Shipping Address
+            {/* Shipping */}
+            <div className="bg-gray-50 rounded-xl p-3">
+              <h3 className="font-bold text-md mb-3 flex items-center gap-2">
+                <MapPin size={18} /> Shipping Address
               </h3>
-              <p className="text-gray-700 leading-relaxed text-sm">
+
+              <p className="text-sm text-gray-700">
                 {[
-                  parsedData?.billing?.line1,
-                  parsedData?.billing?.area,
-                  parsedData?.billing?.city,
-                  parsedData?.billing?.state,
-                  parsedData?.billing?.postalCode,
-                  parsedData?.billing?.country,
+                  parsedBilling?.line1 || shippingAddress?.address_line1,
+                  parsedBilling?.area || shippingAddress?.area,
+                  parsedBilling?.city || shippingAddress?.city,
+                  parsedBilling?.state || shippingAddress?.state,
+                  parsedBilling?.postalCode || shippingAddress?.postal_code,
+                  parsedBilling?.country || shippingAddress?.country,
                 ]
                   .filter(Boolean)
                   .join(", ") || "—"}
@@ -75,72 +99,73 @@ const OrderDetailsModal = ({ order, onClose }) => {
             </div>
           </div>
 
-          {/* Order Summary */}
-          <div className="px-2">
-            <h3 className="font-bold text-md mb-2 text-gray-800">
-              Order Summary
-            </h3>
+          {/* Summary */}
+          <div>
+            <h3 className="font-bold text-md mb-2">Order Summary</h3>
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl p-3 text-center shadow">
-                <p className="text-gray-600 text-sm">Subtotal</p>
-                <p className="text-xl font-bold text-gray-800 mt-1">
-                  ৳ {Number(subtotal).toLocaleString()}
+              <div className="bg-white p-3 rounded shadow text-center">
+                <p className="text-sm text-gray-500">Subtotal</p>
+                <p className="font-bold text-lg">
+                  ৳ {Number(finalSubtotal).toLocaleString()}
                 </p>
               </div>
-              <div className="bg-white rounded-xl p-3 text-center shadow">
-                <p className="text-gray-600 text-sm">Shipping</p>
-                <p className="text-xl font-bold text-gray-800 mt-1">
-                  ৳ {Number(parsedData?.totals.shipping || 0).toLocaleString()}
+
+              <div className="bg-white p-3 rounded shadow text-center">
+                <p className="text-sm text-gray-500">Shipping</p>
+                <p className="font-bold text-lg">
+                  ৳ {Number(finalShipping).toLocaleString()}
                 </p>
               </div>
-              <div className="bg-white rounded-xl p-3 text-center shadow">
-                <p className="text-gray-600 text-sm">Your Earning</p>
-                <p className="text-xl font-bold text-green-600 mt-1">
-                  ৳ {Number(parsedData?.totals.subtotal).toLocaleString()}
+
+              <div className="bg-white p-3 rounded shadow text-center">
+                <p className="text-sm text-gray-500">Your Earning</p>
+                <p className="font-bold text-lg text-green-600">
+                  ৳ {Number(vendor_earning).toLocaleString()}
                 </p>
               </div>
-              <div className="bg-white rounded-xl p-4 text-center shadow">
-                <p className="text-gray-600 text-sm">Grand Total</p>
-                <p className="text-xl font-bold text-blue-600 mt-1">
-                  ৳ {Number(parsedData?.totals.grandTotal).toLocaleString()}
+
+              <div className="bg-white p-3 rounded shadow text-center">
+                <p className="text-sm text-gray-500">Grand Total</p>
+                <p className="font-bold text-lg text-blue-600">
+                  ৳ {Number(finalGrandTotal).toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Ordered Items */}
-          <div className="px-2">
-            <h3 className="font-bold text-md mb-2 text-gray-800">
-              Ordered Items
-            </h3>
+          {/* Items */}
+          <div>
+            <h3 className="font-bold text-md mb-2">Ordered Items</h3>
+
             <div className="space-y-4">
-              {items.map((item, idx) => (
+              {items.map((item) => (
                 <div
-                  key={idx}
-                  className="bg-gray-50 rounded-xl p-2 flex flex-row gap-6 border justify-between items-center"
+                  key={item.id}
+                  className="bg-gray-50 rounded-xl p-3 flex gap-4 items-center border"
                 >
-                  <div>
-                    <img
-                      src={
-                        item.image?.image_path
-                          ? `${import.meta.env.VITE_IMAGE_URL}/${item.image.image_path}`
-                          : "/placeholder.png"
-                      }
-                      alt={item.product.name}
-                      className="w-20 h-20  object-cover rounded-lg shadow-sm border"
-                    />
-                  </div>
-                  <div className="flex space-y-2 justify-between w-full items-center md:flex-row flex-col">
+                  <img
+                    src={
+                      item.image?.image_path
+                        ? `${import.meta.env.VITE_IMAGE_URL}/${item.image.image_path}`
+                        : "/placeholder.png"
+                    }
+                    alt={item.product?.name}
+                    className="w-20 h-20 object-cover rounded border"
+                  />
+
+                  <div className="flex justify-between w-full flex-col md:flex-row gap-3">
                     <div>
-                      <h4 className="font-bold text-sm text-gray-900">
-                        {item.product.name}
+                      <h4 className="font-semibold text-sm">
+                        {item.product?.name}
                       </h4>
-                      <p className="text-xs text-gray-600">
-                        SKU: {item.variant.sku}
+
+                      <p className="text-xs text-gray-500">
+                        SKU: {item.variant?.sku || "—"}
                       </p>
 
-                      {item.variant.attributes && (
-                        <p className="text-xs text-gray-500 bg-white rounded-full inline-block">
+                      {item.variant?.attributes && (
+                        <p className="text-xs text-gray-500">
                           {Object.values(
                             JSON.parse(item.variant.attributes),
                           ).join(" • ")}
@@ -148,14 +173,15 @@ const OrderDetailsModal = ({ order, onClose }) => {
                       )}
                     </div>
 
-                    <div className="flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
-                      <div className="text-xl font-bold text-blue-600">
+                    <div className="text-right">
+                      <p className="font-bold text-blue-600">
                         ৳ {Number(item.total).toLocaleString()}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Qty: <span className="font-bold">{item.quantity}</span>{" "}
-                        × ৳ {Number(item.price).toLocaleString()}
-                      </div>
+                      </p>
+
+                      <p className="text-xs text-gray-500">
+                        Qty: {item.quantity} × ৳{" "}
+                        {Number(item.price).toLocaleString()}
+                      </p>
                     </div>
                   </div>
                 </div>
