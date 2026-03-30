@@ -115,6 +115,7 @@ function extractTimeline(order, entity = order) {
   }
   return map;
 }
+
 export default function OrderDetailsPane({ order }) {
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);

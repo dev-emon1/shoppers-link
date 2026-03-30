@@ -1,107 +1,97 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
-import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "@/core/api/axiosClient";
 import { useDispatch } from "react-redux";
 import { addNewOrder, loadOrders } from "@/modules/user/store/orderReducer";
 
 export default function CheckoutSuccessPage() {
   const sp = useSearchParams();
-  const ref = sp.get("ref");
   const orderId = sp.get("order_id");
 
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const [orders, setOrders] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const hasProcessedRef = useRef(false);
-
-  const fetchOrder = async () => {
-    if (!orderId || hasProcessedRef.current) return;
-
-    try {
-      const { data } = await api.get(`/customer/order/${orderId}`);
-      const order = data;
-
-      setOrders([order]);
-      hasProcessedRef.current = true;
-
-      // ✅ ONLY THIS (no force fetch here)
-      dispatch(addNewOrder(order));
-    } catch (err) {
-      console.error("Order fetch failed:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [order, setOrder] = useState(null);
+  const hasDispatchedRef = useRef(false);
 
   useEffect(() => {
+    if (!orderId) return;
+
+    let mounted = true;
+
+    const fetchOrder = async () => {
+      let attempts = 0;
+
+      while (attempts < 5) {
+        try {
+          const res = await api.get(`/customer/order/${orderId}`);
+          const data = res?.data?.data || res?.data;
+
+          if (data?.unid && mounted) {
+            setOrder(data);
+
+            if (!hasDispatchedRef.current) {
+              hasDispatchedRef.current = true;
+
+              // ✅ instant UI
+              dispatch(addNewOrder(data));
+
+              // 🔥 SMART BACKEND SYNC (no vanish)
+              let retry = 0;
+
+              const sync = async () => {
+                while (retry < 5) {
+                  const action = await dispatch(
+                    loadOrders({ page: 1, silent: true }),
+                  );
+
+                  const list = action.payload?.list || [];
+
+                  const found = list.some((o) => o.unid === data.unid);
+
+                  if (found) break;
+
+                  await new Promise((r) => setTimeout(r, 1500));
+                  retry++;
+                }
+              };
+
+              sync();
+            }
+
+            break;
+          }
+        } catch {}
+
+        await new Promise((r) => setTimeout(r, 800));
+        attempts++;
+      }
+    };
+
     fetchOrder();
-  }, [orderId]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [orderId, dispatch]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50">
-      <div className="bg-white p-8 rounded-2xl shadow-sm max-w-lg w-full text-center border border-border">
-        <CheckCircle2 className="text-emerald-500 mx-auto mb-5" size={60} />
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <CheckCircle2 size={60} className="mx-auto text-green-500" />
+        <h1 className="text-xl mt-4">Order placed successfully</h1>
 
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-          Order placed successfully!
-        </h1>
+        {order && <p className="mt-2">Order ID: {order.unid}</p>}
 
-        <p className="text-sm text-gray-600 mb-4">
-          Thank you for shopping with{" "}
-          <span className="font-medium">ShoppersLink</span>.
-        </p>
-
-        {/* REF */}
-        {ref && (
-          <div className="bg-gray-100 rounded-lg py-3 px-4 mb-5">
-            <p className="text-xs text-gray-500">Checkout Reference</p>
-            <p className="text-lg font-semibold tracking-wide">{ref}</p>
-          </div>
-        )}
-
-        {/* ORDER INFO */}
-        {!loading && orders && (
-          <div className="text-sm text-gray-700 mb-4">
-            Your order ID:{" "}
-            <span className="font-semibold">{orders[0]?.unid}</span>
-          </div>
-        )}
-
-        {/* LOADING */}
-        {loading && (
-          <p className="text-xs text-gray-500 mb-4">Fetching your order...</p>
-        )}
-
-        {/* ACTIONS */}
-        <div className="flex flex-col gap-3 mt-6">
-          {/* 🔥 ONLY HERE force fetch */}
-          <button
-            onClick={async () => {
-              await dispatch(
-                loadOrders({
-                  page: 1,
-                  force: true,
-                }),
-              );
-
-              router.push("/user/dashboard/orders");
-            }}
-            className="bg-main text-white py-2 rounded-lg hover:bg-main/90"
-          >
-            View Orders
-          </button>
-
-          <Link href="/" className="text-main underline text-sm">
-            Continue Shopping →
-          </Link>
-        </div>
+        <button
+          onClick={() => router.push("/user/dashboard/orders")}
+          className="mt-4 px-4 py-2 bg-main text-white rounded"
+        >
+          View Orders
+        </button>
       </div>
     </div>
   );
