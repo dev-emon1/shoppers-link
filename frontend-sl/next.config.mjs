@@ -7,16 +7,22 @@ const nextConfig = {
   images: {
     domains: [
       "localhost",
-      "backend.bonikbook.com",
       "127.0.0.1",
+      "backend.bonikbook.com",
       "randomuser.me",
     ], // Added randomuser.me
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "localhost",
-        port: "8000",
-        pathname: "/**",
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/storage/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
+        pathname: '/storage/**',
       },
       {
         protocol: "https",

@@ -21,10 +21,10 @@ const Pagination = ({
             Showing <span className="text-orange-600 font-bold">{from}</span> -{" "}
             <span className="text-orange-600 font-bold">{to}</span> of{" "}
             <span className="text-orange-600 font-bold">{totalItems}</span>{" "}
-            products
+            orders
           </>
         ) : (
-          <span className="text-red-600">No products found</span>
+          <span className="text-red-600">No orders found</span>
         )}
       </div>
 
