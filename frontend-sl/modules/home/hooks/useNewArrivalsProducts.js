@@ -27,21 +27,14 @@ export default function useNewArrivalsProducts({ mode = "home" } = {}) {
      Initial fetch logic
   --------------------------- */
   useEffect(() => {
-    // HOME MODE → cache based, page=1 only
     if (mode === "home") {
-      if (loading) return;
-
       if (!isCacheValid(lastFetched, ttl)) {
         dispatch(fetchNewArrivals({ page: 1 }));
       }
-      return;
     }
 
-    // LISTING MODE → first load only if empty
-    if (mode === "listing") {
-      if (data.length === 0) {
-        dispatch(fetchNewArrivals({ page: 1 }));
-      }
+    if (mode === "listing" && data.length === 0) {
+      dispatch(fetchNewArrivals({ page: 1 }));
     }
   }, [dispatch, mode, lastFetched]);
 

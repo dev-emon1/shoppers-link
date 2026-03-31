@@ -60,9 +60,9 @@ export default function Home() {
         </LazySection>
 
         {/* New arrivals section */}
-        <LazySection>
-          <NewArrivals />
-        </LazySection>
+        {/* <LazySection>
+        </LazySection> */}
+        <NewArrivals />
 
         {/* Top-selling products section */}
         <LazySection>
