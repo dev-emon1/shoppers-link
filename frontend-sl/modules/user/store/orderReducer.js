@@ -3,9 +3,29 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as orderService from "@/modules/user/services/orderService";
 import { submitReviewApi } from "@/modules/user/services/reviewService";
 
-/* helpers */
+/* ----------------------------------
+   HELPERS
+---------------------------------- */
 const nowTS = () => Math.floor(Date.now() / 1000);
 
+/* 🔥 SAFE MERGE (NO DUPLICATE + SORT) */
+const mergeOrders = (existing = [], incoming = []) => {
+  const map = new Map();
+
+  [...existing, ...incoming].forEach((o) => {
+    const key = o.unid ?? o.id;
+    if (!key) return;
+    map.set(key, o);
+  });
+
+  return Array.from(map.values()).sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+  );
+};
+
+/* ----------------------------------
+   ASYNC ACTIONS
+---------------------------------- */
 export const loadOrders = createAsyncThunk(
   "userOrders/loadOrders",
   async (params = { page: 1, per_page: 10 }, { rejectWithValue }) => {
@@ -17,32 +37,22 @@ export const loadOrders = createAsyncThunk(
 
       if (!result) {
         list = [];
-        meta = null;
       } else if (Array.isArray(result)) {
         list = result;
       } else if (result.data && Array.isArray(result.data)) {
         list = result.data;
         meta = result.meta ?? null;
       } else if (result.data && Array.isArray(result.data.data)) {
-        // double wrapped case (defensive)
         list = result.data.data;
         meta = result.data.meta ?? null;
-      } else if (result.data && Array.isArray(result.data)) {
-        list = result.data;
-        meta = result.meta ?? null;
-      } else if (result.data === undefined && Array.isArray(result)) {
-        list = result;
       } else {
-        // look for any array value inside result
         const arr = Object.values(result).find((v) => Array.isArray(v));
-        if (arr) list = arr;
-        else list = [];
+        list = arr || [];
         meta = result.meta ?? null;
       }
 
       return { list, meta, params };
     } catch (err) {
-      // ensure we return a serializable rejection value
       return rejectWithValue(
         err?.response?.data ?? err?.message ?? String(err),
       );
@@ -77,7 +87,9 @@ export const submitItemReview = createAsyncThunk(
   },
 );
 
-/* initial state */
+/* ----------------------------------
+   INITIAL STATE
+---------------------------------- */
 const initialState = {
   list: {
     data: [],
@@ -94,33 +106,49 @@ const initialState = {
   },
 };
 
+/* ----------------------------------
+   SLICE
+---------------------------------- */
 const slice = createSlice({
   name: "userOrders",
   initialState,
+
   reducers: {
-    // seed details map from list (useful after initial load)
     seedDetailsFromList(state) {
       if (!Array.isArray(state.list.data)) return;
+
       state.list.data.forEach((o) => {
         const key = o.unid ?? o.id;
         if (!key) return;
-        state.detailsByUnid[key] = { data: o, lastSyncedAt: nowTS() };
+
+        state.detailsByUnid[key] = {
+          data: o,
+          lastSyncedAt: nowTS(),
+        };
       });
     },
 
     updateOrderLocally(state, action) {
       const { orderUnidOrId, patch } = action.payload;
+
       const idx = state.list.data.findIndex(
         (x) => x.unid === orderUnidOrId || x.id === orderUnidOrId,
       );
-      if (idx !== -1)
-        state.list.data[idx] = { ...state.list.data[idx], ...patch };
+
+      if (idx !== -1) {
+        state.list.data[idx] = {
+          ...state.list.data[idx],
+          ...patch,
+        };
+      }
 
       const key = orderUnidOrId;
+
       if (!state.detailsByUnid[key]) {
         const found = state.list.data.find(
           (x) => x.unid === orderUnidOrId || x.id === orderUnidOrId,
         );
+
         if (found) {
           state.detailsByUnid[key] = {
             data: { ...found, ...patch },
@@ -141,6 +169,7 @@ const slice = createSlice({
       state.detailsByUnid = {};
       state.actions = initialState.actions;
     },
+
     addNewOrder(state, action) {
       const order = action.payload;
 
@@ -149,17 +178,14 @@ const slice = createSlice({
       );
 
       if (!exists) {
-        state.list.data.unshift(order); // 🔥 newest top e
+        state.list.data.unshift(order);
       }
 
-      const key = order.unid ?? order.id;
-
-      state.detailsByUnid[key] = {
-        data: order,
-        lastSyncedAt: Math.floor(Date.now() / 1000),
-      };
+      // 🔥 allow immediate refetch
+      state.list.lastFetchedAt = 0;
     },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(loadOrders.pending, (s, action) => {
@@ -168,34 +194,51 @@ const slice = createSlice({
         }
         s.list.error = null;
       })
+
       .addCase(loadOrders.fulfilled, (s, action) => {
         s.list.loading = false;
+
         const { list, meta, params } = action.payload;
         const page = params?.page ?? 1;
 
         if (page > 1) {
-          const existingUnids = new Set(
+          const existingIds = new Set(
             (s.list.data || []).map((x) => x.unid ?? x.id),
           );
+
           const newItems = (list || []).filter(
-            (it) => !existingUnids.has(it.unid ?? it.id),
+            (it) => !existingIds.has(it.unid ?? it.id),
           );
-          s.list.data = [...(s.list.data || []), ...newItems];
+
+          s.list.data = [...s.list.data, ...newItems];
         } else {
-          s.list.data = list || [];
+          // 🔥 ENTERPRISE FIX: KEEP OPTIMISTIC DATA
+          const incomingIds = new Set((list || []).map((o) => o.unid));
+
+          const optimistic = (s.list.data || []).filter(
+            (o) => !incomingIds.has(o.unid),
+          );
+
+          s.list.data = [...optimistic, ...(list || [])];
         }
 
         s.list.meta = meta ?? s.list.meta;
-        s.list.lastFetchedAt = nowTS();
+        s.list.lastFetchedAt = Math.floor(Date.now() / 1000);
         s.list.hasFetched = true;
         s.list.params = params ?? s.list.params;
 
-        // seed details map for immediate detail rendering
+        // sync details
         (s.list.data || []).forEach((o) => {
           const key = o.unid ?? o.id;
-          if (key) s.detailsByUnid[key] = { data: o, lastSyncedAt: nowTS() };
+          if (key) {
+            s.detailsByUnid[key] = {
+              data: o,
+              lastSyncedAt: Math.floor(Date.now() / 1000),
+            };
+          }
         });
       })
+
       .addCase(loadOrders.rejected, (s, action) => {
         s.list.loading = false;
         s.list.hasFetched = true;
@@ -205,103 +248,82 @@ const slice = createSlice({
     builder
       .addCase(cancelOrder.pending, (s, action) => {
         const orderId = action.meta.arg.orderId;
+
         s.actions.cancelling[orderId] = true;
+
         const prev = s.detailsByUnid[orderId]?.data?.status ?? null;
-        if (!s.detailsByUnid[orderId])
-          s.detailsByUnid[orderId] = { data: null, lastSyncedAt: null };
+
+        if (!s.detailsByUnid[orderId]) {
+          s.detailsByUnid[orderId] = { data: null };
+        }
+
         s.detailsByUnid[orderId].prevStatus = prev;
-        if (s.detailsByUnid[orderId]?.data)
+
+        if (s.detailsByUnid[orderId]?.data) {
           s.detailsByUnid[orderId].data.status = "cancelled";
+        }
+
         const idx = s.list.data.findIndex(
           (x) => x.unid === orderId || x.id === orderId,
         );
-        if (idx !== -1) s.list.data[idx].status = "cancelled";
+
+        if (idx !== -1) {
+          s.list.data[idx].status = "cancelled";
+        }
       })
+
       .addCase(cancelOrder.fulfilled, (s, action) => {
         const orderId = action.payload.orderId;
         s.actions.cancelling[orderId] = false;
-        if (s.detailsByUnid[orderId])
+
+        if (s.detailsByUnid[orderId]) {
           s.detailsByUnid[orderId].lastSyncedAt = nowTS();
+        }
       })
+
       .addCase(cancelOrder.rejected, (s, action) => {
         const orderId = action.meta.arg.orderId;
+
         s.actions.cancelling[orderId] = false;
+
         const prev = s.detailsByUnid[orderId]?.prevStatus ?? null;
-        if (prev && s.detailsByUnid[orderId]?.data)
+
+        if (prev && s.detailsByUnid[orderId]?.data) {
           s.detailsByUnid[orderId].data.status = prev;
+        }
+
         const idx = s.list.data.findIndex(
           (x) => x.unid === orderId || x.id === orderId,
         );
-        if (idx !== -1 && prev) s.list.data[idx].status = prev;
-        s.detailsByUnid[orderId] = s.detailsByUnid[orderId] ?? {};
-        s.detailsByUnid[orderId].error = action.payload ?? action.error;
-      }) /* REVIEW SUBMIT */
-      .addCase(submitItemReview.pending, (state, action) => {
-        const { orderUnid, vendorOrderId, itemId } = action.meta.arg;
-        const order = state.detailsByUnid[orderUnid]?.data;
-        if (!order) return;
 
-        order.vendor_orders.forEach((vo) => {
-          if (vo.id !== vendorOrderId) return;
-          vo.items.forEach((it) => {
-            if (it.id === itemId) {
-              it.review = { submitting: true };
-            }
-          });
-        });
-      })
-
-      .addCase(submitItemReview.fulfilled, (state, action) => {
-        const { orderUnid, vendorOrderId, itemId, review } = action.payload;
-        const order = state.detailsByUnid[orderUnid]?.data;
-        if (!order) return;
-
-        order.vendor_orders.forEach((vo) => {
-          if (vo.id !== vendorOrderId) return;
-          vo.items.forEach((it) => {
-            if (it.id === itemId) {
-              it.review = {
-                ...review,
-                submitted: true,
-              };
-            }
-          });
-        });
-      })
-
-      .addCase(submitItemReview.rejected, (state, action) => {
-        const { orderUnid, vendorOrderId, itemId } = action.meta.arg;
-        const order = state.detailsByUnid[orderUnid]?.data;
-        if (!order) return;
-
-        order.vendor_orders.forEach((vo) => {
-          if (vo.id !== vendorOrderId) return;
-          vo.items.forEach((it) => {
-            if (it.id === itemId) {
-              it.review = {
-                error: action.payload || "Failed",
-              };
-            }
-          });
-        });
+        if (idx !== -1 && prev) {
+          s.list.data[idx].status = prev;
+        }
       });
   },
 });
 
+/* ----------------------------------
+   EXPORTS
+---------------------------------- */
 export const {
   seedDetailsFromList,
   updateOrderLocally,
   clearOrdersState,
   addNewOrder,
 } = slice.actions;
+
 export default slice.reducer;
 
-/* selectors - use these from components/hooks */
-export const selectOrdersListState = (state) => state.userOrders.list; // returns entire list object
+/* SELECTORS */
 export const selectOrdersData = (state) => state.userOrders.list.data ?? [];
+
 export const selectOrdersLoading = (state) => !!state.userOrders.list.loading;
+
 export const selectOrdersMeta = (state) => state.userOrders.list.meta;
+
 export const selectOrderDetailsByUnid = (state, unid) =>
   state.userOrders.detailsByUnid?.[unid] ?? null;
+
 export const selectIsCancelling = (state, orderId) =>
   !!state.userOrders.actions.cancelling[orderId];

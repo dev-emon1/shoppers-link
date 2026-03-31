@@ -25,7 +25,13 @@ const normalizeList = (resp) => {
 };
 
 export const fetchOrdersApi = async (params = { page: 1, per_page: 10 }) => {
-  const resp = await api.get("/customer/order/list", { params });
+  const resp = await api.get("/customer/order/list", {
+    params: {
+      ...params,
+      _t: Date.now(), // 🔥 cache bust
+    },
+  });
+  console.log("Fetching new orders:", resp.data.data);
   return normalizeList(resp);
 };
 

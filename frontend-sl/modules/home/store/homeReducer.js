@@ -18,7 +18,7 @@ const BANNERS_TTL = 60 * 60 * 1000; // 1 hour
 const FEATURED_TTL = 10 * 60 * 1000;
 const TOP_RATING_TTL = 10 * 60 * 1000;
 const TOP_SELLING_TTL = 5 * 60 * 1000;
-const NEW_ARRIVALS_TTL = 3 * 60 * 1000;
+const NEW_ARRIVALS_TTL = 60 * 1000;
 const SHOP_BY_BRAND_TTL = 60 * 60 * 1000;
 
 /* ------------------------------------------------------------
@@ -148,11 +148,13 @@ export const fetchTopRatingProducts = createAsyncThunk(
 /* ---------- NEW ARRIVALS ---------- */
 export const fetchNewArrivals = createAsyncThunk(
   "home/fetchNewArrivals",
-  async ({ page = 1 }, { getState, rejectWithValue }) => {
+  async ({ page = 1, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState().home.newArrivals;
 
+      // 🔥 CACHE BYPASS
       if (
+        !force &&
         page === 1 &&
         state.data.length > 0 &&
         state.lastFetched &&
@@ -167,16 +169,7 @@ export const fetchNewArrivals = createAsyncThunk(
         };
       }
 
-      if (page === 1) {
-        const cached = readProductCache("newArrivals");
-        if (cached?.data?.length) return cached;
-      }
-
       const res = await fetchNewArrivalsApi(page);
-
-      if (page === 1) {
-        writeProductCache("newArrivals", res);
-      }
 
       return res;
     } catch {

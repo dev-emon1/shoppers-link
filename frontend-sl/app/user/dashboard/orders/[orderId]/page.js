@@ -1,73 +1,54 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import useOrderFromList from "@/modules/user/hooks/useOrderFromList";
 import OrderDetailsPane from "@/modules/user/dashboard/order/OrderDetailsPane";
+import useSmartPolling from "@/lib/hooks/useSmartPolling";
 
 export default function OrderDetailRoutePage() {
   const { orderId } = useParams();
   const router = useRouter();
 
-  const { order: storeOrder, getOrderWithFallback } = useOrderFromList(orderId);
-
-  const [hydratedOrder, setHydratedOrder] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const finalOrder = storeOrder ?? hydratedOrder;
+  const { order, getOrderWithFallback, loading } = useOrderFromList(orderId);
 
   /* ----------------------------------
-     1️⃣ SessionStorage hydration
+     INITIAL FETCH (ALWAYS)
   ---------------------------------- */
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("selectedOrder");
-      if (!raw) return;
-
-      const parsed = JSON.parse(raw);
-      const key = parsed?.unid ?? parsed?.id;
-
-      if (String(key) === String(orderId)) {
-        setHydratedOrder(parsed);
-      }
-    } catch {}
-  }, [orderId]);
+    getOrderWithFallback({
+      fallbackFetch: true,
+      force: true,
+    });
+  }, [orderId, getOrderWithFallback]);
 
   /* ----------------------------------
-     2️⃣ Fallback fetch (only if missing)
+     ACTIVE CHECK
   ---------------------------------- */
-  useEffect(() => {
-    if (storeOrder || hydratedOrder) return;
-
-    setLoading(true);
-    getOrderWithFallback({ fallbackFetch: true })
-      .then((o) => o && setHydratedOrder(o))
-      .finally(() => setLoading(false));
-  }, [storeOrder, hydratedOrder, getOrderWithFallback]);
+  const isActive = useMemo(() => {
+    if (!order) return false;
+    const s = (order.status ?? "").toLowerCase();
+    return !["delivered", "cancelled"].includes(s);
+  }, [order]);
 
   /* ----------------------------------
-     3️⃣ Phase–4: Live revalidation
+     SMART POLLING
   ---------------------------------- */
-  useEffect(() => {
-    if (!finalOrder) return;
-
-    const status = (finalOrder.status ?? "").toLowerCase();
-    if (["delivered", "cancelled"].includes(status)) return;
-
-    const interval = setInterval(() => {
+  useSmartPolling({
+    enabled: isActive,
+    callback: () =>
       getOrderWithFallback({
         fallbackFetch: true,
         force: true,
-      });
-    }, 15000);
-
-    return () => clearInterval(interval);
-  }, [finalOrder, getOrderWithFallback]);
+      }),
+    fastInterval: 5000,
+    slowInterval: 20000,
+  });
 
   /* ----------------------------------
-     UI
+     UI STATES
   ---------------------------------- */
-  if (loading && !finalOrder) {
+  if (loading && !order) {
     return (
       <div className="p-4">
         <button
@@ -81,7 +62,7 @@ export default function OrderDetailRoutePage() {
     );
   }
 
-  if (!finalOrder) return null;
+  if (!order) return null;
 
   return (
     <div className="px-0 lg:px-4">
@@ -92,7 +73,7 @@ export default function OrderDetailRoutePage() {
         ← Back
       </button>
 
-      <OrderDetailsPane order={finalOrder} />
+      <OrderDetailsPane order={order} />
     </div>
   );
 }

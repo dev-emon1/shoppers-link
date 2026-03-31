@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   loadOrders,
@@ -8,12 +8,6 @@ import {
   selectOrdersLoading,
   selectOrdersMeta,
 } from "@/modules/user/store/orderReducer";
-import { getSessionTTL, setSessionTTL } from "@/lib/cache/sessionTTL";
-
-/* ---------------------------------- */
-const CACHE_KEY = "orders_list";
-const CACHE_TTL = 120;
-/* ---------------------------------- */
 
 export default function useOrders() {
   const dispatch = useDispatch();
@@ -22,76 +16,20 @@ export default function useOrders() {
   const loading = useSelector(selectOrdersLoading);
   const meta = useSelector(selectOrdersMeta);
 
-  const { lastFetchedAt, hasFetched } = useSelector(
-    (state) => state.userOrders.list,
-  );
-
-  /* ----------------------------------
-     TTL CHECK
-  ---------------------------------- */
-  const isFresh = useMemo(() => {
-    if (!lastFetchedAt) return false;
-    const now = Math.floor(Date.now() / 1000);
-    return now - lastFetchedAt < CACHE_TTL;
-  }, [lastFetchedAt]);
-
-  /* ----------------------------------
-     SMART FETCH
-  ---------------------------------- */
   const fetchOrders = useCallback(
-    async (opts = { page: 1, per_page: 10, force: false, silent: false }) => {
-      const page = opts.page ?? 1;
-
-      // 1. Skip if fresh (ZERO unnecessary call)
-      if (!opts.force && hasFetched && isFresh && page === 1) {
-        if (list.length > 0) {
-          return { skipped: "fresh-cache" };
-        }
-      }
-
-      // 2. Session cache (first load only)
-      if (!hasFetched && !opts.force && page === 1) {
-        const cached = getSessionTTL(CACHE_KEY);
-        if (Array.isArray(cached)) {
-          dispatch({
-            type: "userOrders/loadOrders/fulfilled",
-            payload: {
-              list: cached,
-              meta: null,
-              params: opts,
-            },
-          });
-
-          // 🔥 background refresh (silent)
-          dispatch(
-            loadOrders({
-              page: 1,
-              per_page: 10,
-              silent: true,
-            }),
-          );
-
-          return { skipped: "session-cache" };
-        }
-      }
-
-      // ✅ 3. API call
-      const action = await dispatch(
+    async (opts = {}) => {
+      return dispatch(
         loadOrders({
-          page,
+          page: opts.page ?? 1,
           per_page: opts.per_page ?? 10,
-          silent: opts.silent,
+          silent: opts.silent ?? false,
+
+          // 🔥🔥🔥 CRITICAL FIX
+          _t: Date.now(), // cache bust
         }),
       );
-
-      // ✅ 4. Save cache
-      if (action?.payload?.list && page === 1) {
-        setSessionTTL(CACHE_KEY, action.payload.list, CACHE_TTL);
-      }
-
-      return action;
     },
-    [dispatch, hasFetched, isFresh, list],
+    [dispatch],
   );
 
   return {
@@ -99,7 +37,5 @@ export default function useOrders() {
     loading,
     meta,
     fetchOrders,
-    hasFetched,
-    isFresh,
   };
 }
