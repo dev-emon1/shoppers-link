@@ -65,8 +65,9 @@ const AllOrdersPage = () => {
 
       if (currPage !== page) setPage(currPage);
     } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to load orders");
+      // console.error(err);
+      // toast.error(err.response?.data?.message || "Failed to load orders");
+      toast.error("Failed to load orders");
     } finally {
       setLoading(false);
     }
