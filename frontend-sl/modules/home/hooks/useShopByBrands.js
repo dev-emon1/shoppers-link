@@ -6,17 +6,22 @@ export default function useShopByBrands({ mode = "home", limit = 10 } = {}) {
   const dispatch = useDispatch();
   const state = useSelector((s) => s.home.shopByBrands);
 
-  const { data, status, page, hasMore, lastFetched, ttl } = state;
+  const { data, status, hasMore } = state;
 
   useEffect(() => {
-    if (status === "loading") return;
-
-    if (!lastFetched) {
+    if (status === "idle") {
       dispatch(fetchShopByBrands({ page: 1 }));
     }
-  }, [dispatch]);
 
-  // filter brands with valid link
+    // background refresh after 30s
+    const timer = setTimeout(() => {
+      dispatch(fetchShopByBrands({ page: 1, force: true }));
+    }, 30000);
+
+    return () => clearTimeout(timer);
+  }, [dispatch, status]);
+
+  // ✅ Only show brands with valid link (your rule)
   const brandsWithLink = useMemo(() => {
     if (!Array.isArray(data)) return [];
     return data.filter(

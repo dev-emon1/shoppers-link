@@ -15,7 +15,7 @@ export default function ShopByBrandClient() {
     limit: 10,
   });
 
-  // ⛔ Never block UI if data exists
+  // ⛔ Loading state
   if (loading && (!brands || brands.length === 0)) {
     return (
       <section className="py-16 text-center text-sm text-textSecondary">
@@ -24,7 +24,17 @@ export default function ShopByBrandClient() {
     );
   }
 
-  if (error || !brands?.length) return null;
+  // ❌ Error state
+  if (error) return null;
+
+  // ⚠️ Empty fallback (IMPORTANT)
+  if (!brands?.length) {
+    return (
+      <section className="py-16 text-center text-sm text-textSecondary">
+        No brands available right now
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-white border-t border-border">
@@ -54,7 +64,7 @@ export default function ShopByBrandClient() {
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
-          loop
+          loop={brands.length > 6} // ✅ FIX
           speed={800}
         >
           {brands.map((brand) => {

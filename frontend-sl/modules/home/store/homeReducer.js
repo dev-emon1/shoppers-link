@@ -19,7 +19,7 @@ const FEATURED_TTL = 10 * 60 * 1000;
 const TOP_RATING_TTL = 10 * 60 * 1000;
 const TOP_SELLING_TTL = 5 * 60 * 1000;
 const NEW_ARRIVALS_TTL = 60 * 1000;
-const SHOP_BY_BRAND_TTL = 60 * 60 * 1000;
+const SHOP_BY_BRAND_TTL = 1 * 60 * 1000;
 
 /* ------------------------------------------------------------
    THUNKS
@@ -221,8 +221,26 @@ export const fetchTopSelling = createAsyncThunk(
 /* ---------- SHOP BY BRANDS ---------- */
 export const fetchShopByBrands = createAsyncThunk(
   "home/fetchShopByBrands",
-  async ({ page = 1 }, { rejectWithValue }) => {
+  async ({ page = 1, force = false }, { getState, rejectWithValue }) => {
     try {
+      const state = getState().home.shopByBrands;
+
+      if (
+        !force &&
+        page === 1 &&
+        state.data.length > 0 &&
+        state.lastFetched &&
+        Date.now() - state.lastFetched < state.ttl
+      ) {
+        return {
+          data: state.data,
+          meta: {
+            current_page: 1,
+            last_page: state.lastPage ?? 1,
+          },
+        };
+      }
+
       return await fetchShopByBrandsApi(page);
     } catch {
       return rejectWithValue("Failed to fetch shop by brands");
