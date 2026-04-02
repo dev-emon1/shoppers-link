@@ -10,12 +10,12 @@ import useShopByBrands from "@/modules/home/hooks/useShopByBrands";
 import { makeImageUrl } from "@/lib/utils/image";
 
 export default function ShopByBrandClient() {
+  // ✅ FIX: limit 15
   const { brands, loading, error, showAll } = useShopByBrands({
     mode: "home",
-    limit: 10,
+    limit: 15,
   });
 
-  // ⛔ Loading state
   if (loading && (!brands || brands.length === 0)) {
     return (
       <section className="py-16 text-center text-sm text-textSecondary">
@@ -24,10 +24,8 @@ export default function ShopByBrandClient() {
     );
   }
 
-  // ❌ Error state
   if (error) return null;
 
-  // ⚠️ Empty fallback (IMPORTANT)
   if (!brands?.length) {
     return (
       <section className="py-16 text-center text-sm text-textSecondary">
@@ -64,7 +62,7 @@ export default function ShopByBrandClient() {
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
-          loop={brands.length > 6} // ✅ FIX
+          loop={brands.length > 6}
           speed={800}
         >
           {brands.map((brand) => {
@@ -74,10 +72,9 @@ export default function ShopByBrandClient() {
               <SwiperSlide key={brand.id}>
                 <div className="flex justify-center">
                   <Link
-                    href={brand.link}
+                    href={brand.link || "#"} // ✅ FIX: safe fallback
                     target="_blank"
                     rel="noopener noreferrer"
-                    prefetch={false}
                     className="group relative w-28 h-28 rounded-full border border-border bg-bgPage flex items-center justify-center overflow-hidden hover:shadow-md transition"
                   >
                     {hasLogo ? (
@@ -108,7 +105,6 @@ export default function ShopByBrandClient() {
           <div className="text-center mt-10">
             <Link
               href="/brands"
-              prefetch
               className="text-main underline-offset-1 hover:underline transition-all duration-300 text-sm font-medium"
             >
               View all Brands

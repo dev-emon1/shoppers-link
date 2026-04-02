@@ -51,14 +51,11 @@ export const fetchTopRatingApi = async (page = 1) => {
 /**
  * Shop By Brand (Vendor Shops) API
  */
-export const fetchShopByBrandsApi = async (page = 1) => {
-  const res = await api.get(`/vendor/shops?page=${page}`);
+export const fetchShopByBrandsApi = async (page = 1, perPage = 15) => {
+  const res = await api.get(`/vendor/shops?page=${page}&per_page=${perPage}`);
 
   return {
     data: res?.data?.data || [],
-    meta: res?.data?.meta || {
-      current_page: 1,
-      last_page: 1,
-    },
+    meta: res?.data?.meta || {},
   };
 };

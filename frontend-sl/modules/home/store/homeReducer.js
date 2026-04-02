@@ -221,7 +221,10 @@ export const fetchTopSelling = createAsyncThunk(
 /* ---------- SHOP BY BRANDS ---------- */
 export const fetchShopByBrands = createAsyncThunk(
   "home/fetchShopByBrands",
-  async ({ page = 1, force = false }, { getState, rejectWithValue }) => {
+  async (
+    { page = 1, perPage = 15, force = false },
+    { getState, rejectWithValue },
+  ) => {
     try {
       const state = getState().home.shopByBrands;
 
@@ -241,7 +244,7 @@ export const fetchShopByBrands = createAsyncThunk(
         };
       }
 
-      return await fetchShopByBrandsApi(page);
+      return await fetchShopByBrandsApi(page, perPage);
     } catch {
       return rejectWithValue("Failed to fetch shop by brands");
     }
@@ -425,14 +428,53 @@ const homeSlice = createSlice({
           state.shopByBrands.status = "loading";
         }
       })
+      // homeReducer.js
+
       .addCase(fetchShopByBrands.fulfilled, (state, action) => {
-        const { data, meta } = action.payload;
+        const { data = [], meta = {} } = action.payload;
+
         state.shopByBrands.status = "success";
-        state.shopByBrands.data =
-          meta.current_page === 1 ? data : state.shopByBrands.data.concat(data);
-        state.shopByBrands.page = meta.current_page;
-        state.shopByBrands.lastPage = meta.last_page;
-        state.shopByBrands.hasMore = meta.current_page < meta.last_page;
+
+        if (meta.current_page === 1) {
+          // ✅ reset with unique
+          const uniqueMap = new Map();
+
+          data.forEach((item) => {
+            if (item?.id) {
+              uniqueMap.set(item.id, item);
+            }
+          });
+
+          state.shopByBrands.data = Array.from(uniqueMap.values());
+        } else {
+          const existing = state.shopByBrands.data || [];
+
+          // ✅ existing map
+          const map = new Map();
+
+          existing.forEach((item) => {
+            if (item?.id) {
+              map.set(item.id, item);
+            }
+          });
+
+          // ✅ merge new data safely
+          data.forEach((item) => {
+            if (item?.id && !map.has(item.id)) {
+              map.set(item.id, item);
+            }
+          });
+
+          state.shopByBrands.data = Array.from(map.values());
+        }
+
+        state.shopByBrands.page = meta.current_page || 1;
+        state.shopByBrands.lastPage = meta.last_page || 1;
+        state.shopByBrands.hasMore =
+          (meta.current_page || 1) < (meta.last_page || 1);
+
+        state.shopByBrands.total = meta.total || 0;
+
         state.shopByBrands.lastFetched = Date.now();
       })
       .addCase(fetchShopByBrands.rejected, (state) => {
