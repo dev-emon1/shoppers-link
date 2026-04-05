@@ -364,9 +364,9 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
             }}
           >
             <div>Shipping: {formatPrice(vo.shipping_charge)}</div>
-            <div style={{ fontWeight: "700", fontSize: "15px" }}>
+            {/* <div style={{ fontWeight: "700", fontSize: "15px" }}>
               Subtotal: {formatPrice(vo.subtotal)}
-            </div>
+            </div> */}
           </div>
         </div>
       ))}
@@ -401,7 +401,7 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
             fontSize: "14.5px",
           }}
         >
-          <span style={{ color: "#64748b" }}>Shipping</span>
+          <span style={{ color: "#64748b" }}>Total Shipping</span>
           <span>{formatPrice(calculatedShipping)}</span>
         </div>
 

@@ -167,14 +167,16 @@ export default function OrderDetailsPane({ order }) {
   const parsedASA = safeParse(primaryVendorOrder?.order?.a_s_a);
   const totals = parsedASA?.totals ?? null;
 
-  // SAFE TOTAL CALCULATION
-  const subtotal = Number(totals?.subtotal ?? order.total_amount ?? 0);
-
   const shipping = Number(totals?.shipping_charge ?? order.total_shipping ?? 0);
 
-  const grandTotal = totals?.grandTotal
-    ? Number(totals.grandTotal)
-    : subtotal + shipping;
+  const subtotal = totals?.subtotal
+    ? Number(totals.subtotal)
+    : Number(order.total_amount ?? 0) - shipping;
+
+  // Prefer total_amount as final source of truth
+  const grandTotal = Number(
+    totals?.grandTotal ?? order.total_amount ?? order.grand_total ?? 0,
+  );
 
   const handleVendorCancel = async (vendorOrder) => {
     if (!vendorOrder || !vendorOrder.id) return;

@@ -9,7 +9,8 @@ import {
   Phone,
   Mail,
   User,
-  CheckCircle,
+  PauseCircle,
+  PlayCircle,
   XCircle,
 } from "lucide-react";
 import API from "../../../utils/api";
@@ -24,7 +25,7 @@ const STATUS = {
   REJECTED: 4,
 };
 
-const RejectedVendors = () => {
+const SuspendedVendors = () => {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,7 +60,10 @@ const RejectedVendors = () => {
       v.contact_number?.includes(search) ||
       v.user?.email?.toLowerCase().includes(search);
 
-    return matchesSearch && v.user?.status === STATUS.REJECTED;
+    // 🔥 ONLY SUSPENDED
+    const isSuspended = v.user?.status === STATUS.SUSPENDED;
+
+    return matchesSearch && isSuspended;
   });
 
   // ================= PAGINATION =================
@@ -87,9 +91,11 @@ const RejectedVendors = () => {
     }
   };
 
-  // ================= ACTION =================
+  // ================= ACTIONS =================
+
+  // 🟢 Activate
   const handleActivate = async (vendorId) => {
-    if (!confirm("Activate this vendor again?")) return;
+    if (!confirm("Activate this vendor?")) return;
 
     const vendor = vendors.find((v) => v.id === vendorId);
 
@@ -103,6 +109,25 @@ const RejectedVendors = () => {
       toast.success("Vendor activated");
     } catch {
       toast.error("Failed to activate");
+    }
+  };
+
+  // 🔴 Deactivate
+  const handleDeactivate = async (vendorId) => {
+    if (!confirm("Deactivate this vendor?")) return;
+
+    const vendor = vendors.find((v) => v.id === vendorId);
+
+    try {
+      await API.post(`/admin/users/${vendor.user.id}/status`, {
+        status: "inactive",
+      });
+
+      updateVendorStatus(vendorId, STATUS.INACTIVE);
+
+      toast.warning("Vendor deactivated");
+    } catch {
+      toast.error("Failed to deactivate");
     }
   };
 
@@ -130,8 +155,10 @@ const RejectedVendors = () => {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-center my-4 gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">Rejected Vendors</h1>
-          <p className="text-gray-500 text-sm">Vendors rejected by admin</p>
+          <h1 className="text-xl font-bold text-gray-800">Suspended Vendors</h1>
+          <p className="text-gray-500 text-sm">
+            Vendors temporarily blocked by admin
+          </p>
         </div>
 
         {/* SEARCH */}
@@ -171,7 +198,7 @@ const RejectedVendors = () => {
               {paginated.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="text-center py-4 text-gray-400">
-                    No rejected vendors found
+                    No suspended vendors found
                   </td>
                 </tr>
               ) : (
@@ -209,19 +236,28 @@ const RejectedVendors = () => {
 
                     {/* STATUS */}
                     <td className="px-4 py-2 text-center">
-                      <span className="px-3 py-1 rounded-full text-xs bg-red-100 text-red-600 flex items-center justify-center gap-1">
-                        <XCircle size={12} /> Rejected
+                      <span className="px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-700 flex items-center justify-center gap-1">
+                        <PauseCircle size={12} /> Suspended
                       </span>
                     </td>
 
                     {/* ACTION */}
                     <td className="px-4 py-2 text-center space-y-1">
                       <div className="flex justify-center gap-3">
+                        {/* Activate */}
                         <button
                           onClick={() => handleActivate(v.id)}
                           className="text-green-600 hover:text-green-800 flex items-center gap-1 text-xs"
                         >
-                          <CheckCircle size={14} /> Activate
+                          <PlayCircle size={14} /> Activate
+                        </button>
+
+                        {/* Deactivate */}
+                        <button
+                          onClick={() => handleDeactivate(v.id)}
+                          className="text-red-600 hover:text-red-800 flex items-center gap-1 text-xs"
+                        >
+                          <XCircle size={14} /> Deactivate
                         </button>
                       </div>
 
@@ -271,6 +307,7 @@ const RejectedVendors = () => {
         </div>
       </div>
 
+      {/* MODAL */}
       <VendorDetailsModal
         vendor={selectedVendor}
         isOpen={isModalOpen}
@@ -280,4 +317,4 @@ const RejectedVendors = () => {
   );
 };
 
-export default RejectedVendors;
+export default SuspendedVendors;

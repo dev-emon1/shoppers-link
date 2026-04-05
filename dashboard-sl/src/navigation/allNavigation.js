@@ -14,7 +14,6 @@ import { BiBookContent } from "react-icons/bi";
 import { IoIosSettings } from "react-icons/io";
 
 export const allNavigation = {
-
   vendor: [
     {
       name: "Dashboard",
@@ -164,6 +163,14 @@ export const allNavigation = {
         {
           name: "Rejected Partner Request",
           path: "/admin/vendors/rejected-requests",
+        },
+        {
+          name: "Inactive Partners",
+          path: "/admin/vendors/inactive-vendors",
+        },
+        {
+          name: "Suspended Partners",
+          path: "/admin/vendors/suspended-vendors",
         },
         // { name: "Partner Payments", path: "/admin/vendors/payments" },
         // {
@@ -340,5 +347,5 @@ export const allNavigation = {
     //     },
     //   ],
     // },
-  ]
+  ],
 };

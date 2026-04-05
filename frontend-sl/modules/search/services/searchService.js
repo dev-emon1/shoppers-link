@@ -7,7 +7,7 @@ export async function searchProductsApi({
   limit = null,
   signal,
 }) {
-  // ❗ only block when BOTH missing
+  // only block when BOTH missing
   if (!q && !categoryId) {
     return { items: [], total: 0 };
   }
