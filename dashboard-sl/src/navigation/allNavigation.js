@@ -154,7 +154,7 @@ export const allNavigation = {
       icon: FaUserTag,
       role: "admin",
       children: [
-        { name: "Active All Partners", path: "/admin/vendors/all-vendors" },
+        { name: "All Active Partners", path: "/admin/vendors/all-vendors" },
         // { name: "Partner Details", path: "/admin/vendors/vendor-details/:id" },
         {
           name: "Partner Onboarding Requests",
