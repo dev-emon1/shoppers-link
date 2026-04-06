@@ -62,7 +62,7 @@ export default function Footer() {
       {/* Bottom Section */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
         <p className="tracking-[0.2em] text-xs text-text-secondaryActive flex items-center gap-2 text-center">
-          &copy; 2026 Shoppers Link. All Rights Reserved | Developed by
+          &copy; 2026 Shopperslink. All Rights Reserved | Developed by
           <Link
             href="https://fingertipsinnovations.com/"
             target="_blank"
