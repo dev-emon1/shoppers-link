@@ -47,8 +47,7 @@ export default function ProductShippingInfo({ shipping }) {
           <div>
             <div className="font-medium text-sm">Inside Dhaka</div>
             <div className="text-textLight text-xs">
-              ৳{config.insideDhaka.cost} • {config.insideDhaka.estimatedDays}{" "}
-              days
+              {config.insideDhaka.estimatedDays} days
             </div>
           </div>
         </div>
@@ -60,8 +59,7 @@ export default function ProductShippingInfo({ shipping }) {
           <div>
             <div className="font-medium text-sm">Outside Dhaka</div>
             <div className="text-textLight text-xs">
-              ৳{config.outsideDhaka.cost} • {config.outsideDhaka.estimatedDays}{" "}
-              days
+              {config.outsideDhaka.estimatedDays} days
             </div>
           </div>
         </div>
@@ -77,13 +75,13 @@ export default function ProductShippingInfo({ shipping }) {
         )}
 
         {/* Free Shipping */}
-        <span
+        {/* <span
           className="flex items-center gap-1 text-textLight
          font-semibold"
         >
           <Truck size={14} className="text-secondary" />
           Free Shipping over ৳{config.freeShippingThreshold}
-        </span>
+        </span> */}
 
         {/* Return Policy */}
         <span className="flex items-center gap-1 text-textLight">

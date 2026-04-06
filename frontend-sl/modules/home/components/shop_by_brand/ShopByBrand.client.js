@@ -72,7 +72,7 @@ export default function ShopByBrandClient() {
               <SwiperSlide key={brand.id}>
                 <div className="flex justify-center">
                   <Link
-                    href={brand.link || "#"} // ✅ FIX: safe fallback
+                    href={brand.link || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group relative w-28 h-28 rounded-full border border-border bg-bgPage flex items-center justify-center overflow-hidden hover:shadow-md transition"
@@ -81,9 +81,9 @@ export default function ShopByBrandClient() {
                       <Image
                         src={makeImageUrl(brand.logo)}
                         alt={brand.shop_name}
-                        width={80}
-                        height={80}
-                        className="object-contain opacity-80 group-hover:opacity-100 transition"
+                        width={130}
+                        height={130}
+                        className="object-cover opacity-80 group-hover:opacity-100 transition"
                       />
                     ) : (
                       <div className="flex flex-col items-center justify-center text-textSecondary group-hover:text-main transition px-2">
