@@ -1,42 +1,32 @@
 "use client";
 
-import { useState } from "react";
-
-export const shippingOptions = [
-  {
-    id: "inside",
-    label: "Inside Dhaka",
-    description: "Delivery within 1–2 working days",
-    fee: 60,
-  },
-  {
-    id: "outside",
-    label: "Outside Dhaka",
-    description: "Delivery within 2–5 working days",
-    fee: 120,
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { fetchShippingCharge } from "../store/shippingReducer";
 
 export default function useShipping() {
-  const [value, setValue] = useState("");
-  const [errors, setErrors] = useState({});
+  const dispatch = useDispatch();
 
-  const onChange = (id) => {
-    setValue(id);
-  };
+  const { shippingFee, grandTotal, packages, loading } = useSelector(
+    (state) =>
+      state.checkoutShipping || {
+        shippingFee: 0,
+        grandTotal: 0,
+        packages: [],
+        loading: false,
+      },
+  );
 
-  const validate = () => {
-    const e = {};
-    if (!value) e.shipping = "Select a shipping option";
-    setErrors(e);
-    return e;
+  const calculateShipping = (payload) => {
+    if (!payload) return;
+
+    dispatch(fetchShippingCharge(payload));
   };
 
   return {
-    value,
-    errors,
-    onChange,
-    validate,
-    options: shippingOptions,
+    shippingFee,
+    grandTotal,
+    packages,
+    loading,
+    calculateShipping,
   };
 }

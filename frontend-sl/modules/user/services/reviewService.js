@@ -3,7 +3,6 @@ import api from "@/core/api/axiosClient";
 
 export const submitReviewApi = async (vendorOrderItemId, payload) => {
   const formData = new FormData();
-  // console.log(formData);
 
   formData.append("vendor_order_item_id", vendorOrderItemId);
   formData.append("rating", payload.rating);

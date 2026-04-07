@@ -44,18 +44,27 @@ const Attributes = React.memo(() => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
+<<<<<<< HEAD
       if (!attributeName.trim()) return toast.error("⚠️ Attribute name is required!");
+=======
+      if (!attributeName.trim())
+        return toast.error("⚠️ Attribute name is required!");
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
       try {
         const payload = { name: attributeName.trim(), status };
-        // console.log(payload);
 
         if (editingAttribute) {
           // ✅ Update existing attribute
-          const res = await API.put(`attributes/${editingAttribute.id}`, payload);
+          const res = await API.put(
+            `attributes/${editingAttribute.id}`,
+            payload,
+          );
           const updatedAttribute = res.data.data || res.data;
           setAttributes((prev) =>
-            prev.map((attr) => (attr.id === updatedAttribute.id ? updatedAttribute : attr))
+            prev.map((attr) =>
+              attr.id === updatedAttribute.id ? updatedAttribute : attr,
+            ),
           );
           toast.success("✅ Attribute updated successfully!");
         } else {
@@ -73,10 +82,16 @@ const Attributes = React.memo(() => {
         setShow(false);
       } catch (error) {
         // console.error("❌ Failed:", error.response?.data || error.message);
+<<<<<<< HEAD
         toast.error("⚠️ " + (error.response?.data?.message || "Validation failed!"));
+=======
+        toast.error(
+          "⚠️ " + (error.response?.data?.message || "Validation failed!"),
+        );
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       }
     },
-    [attributeName, status, editingAttribute]
+    [attributeName, status, editingAttribute],
   );
 
   // ===== Edit Handler =====
@@ -86,7 +101,6 @@ const Attributes = React.memo(() => {
     setStatus(attribute.status);
     setShow(true);
   }, []);
-
 
   // ====== Handlers ======
   const handleSearch = useCallback((e) => {
@@ -99,14 +113,13 @@ const Attributes = React.memo(() => {
     setPage(1);
   }, []);
 
-
   // ====== Filter + Pagination ======
   const { currentData, totalPages } = useMemo(() => {
     let filtered = attributes;
 
     if (searchTerm.trim()) {
       filtered = filtered.filter((attr) =>
-        attr.name.toLowerCase().includes(searchTerm.toLowerCase())
+        attr.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
     const total = Math.ceil(filtered.length / perPage);
@@ -128,17 +141,13 @@ const Attributes = React.memo(() => {
       key: "name",
       label: "Attribute Name",
       sortable: true,
-      render: (item) => (
-        <span className="capitalize">{item.name}</span>
-      ),
+      render: (item) => <span className="capitalize">{item.name}</span>,
       // className: "font-medium text-gray-800",
     },
     {
       key: "slug",
       label: "Slug",
-      render: (item) => (
-        <span className="lowercase">{item.slug}</span>
-      ),
+      render: (item) => <span className="lowercase">{item.slug}</span>,
       className: "hidden sm:table-cell",
     },
     {
@@ -148,7 +157,7 @@ const Attributes = React.memo(() => {
       render: (item) => (
         <TableActions
           onEdit={() => handleEdit(item)}
-        // onDelete={() => handleDelete(item.id)}
+          // onDelete={() => handleDelete(item.id)}
         />
       ),
     },
@@ -172,10 +181,7 @@ const Attributes = React.memo(() => {
 
       {/* ===== Filter Bar ===== */}
       <div className="mb-4 bg-white p-3 rounded-md shadow-sm">
-        <FilterBar
-          perPage={perPage}
-          onPerPageChange={handlePerPageChange}
-        />
+        <FilterBar perPage={perPage} onPerPageChange={handlePerPageChange} />
       </div>
 
       {/* ===== Table Section ===== */}
@@ -230,10 +236,11 @@ const Attributes = React.memo(() => {
               <button
                 type="submit"
                 disabled={!attributeName}
-                className={`w-full rounded-md px-7 py-2 text-white text-sm font-medium transition-all ${!attributeName
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-main hover:bg-mainHover"
-                  }`}
+                className={`w-full rounded-md px-7 py-2 text-white text-sm font-medium transition-all ${
+                  !attributeName
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-main hover:bg-mainHover"
+                }`}
               >
                 {editingAttribute ? "Update Attribute" : "Add Attribute"}
               </button>

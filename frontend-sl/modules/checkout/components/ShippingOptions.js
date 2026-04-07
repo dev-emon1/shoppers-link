@@ -1,40 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Truck } from "lucide-react";
 import { TbCurrencyTaka } from "react-icons/tb";
+import { useState, useEffect } from "react";
 import { formatAmount } from "../utils/format";
-import { validateShipping } from "../utils/validation";
+import useShipping from "../hooks/useShipping";
 
-export default function ShippingOptions({
-  value,
-  onChange,
-  errors = {},
-  options = [],
-  registerValidate,
-}) {
-  const [localErrors, setLocalErrors] = useState(errors || {});
+export default function ShippingOptions() {
+  const { shippingFee, packages, loading } = useShipping();
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    setLocalErrors(errors || {});
-  }, [errors]);
-
-  useEffect(() => {
-    if (typeof registerValidate === "function") {
-      const unregister = registerValidate(() => {
-        const errs = validateShipping(value);
-        setLocalErrors(errs || {});
-        const firstKey = Object.keys(errs || {})[0];
-        const focusSelector = null;
-        return {
-          valid: Object.keys(errs).length === 0,
-          errors: errs,
-          focusSelector,
-        };
-      });
-      return () => unregister && unregister();
-    }
-  }, [value, registerValidate]);
+    if (packages.length > 1) setShowDetails(true);
+  }, [packages]);
 
   return (
     <div className="space-y-4">
@@ -42,38 +20,83 @@ export default function ShippingOptions({
         <Truck size={18} />
         Shipping
       </h2>
+
       <p className="text-xs md:text-sm text-textSecondary">
-        Delivery charges will vary based on the location.
+        Delivery charges are calculated based on vendor & location.
       </p>
 
-      <div className="space-y-3">
-        {options.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            onClick={() => onChange(option.id)}
-            className={[
-              "w-full flex items-start justify-between gap-3 rounded-xl border px-3 py-3 text-left transition",
-              value === option.id
-                ? "border-main bg-main/5"
-                : "border-border bg-white hover:border-main/60",
-            ].join(" ")}
-          >
-            <div>
-              <p className="text-sm font-medium">{option.label}</p>
-              <p className="text-xs text-textSecondary">{option.description}</p>
-            </div>
-            <div className="flex items-center gap-1 text-sm font-semibold text-main">
-              <TbCurrencyTaka size={14} />
-              <span>{formatAmount(option.fee)}</span>
-            </div>
-          </button>
-        ))}
+      <div className="rounded-xl border border-border bg-white px-4 py-4 space-y-3">
+        {/* TOP */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium">Total Delivery Charge</p>
+            <p className="text-xs text-textSecondary">
+              {packages.length} package(s)
+            </p>
+          </div>
 
-        {(localErrors.shipping || errors.shipping) && (
-          <p className="mt-1 text-xs text-red">
-            {localErrors.shipping || errors.shipping}
-          </p>
+          <div className="flex items-center gap-1 text-sm font-semibold text-main">
+            <TbCurrencyTaka size={14} />
+            {loading ? (
+              <span>Calculating...</span>
+            ) : (
+              <span>{formatAmount(shippingFee)}</span>
+            )}
+          </div>
+        </div>
+
+        {/* TOGGLE */}
+        {packages.length > 0 && (
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="text-xs text-blue-600 hover:underline"
+          >
+            {showDetails ? "Hide details" : "View breakdown"}
+          </button>
+        )}
+
+        {/* BREAKDOWN */}
+        {showDetails && (
+          <div className="border-t pt-3 space-y-3">
+            {packages.map((pkg, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between text-sm"
+              >
+                {/* LEFT */}
+                <div className="flex items-center gap-3">
+                  {/* ✅ LOGO */}
+                  <img
+                    src={pkg.vendor_logo || "/placeholder-store.png"}
+                    alt={pkg.vendor_name}
+                    className="w-10 h-10 rounded-lg object-cover border"
+                  />
+
+                  <div>
+                    <p className="font-medium">
+                      {pkg.vendor_name || `Vendor #${pkg.vendor_id}`}
+                    </p>
+
+                    <p className="text-xs text-textSecondary">
+                      {pkg.applied_rule?.name}
+                    </p>
+
+                    {pkg.is_free && (
+                      <span className="text-green-600 text-xs font-medium">
+                        Free Shipping
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* RIGHT */}
+                <div className="flex items-center gap-1 font-semibold">
+                  <TbCurrencyTaka size={13} />
+                  {pkg.is_free ? "0" : formatAmount(pkg.shipping_charge)}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

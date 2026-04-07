@@ -49,14 +49,18 @@ const Attributes = React.memo(() => {
 
       try {
         const payload = { name: attributeName.trim(), status };
-        // console.log(payload);
 
         if (editingAttribute) {
           // ✅ Update existing attribute
-          const res = await axios.put(`${API_URL}/${editingAttribute.id}`, payload);
+          const res = await axios.put(
+            `${API_URL}/${editingAttribute.id}`,
+            payload,
+          );
           const updatedAttribute = res.data.data || res.data;
           setAttributes((prev) =>
-            prev.map((attr) => (attr.id === updatedAttribute.id ? updatedAttribute : attr))
+            prev.map((attr) =>
+              attr.id === updatedAttribute.id ? updatedAttribute : attr,
+            ),
           );
           alert("✅ Attribute updated successfully!");
         } else {
@@ -77,7 +81,7 @@ const Attributes = React.memo(() => {
         alert("⚠️ " + (error.response?.data?.message || "Validation failed!"));
       }
     },
-    [attributeName, status, editingAttribute]
+    [attributeName, status, editingAttribute],
   );
 
   // ===== Edit Handler =====
@@ -96,7 +100,10 @@ const Attributes = React.memo(() => {
       setAttributes((prev) => prev.filter((attr) => attr.id !== id));
       alert("✅ Attribute deleted successfully!");
     } catch (error) {
-      console.error("❌ Failed to delete:", error.response?.data || error.message);
+      console.error(
+        "❌ Failed to delete:",
+        error.response?.data || error.message,
+      );
       alert("⚠️ Could not delete attribute!");
     }
   }, []);
@@ -112,14 +119,13 @@ const Attributes = React.memo(() => {
     setPage(1);
   }, []);
 
-
   // ====== Filter + Pagination ======
   const { currentData, totalPages } = useMemo(() => {
     let filtered = attributes;
 
     if (searchTerm.trim()) {
       filtered = filtered.filter((attr) =>
-        attr.name.toLowerCase().includes(searchTerm.toLowerCase())
+        attr.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
     const total = Math.ceil(filtered.length / perPage);
@@ -141,17 +147,13 @@ const Attributes = React.memo(() => {
       key: "name",
       label: "Attribute Name",
       sortable: true,
-      render: (item) => (
-        <span className="capitalize">{item.name}</span>
-      ),
+      render: (item) => <span className="capitalize">{item.name}</span>,
       // className: "font-medium text-gray-800",
     },
     {
       key: "slug",
       label: "Slug",
-      render: (item) => (
-        <span className="lowercase">{item.slug}</span>
-      ),
+      render: (item) => <span className="lowercase">{item.slug}</span>,
       className: "hidden sm:table-cell",
     },
     {
@@ -185,10 +187,7 @@ const Attributes = React.memo(() => {
 
       {/* ===== Filter Bar ===== */}
       <div className="mb-4 bg-white p-3 rounded-md shadow-sm">
-        <FilterBar
-          perPage={perPage}
-          onPerPageChange={handlePerPageChange}
-        />
+        <FilterBar perPage={perPage} onPerPageChange={handlePerPageChange} />
       </div>
 
       {/* ===== Table Section ===== */}
@@ -243,10 +242,11 @@ const Attributes = React.memo(() => {
               <button
                 type="submit"
                 disabled={!attributeName}
-                className={`w-full rounded-md px-7 py-2 text-white text-sm font-medium transition-all ${!attributeName
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-main hover:bg-mainHover"
-                  }`}
+                className={`w-full rounded-md px-7 py-2 text-white text-sm font-medium transition-all ${
+                  !attributeName
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-main hover:bg-mainHover"
+                }`}
               >
                 {editingAttribute ? "Update Attribute" : "Add Attribute"}
               </button>

@@ -63,7 +63,7 @@ const AddProduct = () => {
 
   const colorAttributeId = useMemo(
     () => attributes?.find((a) => a.name?.toLowerCase() === "color")?.id,
-    [attributes]
+    [attributes],
   );
 
   // === RHF Setup ===
@@ -77,7 +77,6 @@ const AddProduct = () => {
   const { setValue, trigger, handleSubmit, formState, watch, getValues } =
     methods;
 
-  // console.log(data);
   // 1. EXTRACT category and variants from watch
   const categoryId = watch("basicInfo.category");
   const variants = watch("variants");
@@ -88,7 +87,7 @@ const AddProduct = () => {
     () => ({
       isDigital: categoryId == 8,
     }),
-    [categoryId]
+    [categoryId],
   );
 
   // Update the resolver context whenever category changes
@@ -132,7 +131,7 @@ const AddProduct = () => {
         ...options,
       });
     },
-    [setValue, getValues]
+    [setValue, getValues],
   );
 
   // === STEP VALIDATION HANDLER ===
@@ -159,7 +158,6 @@ const AddProduct = () => {
       valid = await trigger(["metaTitle", "metaDescription", "metaKeywords"]);
 
     if (!valid) {
-      console.log("❌ Validation failed at step:", step);
       return;
     }
 
@@ -171,7 +169,6 @@ const AddProduct = () => {
   }, [step]);
   const navigate = useNavigate();
   const handlePublish = useCallback(async (formData) => {
-    // console.log(formData);
     try {
       const submitData = new FormData();
 
@@ -215,10 +212,10 @@ const AddProduct = () => {
           vals.forEach((val, j) => {
             submitData.append(
               `variantMeta[selectedValues][${attrId}][${j}]`,
-              val
+              val,
             );
           });
-        }
+        },
       );
 
       // images
@@ -235,7 +232,7 @@ const AddProduct = () => {
       // featured
       let featuredStr = null;
       const imgIndex = formData.images.findIndex(
-        (img) => img.id === formData.featured
+        (img) => img.id === formData.featured,
       );
       if (imgIndex !== -1) {
         featuredStr = `general-${imgIndex}`;
@@ -253,7 +250,10 @@ const AddProduct = () => {
       const response = await API.post("/products", submitData);
 
       if (response.data.success) {
+<<<<<<< HEAD
         // console.log(response.data);
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         // alert("Product created successfully!");
         toast.success("Product created successfully!");
         navigate("/vendor/products/all-products");
@@ -367,12 +367,22 @@ const AddProduct = () => {
                 )}
                 <div className="flex flex-col items-center">
                   <div
+<<<<<<< HEAD
                     className={`w-7 h-7 flex items-center justify-center rounded-full text-white text-sm font-semibold transition-all ${s.id === step
                       ? "bg-main z-10"
                       : s.id < step
                         ? "bg-green z-10"
                         : "bg-gray-300 z-10"
                       }`}
+=======
+                    className={`w-7 h-7 flex items-center justify-center rounded-full text-white text-sm font-semibold transition-all ${
+                      s.id === step
+                        ? "bg-main z-10"
+                        : s.id < step
+                          ? "bg-green z-10"
+                          : "bg-gray-300 z-10"
+                    }`}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                   >
                     {s.id}
                   </div>

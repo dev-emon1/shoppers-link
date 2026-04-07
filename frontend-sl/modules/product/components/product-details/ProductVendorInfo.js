@@ -5,7 +5,7 @@ export default function ProductVendorInfo({ vendor }) {
   return (
     <div className="border-t py-2 text-sm">
       <div className="font-medium text-black">
-        Sold by: <span className="text-main font-semibold">{name}</span>
+        Seller: <span className="text-main font-semibold">{name}</span>
       </div>
       <div className="text-muted-foreground text-xs">
         {vendor.city ?? vendor.location ?? ""}{" "}

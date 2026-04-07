@@ -42,7 +42,6 @@ const Category = React.memo(() => {
     fetchData();
   }, [fetchData]);
 
-
   // ===== Add/Edit Submit =====
   const handleSubmit = useCallback(
     async (e) => {
@@ -71,7 +70,7 @@ const Category = React.memo(() => {
           res = await API.post(
             `categories/${editingCategory.id}?_method=PUT`,
             formData,
-            { headers: { "Content-Type": "multipart/form-data" } }
+            { headers: { "Content-Type": "multipart/form-data" } },
           );
         } else {
           // Create
@@ -86,7 +85,7 @@ const Category = React.memo(() => {
         if (response.success) {
           if (editingCategory) {
             setCategories((prev) =>
-              prev.map((cat) => (cat.id === data.id ? data : cat))
+              prev.map((cat) => (cat.id === data.id ? data : cat)),
             );
             toast.success("✅ Category updated successfully!");
           } else {
@@ -115,13 +114,18 @@ const Category = React.memo(() => {
             : "Validation failed!";
           toast.error("⚠️ " + firstError);
         } else {
+<<<<<<< HEAD
           toast.error("⚠️ " + (error.response?.data?.message || "Server error!"));
+=======
+          toast.error(
+            "⚠️ " + (error.response?.data?.message || "Server error!"),
+          );
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         }
       }
     },
-    [categoryName, categoryDetails, status, imageFile, editingCategory]
+    [categoryName, categoryDetails, status, imageFile, editingCategory],
   );
-
 
   // ===== Edit Click =====
   const handleEdit = useCallback((category) => {
@@ -132,30 +136,27 @@ const Category = React.memo(() => {
     setImagePreview(
       category.image?.startsWith("http")
         ? category.image
-        : `${IMAGE_URL}${category.image}`
+        : `${IMAGE_URL}${category.image}`,
     );
     setShow(true);
   }, []);
 
   // ===== Delete Category =====
-  const handleDelete = useCallback(
-    async (id) => {
-      if (!window.confirm("🗑️ Are you sure you want to delete this category?"))
-        return;
+  const handleDelete = useCallback(async (id) => {
+    if (!window.confirm("🗑️ Are you sure you want to delete this category?"))
+      return;
 
-      try {
-        const res = await axios.delete(`${API_URL}/${id}`);
-        if (res.data.success) {
-          setCategories((prev) => prev.filter((cat) => cat.id !== id));
-          alert("✅ Category deleted successfully!");
-        }
-      } catch (error) {
-        console.error("❌ Delete failed:", error);
-        alert("⚠️ Failed to delete category!");
+    try {
+      const res = await axios.delete(`${API_URL}/${id}`);
+      if (res.data.success) {
+        setCategories((prev) => prev.filter((cat) => cat.id !== id));
+        alert("✅ Category deleted successfully!");
       }
-    },
-    []
-  );
+    } catch (error) {
+      console.error("❌ Delete failed:", error);
+      alert("⚠️ Failed to delete category!");
+    }
+  }, []);
   // ==== Handlers ====
   const handleFileSelect = useCallback((file) => {
     setImageFile(file);
@@ -176,13 +177,13 @@ const Category = React.memo(() => {
 
     // Optimistic Update: Update UI first for a snappy feel
     setCategories((prev) =>
-      prev.map((cat) => (cat.id === id ? { ...cat, status: newStatus } : cat))
+      prev.map((cat) => (cat.id === id ? { ...cat, status: newStatus } : cat)),
     );
 
     try {
       const res = await API.post(`categories/${id}/toggle-status`, {
         status: newStatus,
-        _method: 'PATCH' // Many Laravel APIs use POST with _method for partial updates
+        _method: "PATCH", // Many Laravel APIs use POST with _method for partial updates
       });
       toast.success("✅ Status updated successfully!");
       if (!res.data.success) {
@@ -192,7 +193,9 @@ const Category = React.memo(() => {
       console.error("❌ Status update failed:", error);
       // Rollback if API fails
       setCategories((prev) =>
-        prev.map((cat) => (cat.id === id ? { ...cat, status: currentStatus } : cat))
+        prev.map((cat) =>
+          cat.id === id ? { ...cat, status: currentStatus } : cat,
+        ),
       );
       toast.error("⚠️ Failed to update status on server.");
     }
@@ -235,12 +238,14 @@ const Category = React.memo(() => {
         <div className="flex justify-center">
           <button
             onClick={() => handleToggleStatus(item.id, item.status)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${item.status === 1 ? "bg-green" : "bg-gray-300"
-              }`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+              item.status === 1 ? "bg-green" : "bg-gray-300"
+            }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${item.status === 1 ? "translate-x-6" : "translate-x-1"
-                }`}
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                item.status === 1 ? "translate-x-6" : "translate-x-1"
+              }`}
             />
           </button>
         </div>
@@ -253,21 +258,23 @@ const Category = React.memo(() => {
       render: (item) => (
         <TableActions
           onEdit={() => handleEdit(item)}
-        // onDelete={() => handleDelete(item.id)}
+          // onDelete={() => handleDelete(item.id)}
         />
       ),
     },
   ];
-  // console.log(categories);
 
   // ===== Pagination + Search =====
   const { currentData, totalPages } = useMemo(() => {
     const filtered = categories.filter((cat) =>
-      cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+      cat.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     const total = Math.ceil(filtered.length / perPage);
     const start = (page - 1) * perPage;
-    return { currentData: filtered.slice(start, start + perPage), totalPages: total };
+    return {
+      currentData: filtered.slice(start, start + perPage),
+      totalPages: total,
+    };
   }, [categories, searchTerm, perPage, page]);
 
   return (
@@ -291,10 +298,7 @@ const Category = React.memo(() => {
       />
       {/* ===== Filter Bar ===== */}
       <div className="mb-4 bg-white p-3 rounded-md shadow-sm">
-        <FilterBar
-          perPage={perPage}
-          onPerPageChange={handlePerPageChange}
-        />
+        <FilterBar perPage={perPage} onPerPageChange={handlePerPageChange} />
       </div>
       {/* ===== Table Section ===== */}
       <div className="flex flex-wrap w-full">
@@ -355,7 +359,12 @@ const Category = React.memo(() => {
             {/* Image Upload */}
             <div className="max-w-md mx-auto mt-6">
               <label className="text-sm font-medium mb-1">
-                Category Image {editingCategory ? "(optional)" : <span className="text-red">*</span>}
+                Category Image{" "}
+                {editingCategory ? (
+                  "(optional)"
+                ) : (
+                  <span className="text-red">*</span>
+                )}
               </label>
               <ImageUploader onFileSelect={handleFileSelect} multiple={false} />
               {imagePreview && (
@@ -381,7 +390,7 @@ const Category = React.memo(() => {
           </form>
         </SlidePanel>
       </div>
-    </div >
+    </div>
   );
 });
 

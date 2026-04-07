@@ -24,7 +24,11 @@ import useSortedProducts from "@/modules/product/hooks/useSortedProducts";
 import useProductFilters from "@/modules/product/hooks/useProductFilters";
 
 /* ======================================================
+<<<<<<< HEAD
    URL <-> Filter helpers (PAGE LEVEL)
+=======
+   URL <-> Filter helpers
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 ====================================================== */
 function parseFilters(sp) {
   return {
@@ -103,7 +107,11 @@ export default function CategoryPage({ params }) {
   /* ---------------- URL -> Initial Filters ---------------- */
   const initialFilters = useMemo(() => parseFilters(sp), [sp.toString()]);
 
+<<<<<<< HEAD
   /* ---------------- Filters Hook (PURE) ---------------- */
+=======
+  /* ---------------- Filters Hook ---------------- */
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
     useProductFilters({
       products: isChildPage ? baseProducts : [],
@@ -121,11 +129,30 @@ export default function CategoryPage({ params }) {
   );
 
   /* ======================================================
-     1️⃣ PRODUCT DETAILS PAGE
+     1️⃣ PRODUCT DETAILS PAGE (FIXED)
   ====================================================== */
   if (isProductPage) {
     const product = baseProducts.find((p) => p.slug === productSlug);
 
+    // ✅ Spinner first
+    if (productsLoading) {
+      return (
+        <div className="container py-20 text-center">
+          <Loader />
+        </div>
+      );
+    }
+
+    // ✅ Error state
+    if (productsError) {
+      return (
+        <div className="container py-20 text-center text-red-500">
+          Failed to load product.
+        </div>
+      );
+    }
+
+    // ✅ Not found AFTER loading
     if (!product) {
       return (
         <div className="container py-20 text-center text-gray-500">
@@ -147,7 +174,7 @@ export default function CategoryPage({ params }) {
   }
 
   /* ======================================================
-     2️⃣ CATEGORY LANDING PAGE
+     CATEGORY PAGE
   ====================================================== */
   if (isCategoryPage) {
     const heroItems = (cat?.sub_categories || []).map((s) => ({
@@ -180,7 +207,7 @@ export default function CategoryPage({ params }) {
   }
 
   /* ======================================================
-     3️⃣ SUBCATEGORY PAGE
+     SUBCATEGORY PAGE
   ====================================================== */
   if (isSubcategoryPage) {
     const heroItems = (sub?.child_categories || []).map((c) => ({
@@ -213,7 +240,7 @@ export default function CategoryPage({ params }) {
   }
 
   /* ======================================================
-     4️⃣ CHILD CATEGORY (PLP)
+     CHILD CATEGORY (PLP)
   ====================================================== */
   if (isChildPage) {
     const filters = deriveFilters(baseProducts);
@@ -270,9 +297,6 @@ export default function CategoryPage({ params }) {
     );
   }
 
-  /* ======================================================
-     FALLBACK
-  ====================================================== */
   return (
     <div className="container py-20 text-center text-gray-500">
       Page not found.

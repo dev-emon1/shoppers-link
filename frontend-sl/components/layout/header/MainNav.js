@@ -164,12 +164,20 @@ const MainNav = ({
                   }
 
                   if (!isDesktop) {
+<<<<<<< HEAD
                     setOpenDropdown((prev) => !prev); // ✅ mobile fix
+=======
+                    setOpenDropdown((prev) => !prev);
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                   }
                 }}
                 className="flex items-center gap-2"
               >
+<<<<<<< HEAD
                 {user?.customer?.profile_picture ? (
+=======
+                {mounted && user?.customer?.profile_picture ? (
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                   <Image
                     src={makeImageUrl(user.customer.profile_picture)}
                     alt={user?.user_name || "User"}

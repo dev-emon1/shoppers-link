@@ -1,18 +1,32 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
-    domains: ["localhost", "your-cdn-domain.com", "127.0.0.1", "randomuser.me"], // Added randomuser.me
+    domains: [
+      "localhost",
+      "127.0.0.1",
+      "backend.bonikbook.com",
+      "randomuser.me",
+    ], // Added randomuser.me
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "localhost",
-        port: "8000",
-        pathname: "/**",
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/storage/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
+        pathname: '/storage/**',
       },
       {
         protocol: "https",
-        hostname: "cdn.example.com",
+        hostname: "backend.bonikbook.com",
         pathname: "/**",
       },
       {

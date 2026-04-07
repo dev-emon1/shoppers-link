@@ -16,7 +16,6 @@ export default function ProductDetails({ product, breadcrumb = [] }) {
       </div>
     );
   }
-  // console.log(product);
   const categoryId = product.category.id;
   const [selectedVariant, setSelectedVariant] = useState(null);
 
@@ -67,7 +66,7 @@ export default function ProductDetails({ product, breadcrumb = [] }) {
               selectedColor={selectedVariant?.attr?.Color ?? null}
               onSelectVariant={(variantId) => {
                 const v = product.variants?.find(
-                  (x) => String(x.id) === String(variantId)
+                  (x) => String(x.id) === String(variantId),
                 );
                 if (v) handleVariantSelect(v);
               }}

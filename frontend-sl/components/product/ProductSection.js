@@ -18,7 +18,11 @@ const ProductSection = ({
   viewAllHref,
   showSoldCount = false,
 }) => {
+<<<<<<< HEAD
   // ✅ ALL HOOKS FIRST (NO CONDITION BEFORE)
+=======
+  // ALL HOOKS FIRST (NO CONDITION BEFORE)
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   const swiperRef = useRef(null);
   const [showExpiringSoon, setShowExpiringSoon] = useState(false);
 
@@ -139,14 +143,22 @@ const ProductSection = ({
             <>
               <button
                 onClick={() => swiperRef.current?.slidePrev()}
+<<<<<<< HEAD
                 className="hidden lg:flex absolute -left-5 top-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition"
+=======
+                className="hidden lg:flex absolute -left-5 top-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition z-50"
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
               >
                 <ChevronLeft size={36} />
               </button>
 
               <button
                 onClick={() => swiperRef.current?.slideNext()}
+<<<<<<< HEAD
                 className="hidden lg:flex absolute -right-5 top-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition"
+=======
+                className="hidden lg:flex absolute -right-5 top-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-full p-1 hover:bg-main hover:text-white transition z-50"
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
               >
                 <ChevronRight size={36} />
               </button>

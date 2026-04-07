@@ -2,16 +2,12 @@
 
 import { TbCurrencyTaka } from "react-icons/tb";
 import { formatAmount } from "../utils/format";
-import { shippingOptions } from "../hooks/useShipping";
+import useShipping from "../hooks/useShipping";
 
-export default function ReviewSection({
-  billing,
-  shippingId,
-  paymentId,
-  cart,
-  totals,
-}) {
-  const shipping = shippingOptions.find((s) => s.id === shippingId);
+export default function ReviewSection({ billing, paymentId, cart, totals }) {
+  const { shippingFee, grandTotal } = useShipping();
+  // const shipping = shippingOptions.find((s) => s.id === shippingId);
+  // const shipping = shippingOptions.find((s) => s.id === shippingId);
 
   const flatCartItems = [];
   Object.values(cart || {}).forEach((vendor) => {
@@ -39,8 +35,9 @@ export default function ReviewSection({
       {/* Shipping */}
       <div className="rounded-2xl border border-border bg-white p-4">
         <h3 className="text-sm font-semibold mb-3">Shipping</h3>
-        <p className="text-sm">
-          {shipping ? shipping.label : "Not selected yet"}
+        <p className="text-sm flex items-center gap-1">
+          <TbCurrencyTaka size={14} />
+          {formatAmount(shippingFee)}
         </p>
       </div>
 
@@ -94,18 +91,24 @@ export default function ReviewSection({
               {formatAmount(totals.subtotal)}
             </span>
           </div>
+
           <div className="flex justify-between text-xs text-textSecondary">
             <span>Shipping</span>
             <span className="flex items-center gap-1">
               <TbCurrencyTaka size={13} />
+<<<<<<< HEAD
               {formatAmount(totals.shipping_charge)}
+=======
+              {formatAmount(shippingFee)}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             </span>
           </div>
+
           <div className="flex justify-between font-semibold mt-1">
             <span>Total payable</span>
             <span className="flex items-center gap-1 text-main">
               <TbCurrencyTaka size={15} />
-              {formatAmount(totals.grandTotal)}
+              {formatAmount(grandTotal || totals.subtotal + shippingFee)}
             </span>
           </div>
         </div>

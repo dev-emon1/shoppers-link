@@ -52,7 +52,7 @@ const AllProducts = React.memo(() => {
       filtered = filtered.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.sku.toLowerCase().includes(searchTerm.toLowerCase())
+          item.sku.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
     if (filterMonth)
@@ -99,7 +99,7 @@ const AllProducts = React.memo(() => {
     const file = e.target.files?.[0];
     if (!file) return;
     const imported = await importFromExcel(file);
-    console.log("📥 Imported Products:", imported);
+
     alert(`✅ Imported ${imported.length} products successfully!`);
   }, []);
 

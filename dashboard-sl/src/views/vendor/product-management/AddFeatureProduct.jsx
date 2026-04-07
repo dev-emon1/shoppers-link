@@ -34,7 +34,7 @@ const AddFeaturedProducts = () => {
 
       // Filter vendor products
       const vendorProducts = api.filter(
-        (item) => item.vendor?.id === user.vendor.id
+        (item) => item.vendor?.id === user.vendor.id,
       );
       setProducts(vendorProducts);
     } catch (err) {
@@ -48,10 +48,10 @@ const AddFeaturedProducts = () => {
     return products.filter(
       (p) =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.sku.toLowerCase().includes(searchTerm.toLowerCase())
+        p.sku.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [products, searchTerm]);
-  //   console.log(products);
+
   const openModal = (product) => {
     setSelectedProduct(product);
     setSelectedVariantId("");
@@ -71,7 +71,6 @@ const AddFeaturedProducts = () => {
       starts_at: startsAt || null,
       ends_at: endsAt || null,
     };
-    // console.log(payload);
 
     try {
       await API.post("/featuredProducts", payload);
@@ -150,7 +149,13 @@ const AddFeaturedProducts = () => {
                       <h3 className="font-bold text-sm line-clamp-2 min-h-10">
                         {p.name}
                       </h3>
+<<<<<<< HEAD
                       <p className="text-xs text-gray-500 mt-1 min-h-4">SKU: {p.sku}</p>
+=======
+                      <p className="text-xs text-gray-500 mt-1 min-h-4">
+                        SKU: {p.sku}
+                      </p>
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                     </div>
                   </div>
                 </motion.div>
@@ -198,16 +203,19 @@ const AddFeaturedProducts = () => {
                 {/* Product Preview */}
                 <div className="rounded-2xl px-2 text-center">
                   <img
-                    src={`${IMAGE_URL}/${selectedProduct.images?.find((i) => i.is_primary)
-                      ?.image_path
-                      }`}
+                    src={`${IMAGE_URL}/${
+                      selectedProduct.images?.find((i) => i.is_primary)
+                        ?.image_path
+                    }`}
                     alt={selectedProduct.name}
                     className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-xl"
                   />
                   <h3 className="text-md font-bold mt-2">
                     {selectedProduct.name}
                   </h3>
-                  <p className="text-gray-600 text-sm">• SKU: {selectedProduct.sku}</p>
+                  <p className="text-gray-600 text-sm">
+                    • SKU: {selectedProduct.sku}
+                  </p>
                 </div>
 
                 {/* Variant */}
@@ -227,7 +235,7 @@ const AddFeaturedProducts = () => {
                         try {
                           const attr = JSON.parse(v.attributes);
                           label = Object.values(attr).join(" • ");
-                        } catch { }
+                        } catch {}
                         return (
                           <option key={v.id} value={v.id}>
                             {label}

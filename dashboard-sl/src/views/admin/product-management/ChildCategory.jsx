@@ -29,8 +29,6 @@ const ChildCategory = () => {
   const [status, setStatus] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  // console.log(childCats);
-
   // ===== Fetch Subcategories =====
   const fetchSubcategories = useCallback(async () => {
     try {
@@ -62,7 +60,12 @@ const ChildCategory = () => {
   // ===== Add / Update Child Category =====
   const handleSubmit = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     if (!selectedSubcategory) return toast.error("⚠️ Please select a subcategory!");
+=======
+    if (!selectedSubcategory)
+      return toast.error("⚠️ Please select a subcategory!");
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     if (!childCategoryName.trim())
       return toast.error("⚠️ Child category name is required!");
 
@@ -73,15 +76,13 @@ const ChildCategory = () => {
       formData.append("description", childCategoryDetails || "");
       formData.append("status", status);
       if (imageFile) formData.append("image", imageFile);
-      // for (let [key, value] of formData.entries()) {
-      //   console.log("FormData:", key, value);
-      // }
+
       let res;
       if (editingChild) {
         res = await API.post(
           `childCategories/${editingChild.id}?_method=PUT`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" } },
         );
       } else {
         res = await API.post("childCategories", formData, {
@@ -122,7 +123,11 @@ const ChildCategory = () => {
     setChildCategoryName(child.name);
     setChildCategoryDetails(child.description || "");
     setStatus(child.status || 0);
-    setImagePreview(child.image?.startsWith("http") ? child.image : `${IMAGE_URL}${child.image}`);
+    setImagePreview(
+      child.image?.startsWith("http")
+        ? child.image
+        : `${IMAGE_URL}${child.image}`,
+    );
     setShow(true);
   };
   // ==== Handlers ====
@@ -144,14 +149,14 @@ const ChildCategory = () => {
 
     // Optimistic Update: Update the UI immediately
     setChildCats((prev) =>
-      prev.map((cat) => (cat.id === id ? { ...cat, status: newStatus } : cat))
+      prev.map((cat) => (cat.id === id ? { ...cat, status: newStatus } : cat)),
     );
 
     try {
       // API Call to toggle status
       const res = await API.post(`childCategories/${id}/toggle-status`, {
         status: newStatus,
-        _method: 'PATCH'
+        _method: "PATCH",
       });
       toast.success("✅ Status updated successfully!");
       if (!res.data.success) {
@@ -162,7 +167,9 @@ const ChildCategory = () => {
 
       // Rollback: Revert the UI if the API call fails
       setChildCats((prev) =>
-        prev.map((cat) => (cat.id === id ? { ...cat, status: currentStatus } : cat))
+        prev.map((cat) =>
+          cat.id === id ? { ...cat, status: currentStatus } : cat,
+        ),
       );
 
       toast.error("⚠️ Failed to update status on server.");
@@ -170,7 +177,11 @@ const ChildCategory = () => {
   }, []);
   // ===== Table Columns =====
   const columns = [
-    { key: "no", label: "No", render: (item, i) => (page - 1) * perPage + i + 1 },
+    {
+      key: "no",
+      label: "No",
+      render: (item, i) => (page - 1) * perPage + i + 1,
+    },
     {
       key: "image",
       label: "Image",
@@ -188,8 +199,16 @@ const ChildCategory = () => {
         />
       ),
     },
-    { key: "category", label: "Category", render: (item) => item.sub_category.category.name },
-    { key: "subcategory", label: "Subcategory", render: (item) => item.sub_category.name },
+    {
+      key: "category",
+      label: "Category",
+      render: (item) => item.sub_category.category.name,
+    },
+    {
+      key: "subcategory",
+      label: "Subcategory",
+      render: (item) => item.sub_category.name,
+    },
     { key: "name", label: "Child Category", sortable: true },
     {
       key: "status",
@@ -199,12 +218,14 @@ const ChildCategory = () => {
         <div className="flex justify-center">
           <button
             onClick={() => handleToggleStatus(item.id, item.status)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${item.status === 1 ? "bg-green" : "bg-gray-300"
-              }`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+              item.status === 1 ? "bg-green" : "bg-gray-300"
+            }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${item.status === 1 ? "translate-x-6" : "translate-x-1"
-                }`}
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                item.status === 1 ? "translate-x-6" : "translate-x-1"
+              }`}
             />
           </button>
         </div>
@@ -219,11 +240,14 @@ const ChildCategory = () => {
   // ===== Pagination + Search =====
   const { currentData, totalPages } = useMemo(() => {
     const filtered = childCats.filter((cat) =>
-      cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+      cat.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     const total = Math.ceil(filtered.length / perPage);
     const start = (page - 1) * perPage;
-    return { currentData: filtered.slice(start, start + perPage), totalPages: total };
+    return {
+      currentData: filtered.slice(start, start + perPage),
+      totalPages: total,
+    };
   }, [childCats, searchTerm, perPage, page]);
   return (
     <div className="px-4">
@@ -246,10 +270,7 @@ const ChildCategory = () => {
       />
       {/* ===== Filter Bar ===== */}
       <div className="mb-4 bg-white p-3 rounded-md shadow-sm">
-        <FilterBar
-          perPage={perPage}
-          onPerPageChange={handlePerPageChange}
-        />
+        <FilterBar perPage={perPage} onPerPageChange={handlePerPageChange} />
       </div>
       <div className="flex flex-wrap w-full">
         <div className="w-full lg:w-7/12">
@@ -267,16 +288,27 @@ const ChildCategory = () => {
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
-                onPageChange={setPage} />
+                onPageChange={setPage}
+              />
             </div>
           </div>
         </div>
 
-        <SlidePanel show={show} title={editingChild ? "Edit Child Category" : "Add Child Category"} onClose={() => setShow(false)}>
+        <SlidePanel
+          show={show}
+          title={editingChild ? "Edit Child Category" : "Add Child Category"}
+          onClose={() => setShow(false)}
+        >
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Select Subcategory <span className="text-red">*</span></label>
-              <select className="px-2 py-2 border rounded-md" value={selectedSubcategory} onChange={(e) => setSelectedSubcategory(e.target.value)}>
+              <label className="text-sm font-medium">
+                Select Subcategory <span className="text-red">*</span>
+              </label>
+              <select
+                className="px-2 py-2 border rounded-md"
+                value={selectedSubcategory}
+                onChange={(e) => setSelectedSubcategory(e.target.value)}
+              >
                 <option value="">-- Choose Subcategory --</option>
                 {subcategories.map((sub) => (
                   <option key={sub.id} value={sub.id}>
@@ -287,13 +319,27 @@ const ChildCategory = () => {
             </div>
 
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Child Category Name <span className="text-red">*</span></label>
-              <input type="text" className="px-2 py-2 border rounded-md" value={childCategoryName} onChange={(e) => setChildCategoryName(e.target.value)} />
+              <label className="text-sm font-medium">
+                Child Category Name <span className="text-red">*</span>
+              </label>
+              <input
+                type="text"
+                className="px-2 py-2 border rounded-md"
+                value={childCategoryName}
+                onChange={(e) => setChildCategoryName(e.target.value)}
+              />
             </div>
 
             <div className="flex flex-col w-full gap-1 mb-5">
-              <label className="text-sm font-medium">Description (optional)</label>
-              <textarea className="px-2 py-2 border rounded-md" value={childCategoryDetails} onChange={(e) => setChildCategoryDetails(e.target.value)} rows={3} />
+              <label className="text-sm font-medium">
+                Description (optional)
+              </label>
+              <textarea
+                className="px-2 py-2 border rounded-md"
+                value={childCategoryDetails}
+                onChange={(e) => setChildCategoryDetails(e.target.value)}
+                rows={3}
+              />
             </div>
             {/* Status */}
             {/* <div className="flex flex-col w-full gap-1 mb-5">
@@ -318,7 +364,10 @@ const ChildCategory = () => {
               )}
             </div>
 
-            <button type="submit" className="w-full bg-main text-white py-2 rounded-md">
+            <button
+              type="submit"
+              className="w-full bg-main text-white py-2 rounded-md"
+            >
               {editingChild ? "Update Child Category" : "Add Child Category"}
             </button>
           </form>

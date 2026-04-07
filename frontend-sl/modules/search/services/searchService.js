@@ -7,7 +7,11 @@ export async function searchProductsApi({
   limit = null,
   signal,
 }) {
+<<<<<<< HEAD
   // ❗ only block when BOTH missing
+=======
+  // only block when BOTH missing
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   if (!q && !categoryId) {
     return { items: [], total: 0 };
   }

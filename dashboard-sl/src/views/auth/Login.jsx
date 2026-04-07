@@ -89,7 +89,11 @@ export default function AuthLayout() {
       setLoginErrors(
         error.response?.data?.errors || {
           general: "Login failed. Please try again.",
+<<<<<<< HEAD
         }
+=======
+        },
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       );
       // Show Laravel's exact error message
       const msg =
@@ -145,7 +149,6 @@ export default function AuthLayout() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    // console.log(formData);
 
     setIsSubmitting(true);
     try {
@@ -162,7 +165,11 @@ export default function AuthLayout() {
       setErrors(
         error.response?.data?.errors || {
           general: "Registration failed. Please try again.",
+<<<<<<< HEAD
         }
+=======
+        },
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       );
     } finally {
       setIsSubmitting(false);

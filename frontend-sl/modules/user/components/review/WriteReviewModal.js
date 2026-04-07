@@ -241,7 +241,10 @@ export default function WriteReviewModal({ order, vendorOrder, onClose }) {
 
       // 1. Validation
       if (!ratings[productId] || ratings[productId] <= 0) {
-        showToast(`Please provide a rating for ${group.product?.name}`, "error");
+        showToast(
+          `Please provide a rating for ${group.product?.name}`,
+          "error",
+        );
         return;
       }
       if (!texts[productId]?.trim()) {
@@ -265,10 +268,13 @@ export default function WriteReviewModal({ order, vendorOrder, onClose }) {
               body: texts[productId],
               media: media.map((m) => m.file),
             },
-          })
+          }),
         ).unwrap();
       } catch (err) {
-        showToast(`${group.product?.name}: ${err?.message || "Failed"}`, "error");
+        showToast(
+          `${group.product?.name}: ${err?.message || "Failed"}`,
+          "error",
+        );
         setSubmitting(false);
         return; // Stop if one fails
       }
@@ -312,8 +318,6 @@ export default function WriteReviewModal({ order, vendorOrder, onClose }) {
             groupedProducts.map((group) => {
               const product = group.product;
               const productId = product?.id || product?.unid;
-              // console.log(product);
-
 
               return (
                 <div
@@ -383,10 +387,11 @@ export default function WriteReviewModal({ order, vendorOrder, onClose }) {
               Add Photos / Video (Optional)
             </p>
             <div
-              className={`border-2 border-dashed rounded-lg p-6 text-center transition ${isDragging
-                ? "border-main bg-main/5"
-                : "border-gray-300 hover:border-gray-400"
-                }`}
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition ${
+                isDragging
+                  ? "border-main bg-main/5"
+                  : "border-gray-300 hover:border-gray-400"
+              }`}
             >
               <p className="text-sm text-gray-600 mb-3">
                 Drag & drop up to 3 images or 1 video (max 10MB video, 2MB per
@@ -405,8 +410,9 @@ export default function WriteReviewModal({ order, vendorOrder, onClose }) {
               />
               <label
                 htmlFor="media-upload"
-                className={`inline-block px-5 py-2 bg-main/10 text-main rounded-md ${isSubmitted ? "cursor-not-allowed" : "cursor-pointer"
-                  } hover:bg-main/20 transition`}
+                className={`inline-block px-5 py-2 bg-main/10 text-main rounded-md ${
+                  isSubmitted ? "cursor-not-allowed" : "cursor-pointer"
+                } hover:bg-main/20 transition`}
               >
                 Select Files
               </label>

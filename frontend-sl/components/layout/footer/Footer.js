@@ -1,3 +1,5 @@
+import Link from "next/link";
+import Image from "next/image";
 import {
   FaFacebook,
   FaInstagram,
@@ -6,79 +8,46 @@ import {
   FaTwitter,
   FaYoutube,
 } from "react-icons/fa6";
-import Image from "next/image";
+
 import fingertips from "@/public/images/fingertips.png";
-import Link from "next/link";
+import { footerLinks } from "./footer.data";
 
 export default function Footer() {
   return (
     <footer className="bg-[#f3f3f3] text-secondary py-12 px-6">
-      {/* Top Section */}
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 border-b border-white pb-10">
-        {/* Help */}
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 border-b border-white pb-10">
+        {footerLinks.map((section) => (
+          <div key={section.title}>
+            <h3 className="font-semibold text-lg mb-4">{section.title}</h3>
+
+            <ul className="space-y-2 text-sm text-secondaryActive">
+              {section.links.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-main transition">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        {/* Contact Section */}
         <div>
-          <h3 className="font-semibold text-lg mb-4">Help</h3>
-          <ul className="space-y-2 text-sm text-secondaryActive">
-            <li>Contact us</li>
-            <li>Customer services</li>
-            <li>Product support</li>
-            <li>Our shops</li>
-            <li>Price promise</li>
-          </ul>
-
-          <h3 className="font-semibold text-lg mt-6 mb-4">Delivery</h3>
-          <ul className="space-y-2 text-sm text-secondaryActive">
-            <li>Delivery & collection</li>
-            <li>Track your order</li>
-            <li>Returns & refunds</li>
-          </ul>
-        </div>
-
-        {/* Shopping */}
-        <div>
-          <h3 className="font-semibold text-lg mb-4">Shopping</h3>
-          <ul className="space-y-2 text-sm text-secondaryActive">
-            <li>Gift Cards & vouchers</li>
-            <li>My ShoppersLink</li>
-            <li>Cart</li>
-            <li>Wish List</li>
-            <li>Brands A–Z</li>
-            <li>Offers</li>
-          </ul>
-        </div>
-
-        {/* More from us */}
-        <div>
-          <h3 className="font-semibold text-lg mb-4">More from us</h3>
-          <ul className="space-y-2 text-sm text-secondaryActive">
-            <li>Jobs</li>
-            <li>ShoppersLink & Partners</li>
-            <li>About the ShoppersLink Partnership</li>
-            <li>ShoppersLink for Business</li>
-            <li>Happier futures</li>
-            <li>Protect+</li>
-          </ul>
-        </div>
-
-        {/* ShoppersLink Money */}
-        <div>
-          <h3 className="font-semibold text-lg mb-4">Shoppers Link Money</h3>
-          <ul className="space-y-2 text-sm text-secondaryActive mb-4">
-            <li>Payment plans</li>
-            <li>Partnership Credit Card</li>
-            <li>Travel money</li>
-            <li>Loans</li>
-          </ul>
-
-          {/* Contact Info */}
-
           <h3 className="font-semibold text-lg mb-4">Helpline</h3>
+
           <ul className="space-y-2 text-sm text-secondaryActive">
             <li className="flex flex-col gap-1">
               <span className="font-medium">Email:</span>
+<<<<<<< HEAD
               <a
                 className="text-secondaryActive hover:text-main break-all"
+=======
+
+              <a
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                 href="mailto:info@fingertipsinnovations.com"
+                className="hover:text-main break-all"
               >
                 info@fingertipsinnovations.com
               </a>
@@ -86,10 +55,8 @@ export default function Footer() {
 
             <li>
               <span className="block font-medium">Phone:</span>
-              <a
-                className="text-secondaryActive hover:text-main"
-                href="tel:+8801401446644"
-              >
+
+              <a href="tel:+8801401446644" className="hover:text-main">
                 +880 1401-446644
               </a>
             </li>
@@ -99,28 +66,25 @@ export default function Footer() {
 
       {/* Bottom Section */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
-        <p
-          className="tracking-[0.2em] text-xs text-text-secondaryActive text-center flex
-            items-center gap-2"
-        >
-          &copy; 2025 Shoppers Link. All Rights Reserved | Developed by
+        <p className="tracking-[0.2em] text-xs text-text-secondaryActive flex items-center gap-2 text-center">
+          &copy; 2026 Shopperslink. All Rights Reserved | Developed by
           <Link
-            href={"https://fingertipsinnovations.com/"}
+            href="https://fingertipsinnovations.com/"
             target="_blank"
+<<<<<<< HEAD
             className="inline-block"
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             prefetch={false}
           >
-            <Image src={fingertips} alt={"Fingertips"} className="w-28" />
+            <Image src={fingertips} alt="Fingertips" className="w-28" />
           </Link>
         </p>
 
-        {/* Social Icons */}
+        {/* Social */}
         <div className="flex space-x-5">
-          <FaFacebook
-            size={28}
-            className="w-5 h-5 hover:text-[#3b5998] cursor-pointer"
-          />
-          <FaTwitter className="w-5 h-5  hover:text-[#3b5998] cursor-pointer" />
+          <FaFacebook className="w-5 h-5 hover:text-[#3b5998] cursor-pointer" />
+          <FaTwitter className="w-5 h-5 hover:text-[#3b5998] cursor-pointer" />
           <FaYoutube className="w-5 h-5 hover:text-[#3b5998] cursor-pointer" />
           <FaPinterest className="w-5 h-5 hover:text-[#3b5998] cursor-pointer" />
           <FaInstagram className="w-5 h-5 hover:text-[#3b5998] cursor-pointer" />

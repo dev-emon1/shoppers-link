@@ -18,8 +18,13 @@ const BANNERS_TTL = 60 * 60 * 1000; // 1 hour
 const FEATURED_TTL = 10 * 60 * 1000;
 const TOP_RATING_TTL = 10 * 60 * 1000;
 const TOP_SELLING_TTL = 5 * 60 * 1000;
+<<<<<<< HEAD
 const NEW_ARRIVALS_TTL = 3 * 60 * 1000;
 const SHOP_BY_BRAND_TTL = 60 * 60 * 1000;
+=======
+const NEW_ARRIVALS_TTL = 60 * 1000;
+const SHOP_BY_BRAND_TTL = 1 * 60 * 1000;
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
 /* ------------------------------------------------------------
    THUNKS
@@ -148,11 +153,21 @@ export const fetchTopRatingProducts = createAsyncThunk(
 /* ---------- NEW ARRIVALS ---------- */
 export const fetchNewArrivals = createAsyncThunk(
   "home/fetchNewArrivals",
+<<<<<<< HEAD
   async ({ page = 1 }, { getState, rejectWithValue }) => {
     try {
       const state = getState().home.newArrivals;
 
       if (
+=======
+  async ({ page = 1, force = false }, { getState, rejectWithValue }) => {
+    try {
+      const state = getState().home.newArrivals;
+
+      // 🔥 CACHE BYPASS
+      if (
+        !force &&
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         page === 1 &&
         state.data.length > 0 &&
         state.lastFetched &&
@@ -167,6 +182,7 @@ export const fetchNewArrivals = createAsyncThunk(
         };
       }
 
+<<<<<<< HEAD
       if (page === 1) {
         const cached = readProductCache("newArrivals");
         if (cached?.data?.length) return cached;
@@ -178,6 +194,10 @@ export const fetchNewArrivals = createAsyncThunk(
         writeProductCache("newArrivals", res);
       }
 
+=======
+      const res = await fetchNewArrivalsApi(page);
+
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       return res;
     } catch {
       return rejectWithValue("Failed to fetch new arrivals");
@@ -228,9 +248,36 @@ export const fetchTopSelling = createAsyncThunk(
 /* ---------- SHOP BY BRANDS ---------- */
 export const fetchShopByBrands = createAsyncThunk(
   "home/fetchShopByBrands",
+<<<<<<< HEAD
   async ({ page = 1 }, { rejectWithValue }) => {
     try {
       return await fetchShopByBrandsApi(page);
+=======
+  async (
+    { page = 1, perPage = 15, force = false },
+    { getState, rejectWithValue },
+  ) => {
+    try {
+      const state = getState().home.shopByBrands;
+
+      if (
+        !force &&
+        page === 1 &&
+        state.data.length > 0 &&
+        state.lastFetched &&
+        Date.now() - state.lastFetched < state.ttl
+      ) {
+        return {
+          data: state.data,
+          meta: {
+            current_page: 1,
+            last_page: state.lastPage ?? 1,
+          },
+        };
+      }
+
+      return await fetchShopByBrandsApi(page, perPage);
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     } catch {
       return rejectWithValue("Failed to fetch shop by brands");
     }
@@ -414,6 +461,7 @@ const homeSlice = createSlice({
           state.shopByBrands.status = "loading";
         }
       })
+<<<<<<< HEAD
       .addCase(fetchShopByBrands.fulfilled, (state, action) => {
         const { data, meta } = action.payload;
         state.shopByBrands.status = "success";
@@ -422,6 +470,55 @@ const homeSlice = createSlice({
         state.shopByBrands.page = meta.current_page;
         state.shopByBrands.lastPage = meta.last_page;
         state.shopByBrands.hasMore = meta.current_page < meta.last_page;
+=======
+      // homeReducer.js
+
+      .addCase(fetchShopByBrands.fulfilled, (state, action) => {
+        const { data = [], meta = {} } = action.payload;
+
+        state.shopByBrands.status = "success";
+
+        if (meta.current_page === 1) {
+          // ✅ reset with unique
+          const uniqueMap = new Map();
+
+          data.forEach((item) => {
+            if (item?.id) {
+              uniqueMap.set(item.id, item);
+            }
+          });
+
+          state.shopByBrands.data = Array.from(uniqueMap.values());
+        } else {
+          const existing = state.shopByBrands.data || [];
+
+          // ✅ existing map
+          const map = new Map();
+
+          existing.forEach((item) => {
+            if (item?.id) {
+              map.set(item.id, item);
+            }
+          });
+
+          // ✅ merge new data safely
+          data.forEach((item) => {
+            if (item?.id && !map.has(item.id)) {
+              map.set(item.id, item);
+            }
+          });
+
+          state.shopByBrands.data = Array.from(map.values());
+        }
+
+        state.shopByBrands.page = meta.current_page || 1;
+        state.shopByBrands.lastPage = meta.last_page || 1;
+        state.shopByBrands.hasMore =
+          (meta.current_page || 1) < (meta.last_page || 1);
+
+        state.shopByBrands.total = meta.total || 0;
+
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         state.shopByBrands.lastFetched = Date.now();
       })
       .addCase(fetchShopByBrands.rejected, (state) => {

@@ -1,30 +1,30 @@
 // ========== IMAGES ==========
-import cat1 from "../../../../public/images/category/1.jpg";
-import cat2 from "../../../../public/images/category/2.jpg";
-import cat3 from "../../../../public/images/category/3.jpg";
-import cat4 from "../../../../public/images/category/4.jpg";
-import cat5 from "../../../../public/images/category/5.jpg";
-import cat6 from "../../../../public/images/category/1.jpg";
+const cat1 = "/images/category/1.jpg";
+const cat2 = "/images/category/2.jpg";
+const cat3 = "/images/category/3.jpg";
+const cat4 = "/images/category/4.jpg";
+const cat5 = "/images/category/5.jpg";
+const cat6 = "/images/category/1.jpg";
 
-import p1 from "../../../../public/images/products/1.webp";
-import p2 from "../../../../public/images/products/2.webp";
-import p3 from "../../../../public/images/products/3.webp";
-import p4 from "../../../../public/images/products/4.webp";
-import p5 from "../../../../public/images/products/5.webp";
-import p6 from "../../../../public/images/products/6.webp";
-import p7 from "../../../../public/images/products/7.webp";
-import p8 from "../../../../public/images/products/8.webp";
+const p1 = "/images/products/1.webp";
+const p2 = "/images/products/2.webp";
+const p3 = "/images/products/3.webp";
+const p4 = "/images/products/4.webp";
+const p5 = "/images/products/5.webp";
+const p6 = "/images/products/6.webp";
+const p7 = "/images/products/7.webp";
+const p8 = "/images/products/8.webp";
 
-import aarong from "../../../../public/images/brands/aarong.png";
-import apex from "../../../../public/images/brands/apex.png";
-import bata from "../../../../public/images/brands/bata.png";
-import hatil from "../../../../public/images/brands/hatil.png";
-import minister from "../../../../public/images/brands/minister.png";
-import otobi from "../../../../public/images/brands/otobi.png";
-import richman from "../../../../public/images/brands/richman.png";
-import walton from "../../../../public/images/brands/walton.png";
-import yellow from "../../../../public/images/brands/yellow.jpg";
-import feather from "../../../../public/images/brands/feather_dolls.jpg";
+const aarong = "/images/brands/aarong.png";
+const apex = "/images/brands/apex.png";
+const bata = "/images/brands/bata.png";
+const hatil = "/images/brands/hatil.png";
+const minister = "/images/brands/minister.png";
+const otobi = "/images/brands/otobi.png";
+const richman = "/images/brands/richman.png";
+const walton = "/images/brands/walton.png";
+const yellow = "/images/brands/yellow.jpg";
+const feather = "/images/brands/feather_dolls.jpg";
 
 // ==============================
 // CATEGORY DATA (Main Hierarchy)

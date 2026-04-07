@@ -1,6 +1,10 @@
 "use client";
 
+<<<<<<< HEAD
 import { useCallback, useMemo } from "react";
+=======
+import { useCallback } from "react";
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 import { useDispatch, useSelector } from "react-redux";
 import {
   loadOrders,
@@ -40,6 +44,7 @@ export default function useOrders() {
      SMART FETCH (CACHE + TTL)
   ---------------------------------- */
   const fetchOrders = useCallback(
+<<<<<<< HEAD
     async (opts = { page: 1, per_page: 10, force: false, silent: false }) => {
       // 1️⃣ Redux data already fresh → skip
       if (!opts.force && hasFetched && isFresh) {
@@ -68,6 +73,17 @@ export default function useOrders() {
           page: opts.page ?? 1,
           per_page: opts.per_page ?? 10,
           silent: opts.silent,
+=======
+    async (opts = {}) => {
+      return dispatch(
+        loadOrders({
+          page: opts.page ?? 1,
+          per_page: opts.per_page ?? 10,
+          silent: opts.silent ?? false,
+
+          // 🔥🔥🔥 CRITICAL FIX
+          _t: Date.now(), // cache bust
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         }),
       );
 
@@ -78,7 +94,11 @@ export default function useOrders() {
 
       return action;
     },
+<<<<<<< HEAD
     [dispatch, hasFetched, isFresh],
+=======
+    [dispatch],
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   );
 
   return {
@@ -86,7 +106,10 @@ export default function useOrders() {
     loading,
     meta,
     fetchOrders,
+<<<<<<< HEAD
     hasFetched,
     isFresh,
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   };
 }

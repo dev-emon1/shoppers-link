@@ -27,6 +27,7 @@ export default function useNewArrivalsProducts({ mode = "home" } = {}) {
      Initial fetch logic
   --------------------------- */
   useEffect(() => {
+<<<<<<< HEAD
     // HOME MODE → cache based, page=1 only
     if (mode === "home") {
       if (loading) return;
@@ -42,6 +43,16 @@ export default function useNewArrivalsProducts({ mode = "home" } = {}) {
       if (data.length === 0) {
         dispatch(fetchNewArrivals({ page: 1 }));
       }
+=======
+    if (mode === "home") {
+      if (!isCacheValid(lastFetched, ttl)) {
+        dispatch(fetchNewArrivals({ page: 1 }));
+      }
+    }
+
+    if (mode === "listing" && data.length === 0) {
+      dispatch(fetchNewArrivals({ page: 1 }));
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     }
   }, [dispatch, mode, lastFetched]);
 

@@ -59,7 +59,11 @@ const TopBar = () => {
         <div className="flex gap-6 font-medium text-xs">
           {/* Partner Access */}
           <Link
+<<<<<<< HEAD
             href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}/login`}
+=======
+            href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}`}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             target="_blank"
             prefetch={false}
             className="text-white flex items-center gap-2 hover:text-secondary"
@@ -67,6 +71,7 @@ const TopBar = () => {
             <Handshake size={14} />
             Partner Access
           </Link>
+<<<<<<< HEAD
 
           {/* HELP */}
           {/* <div
@@ -213,6 +218,8 @@ const TopBar = () => {
             <House size={14} />
             Our store
           </div> */}
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         </div>
       </div>
     </div>

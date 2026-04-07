@@ -1,39 +1,92 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 import api from "@/core/api/axiosClient";
-import { showToast } from "@/lib/utils/toast";
+import { useDispatch } from "react-redux";
+import { addNewOrder, loadOrders } from "@/modules/user/store/orderReducer";
 
 export default function CheckoutSuccessPage() {
   const sp = useSearchParams();
-  const ref = sp.get("ref"); // checkout_unid
-  const [orders, setOrders] = useState(null);
-  const [loading, setLoading] = useState(true);
-  // console.log(orders);
-
   const orderId = sp.get("order_id");
-  const fetchOrders = async () => {
-    if (!orderId) return;
-    const { data } = await api.get(`/customer/order/${orderId}`);
-    setOrders([data]); // wrap in array to keep your existing map logic
-    setLoading(false);
-  };
+
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const [order, setOrder] = useState(null);
+  const hasDispatchedRef = useRef(false);
+
   useEffect(() => {
-    fetchOrders();
-  }, [ref]);
+    if (!orderId) return;
+
+    let mounted = true;
+
+    const fetchOrder = async () => {
+      let attempts = 0;
+
+      while (attempts < 5) {
+        try {
+          const res = await api.get(`/customer/order/${orderId}`);
+          const data = res?.data?.data || res?.data;
+
+          if (data?.unid && mounted) {
+            setOrder(data);
+
+            if (!hasDispatchedRef.current) {
+              hasDispatchedRef.current = true;
+
+              // ✅ instant UI
+              dispatch(addNewOrder(data));
+
+              // 🔥 SMART BACKEND SYNC (no vanish)
+              let retry = 0;
+
+              const sync = async () => {
+                while (retry < 5) {
+                  const action = await dispatch(
+                    loadOrders({ page: 1, silent: true }),
+                  );
+
+                  const list = action.payload?.list || [];
+
+                  const found = list.some((o) => o.unid === data.unid);
+
+                  if (found) break;
+
+                  await new Promise((r) => setTimeout(r, 1500));
+                  retry++;
+                }
+              };
+
+              sync();
+            }
+
+            break;
+          }
+        } catch {}
+
+        await new Promise((r) => setTimeout(r, 800));
+        attempts++;
+      }
+    };
+
+    fetchOrder();
+
+    return () => {
+      mounted = false;
+    };
+  }, [orderId, dispatch]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50">
-      <div className="bg-white p-8 rounded-2xl shadow-sm max-w-lg w-full text-center border border-border">
-        <CheckCircle2 className="text-emerald-500 mx-auto mb-5" size={60} />
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <CheckCircle2 size={60} className="mx-auto text-green-500" />
+        <h1 className="text-xl mt-4">Order placed successfully</h1>
 
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-          Order placed successfully!
-        </h1>
+        {order && <p className="mt-2">Order ID: {order.unid}</p>}
 
+<<<<<<< HEAD
         <p className="text-sm text-gray-600 mb-4">
           Thank you for shopping with{" "}
           <span className="font-medium">ShoppersLink</span>. Your order has been
@@ -79,6 +132,14 @@ export default function CheckoutSuccessPage() {
             Continue Shopping →
           </Link>
         </div>
+=======
+        <button
+          onClick={() => router.push("/user/dashboard/orders")}
+          className="mt-4 px-4 py-2 bg-main text-white rounded"
+        >
+          View Orders
+        </button>
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       </div>
     </div>
   );

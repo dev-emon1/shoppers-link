@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+<<<<<<< HEAD
 import { useSelector } from "react-redux";
 import useCachedAddresses from "@/modules/user/hooks/useCachedAddresses";
 import { validateBilling } from "../utils/validation";
 import { showToast } from "@/lib/utils/toast";
 import { MapPin, Home, Building2 } from "lucide-react";
+=======
+import { validateBilling } from "../utils/validation";
+import { MapPin } from "lucide-react";
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
 /* ---------------- helpers ---------------- */
 const isSameValue = (a, b) => {
@@ -22,9 +27,12 @@ export default function BillingForm({
   onChange,
   registerValidate,
 }) {
+<<<<<<< HEAD
   const { user } = useSelector((state) => state.auth);
   const { addresses, defaultAddress } = useCachedAddresses(user?.customer?.id);
 
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   const [localErrors, setLocalErrors] = useState(errors || {});
   const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
   const [setAsDefault, setSetAsDefault] = useState(false);
@@ -39,6 +47,7 @@ export default function BillingForm({
     city: value.city || "",
     postalCode: value.postalCode || "",
     notes: value.notes || "",
+<<<<<<< HEAD
     addressType: "home",
   });
 
@@ -148,11 +157,45 @@ export default function BillingForm({
     }
     setShouldSaveAddress(checked);
     if (!checked) setSetAsDefault(false);
+=======
+  });
+
+  /* ---------------- validation ---------------- */
+  useEffect(() => {
+    if (!registerValidate) return;
+
+    registerValidate(() => {
+      const vErrors = validateBilling(form);
+      setLocalErrors(vErrors);
+      return Object.keys(vErrors).length ? { valid: false } : { valid: true };
+    });
+  }, [form, registerValidate]);
+
+  /* ---------------- sync to redux ---------------- */
+  useEffect(() => {
+    if (!onChange) return;
+
+    const nextValue = {
+      ...value,
+      ...form,
+    };
+
+    if (!isSameValue(value, nextValue)) {
+      onChange(nextValue);
+    }
+  }, [form]);
+
+  /* ---------------- input change ---------------- */
+  const handleChange = (field) => (e) => {
+    const v = e.target.value;
+    setForm((p) => ({ ...p, [field]: v }));
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   };
 
   return (
     <div className="space-y-4">
       {/* Header */}
+<<<<<<< HEAD
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
@@ -193,6 +236,16 @@ export default function BillingForm({
             <span className="text-xs text-gray-400">No saved address</span>
           )}
         </div>
+=======
+      <div>
+        <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
+          <MapPin size={18} />
+          Enter delivery details
+        </h2>
+        <p className="text-xs md:text-sm text-textSecondary">
+          Please provide your delivery address manually.
+        </p>
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       </div>
 
       {/* Form */}
@@ -204,6 +257,7 @@ export default function BillingForm({
           onChange={handleChange("fullName")}
           error={localErrors.fullName}
         />
+<<<<<<< HEAD
         <Input
           label="Phone number *"
           placeholder="01XXXXXXXXX"
@@ -248,6 +302,58 @@ export default function BillingForm({
           error={localErrors.postalCode}
         />
 
+=======
+
+        <Input
+          label="Phone number *"
+          placeholder="01XXXXXXXXX"
+          value={form.phone}
+          onChange={handleChange("phone")}
+          error={localErrors.phone}
+        />
+
+        <Input
+          label="Email (optional)"
+          placeholder="you@example.com"
+          value={form.email}
+          onChange={handleChange("email")}
+          error={localErrors.email}
+        />
+
+        <Input
+          label="Area / Thana *"
+          placeholder="e.g. Mirpur 14"
+          value={form.area}
+          onChange={handleChange("area")}
+          error={localErrors.area}
+        />
+
+        <Input
+          label="Address line *"
+          placeholder="House, Road, Block, Area"
+          value={form.line1}
+          onChange={handleChange("line1")}
+          error={localErrors.line1}
+          colSpan
+        />
+
+        <Input
+          label="City / District *"
+          placeholder="e.g. Dhaka"
+          value={form.city}
+          onChange={handleChange("city")}
+          error={localErrors.city}
+        />
+
+        <Input
+          label="Postcode (optional)"
+          placeholder="e.g. 1211"
+          value={form.postalCode}
+          onChange={handleChange("postalCode")}
+          error={localErrors.postalCode}
+        />
+
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         {/* Notes */}
         <div className="md:col-span-2">
           <textarea
@@ -289,6 +395,10 @@ function Input({ label, value, onChange, error, placeholder, colSpan }) {
   return (
     <div className={colSpan ? "md:col-span-2" : ""}>
       <label className="block text-xs mb-1">{label}</label>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       <input
         value={value}
         onChange={onChange}
@@ -297,6 +407,10 @@ function Input({ label, value, onChange, error, placeholder, colSpan }) {
           error ? "border-red-500" : "border-border"
         }`}
       />
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       {error && <p className="text-xs text-red mt-1">{error}</p>}
     </div>
   );

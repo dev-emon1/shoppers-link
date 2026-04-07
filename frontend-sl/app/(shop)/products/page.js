@@ -62,6 +62,7 @@ export default function ProductsPage() {
   const [filterOpen, setFilterOpen] = useState(false);
 
   /* -----------------------------
+<<<<<<< HEAD
      Resolve product source
      (LOGIC FIXED HERE)
   ----------------------------- */
@@ -126,6 +127,63 @@ export default function ProductsPage() {
   /* -----------------------------
      Filters hook (PURE)
   ----------------------------- */
+=======
+     🔑 Call all hooks at top level
+  ----------------------------- */
+  const featured = useFeaturedProducts({ mode: "listing" });
+  const newArrivals = useNewArrivalsProducts({ mode: "listing" });
+  const topSelling = useTopSellingProducts({ mode: "listing" });
+  const topRating = useTopRatingProducts({ mode: "listing" });
+
+  let hookResult = null;
+
+  switch (type) {
+    case "featured":
+      hookResult = {
+        title: "Featured Products",
+        data: featured,
+      };
+      break;
+
+    case "new-arrivals":
+      hookResult = {
+        title: "New Arrivals",
+        data: newArrivals,
+      };
+      break;
+
+    case "top-selling":
+      hookResult = {
+        title: "Top Selling Products",
+        data: topSelling,
+      };
+      break;
+
+    case "top-rating":
+      hookResult = {
+        title: "Top Rated Products",
+        data: topRating,
+      };
+      break;
+
+    default:
+      hookResult = null;
+  }
+
+  const {
+    products = [],
+    loading,
+    error,
+    hasMore = false,
+    loadMore,
+  } = hookResult?.data || {};
+
+  /* -----------------------------
+     URL -> filters
+  ----------------------------- */
+  const initialFilters = useMemo(() => parseFilters(sp), [sp]);
+
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
     useProductFilters({
       products,

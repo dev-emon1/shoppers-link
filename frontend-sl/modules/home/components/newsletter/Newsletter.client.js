@@ -8,7 +8,10 @@ export default function NewsletterClient() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     console.log("Subscribed with:", email);
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     setEmail("");
   };
 
@@ -81,7 +84,11 @@ export default function NewsletterClient() {
 
               <button className="mt-6 bg-main hover:bg-mainHover active:bg-mainActive text-white font-medium px-6 py-3 rounded-md transition">
                 <Link
+<<<<<<< HEAD
                   href={`${process.env.NEXT_PUBLIC_CLIENT_ACCESS_URL}/login`}
+=======
+                  href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}`}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                   target="_blank"
                 >
                   Join as Partner

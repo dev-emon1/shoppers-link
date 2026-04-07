@@ -116,12 +116,15 @@ function extractTimeline(order, entity = order) {
   return map;
 }
 export default function OrderDetailsPane({ order }) {
-  // console.log(order);
   const dispatch = useDispatch();
   const [processingVendorCancel, setProcessingVendorCancel] = useState(null);
   const [reviewVendorId, setReviewVendorId] = useState(null);
   const [viewReviewVendorId, setViewReviewVendorId] = useState(null);
+<<<<<<< HEAD
 
+=======
+  const [downloading, setDownloading] = useState(false);
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   if (!order)
     return (
       <div className="p-6 bg-bgSurface rounded-2xl border">
@@ -166,6 +169,20 @@ export default function OrderDetailsPane({ order }) {
 
   const parsedASA = safeParse(primaryVendorOrder?.order?.a_s_a);
   const totals = parsedASA?.totals ?? null;
+<<<<<<< HEAD
+=======
+
+  const shipping = Number(totals?.shipping_charge ?? order.total_shipping ?? 0);
+
+  const subtotal = totals?.subtotal
+    ? Number(totals.subtotal)
+    : Number(order.total_amount ?? 0) - shipping;
+
+  // Prefer total_amount as final source of truth
+  const grandTotal = Number(
+    totals?.grandTotal ?? order.total_amount ?? order.grand_total ?? 0,
+  );
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
   const handleVendorCancel = async (vendorOrder) => {
     if (!vendorOrder || !vendorOrder.id) return;
@@ -210,6 +227,7 @@ export default function OrderDetailsPane({ order }) {
   };
 
   const handleDownloadInvoice = async () => {
+<<<<<<< HEAD
     const activeVendorOrders =
       order.vendor_orders?.filter(
         (v) => (v.status ?? "").toLowerCase() !== "cancelled",
@@ -221,6 +239,25 @@ export default function OrderDetailsPane({ order }) {
       activeVendorOrders,
       totals,
     });
+=======
+    try {
+      setDownloading(true);
+
+      const activeVendorOrders =
+        order.vendor_orders?.filter(
+          (v) => (v.status ?? "").toLowerCase() !== "cancelled",
+        ) ?? [];
+
+      await generateInvoicePdf({
+        order,
+        billing,
+        activeVendorOrders,
+        totals,
+      });
+    } finally {
+      setDownloading(false);
+    }
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   };
 
   return (
@@ -277,10 +314,15 @@ export default function OrderDetailsPane({ order }) {
         <div className="p-4 border rounded-lg bg-white">
           <h4 className="font-medium mb-2">Order Totals</h4>
           <div className="text-sm text-textSecondary space-y-1">
+<<<<<<< HEAD
             <div>Subtotal: ৳ {totals?.subtotal ?? order.total_amount}</div>
             <div>Shipping: ৳ {totals?.shipping_charge ?? "—"}</div>
+=======
+            <div>Subtotal: ৳ {subtotal}</div>
+            <div>Shipping: ৳ {shipping}</div>
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             <div className="font-semibold mt-2">
-              Grand Total: ৳ {totals?.grandTotal ?? order.total_amount}
+              Grand Total: ৳ {grandTotal}
             </div>
           </div>
         </div>
@@ -523,7 +565,7 @@ export default function OrderDetailsPane({ order }) {
                     )
                   ) : (
                     <button
-                      onClick={() => (window.location.href = "/support")}
+                      onClick={() => (window.location.href = "/help/contact")}
                       className="px-3 py-1 border rounded-md text-xs hover:bg-gray-100 transition"
                     >
                       Contact Support
@@ -557,9 +599,17 @@ export default function OrderDetailsPane({ order }) {
           {!isCancelled && (
             <button
               onClick={handleDownloadInvoice}
+<<<<<<< HEAD
               className="px-5 py-2 bg-main text-white rounded-md hover:opacity-90 transition flex items-center gap-2"
             >
               <Download size={18} /> Download Invoice
+=======
+              disabled={downloading}
+              className="px-5 py-2 bg-main text-white rounded-md hover:opacity-90 transition flex items-center gap-2 disabled:opacity-50"
+            >
+              <Download size={18} />
+              {downloading ? "Generating PDF..." : "Download Invoice"}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             </button>
           )}
           {!isCancelled &&

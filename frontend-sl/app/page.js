@@ -60,9 +60,15 @@ export default function Home() {
         </LazySection>
 
         {/* New arrivals section */}
+<<<<<<< HEAD
         <LazySection>
           <NewArrivals />
         </LazySection>
+=======
+        {/* <LazySection>
+        </LazySection> */}
+        <NewArrivals />
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
         {/* Top-selling products section */}
         <LazySection>

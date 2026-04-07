@@ -14,7 +14,6 @@ import { BiBookContent } from "react-icons/bi";
 import { IoIosSettings } from "react-icons/io";
 
 export const allNavigation = {
-
   vendor: [
     {
       name: "Dashboard",
@@ -155,7 +154,7 @@ export const allNavigation = {
       icon: FaUserTag,
       role: "admin",
       children: [
-        { name: "Active All Partners", path: "/admin/vendors/all-vendors" },
+        { name: "All Active Partners", path: "/admin/vendors/all-vendors" },
         // { name: "Partner Details", path: "/admin/vendors/vendor-details/:id" },
         {
           name: "Partner Onboarding Requests",
@@ -165,6 +164,17 @@ export const allNavigation = {
           name: "Rejected Partner Request",
           path: "/admin/vendors/rejected-requests",
         },
+<<<<<<< HEAD
+=======
+        {
+          name: "Inactive Partners",
+          path: "/admin/vendors/inactive-vendors",
+        },
+        {
+          name: "Suspended Partners",
+          path: "/admin/vendors/suspended-vendors",
+        },
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         // { name: "Partner Payments", path: "/admin/vendors/payments" },
         // {
         //   name: "Partner Reviews & Ratings",
@@ -340,5 +350,9 @@ export const allNavigation = {
     //     },
     //   ],
     // },
+<<<<<<< HEAD
   ]
+=======
+  ],
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 };
