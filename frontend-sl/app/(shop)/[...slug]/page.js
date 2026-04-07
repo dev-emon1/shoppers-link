@@ -24,7 +24,11 @@ import useSortedProducts from "@/modules/product/hooks/useSortedProducts";
 import useProductFilters from "@/modules/product/hooks/useProductFilters";
 
 /* ======================================================
+<<<<<<< HEAD
+   URL <-> Filter helpers (PAGE LEVEL)
+=======
    URL <-> Filter helpers
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 ====================================================== */
 function parseFilters(sp) {
   return {
@@ -103,7 +107,11 @@ export default function CategoryPage({ params }) {
   /* ---------------- URL -> Initial Filters ---------------- */
   const initialFilters = useMemo(() => parseFilters(sp), [sp.toString()]);
 
+<<<<<<< HEAD
+  /* ---------------- Filters Hook (PURE) ---------------- */
+=======
   /* ---------------- Filters Hook ---------------- */
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
     useProductFilters({
       products: isChildPage ? baseProducts : [],

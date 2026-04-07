@@ -51,6 +51,11 @@ export const fetchTopRatingApi = async (page = 1) => {
 /**
  * Shop By Brand (Vendor Shops) API
  */
+<<<<<<< HEAD
+export const fetchShopByBrandsApi = async (page = 1) => {
+  const res = await api.get(`/vendor/shops?page=${page}`);
+  return res?.data;
+=======
 export const fetchShopByBrandsApi = async (page = 1, perPage = 15) => {
   const res = await api.get(`/vendor/shops?page=${page}&per_page=${perPage}`);
 
@@ -58,4 +63,5 @@ export const fetchShopByBrandsApi = async (page = 1, perPage = 15) => {
     data: res?.data?.data || [],
     meta: res?.data?.meta || {},
   };
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 };

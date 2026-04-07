@@ -39,8 +39,13 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-secondaryActive">
             <li className="flex flex-col gap-1">
               <span className="font-medium">Email:</span>
+<<<<<<< HEAD
+              <a
+                className="text-secondaryActive hover:text-main break-all"
+=======
 
               <a
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                 href="mailto:info@fingertipsinnovations.com"
                 className="hover:text-main break-all"
               >
@@ -66,6 +71,10 @@ export default function Footer() {
           <Link
             href="https://fingertipsinnovations.com/"
             target="_blank"
+<<<<<<< HEAD
+            className="inline-block"
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             prefetch={false}
           >
             <Image src={fingertips} alt="Fingertips" className="w-28" />

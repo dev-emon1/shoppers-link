@@ -164,6 +164,8 @@ export const allNavigation = {
           name: "Rejected Partner Request",
           path: "/admin/vendors/rejected-requests",
         },
+<<<<<<< HEAD
+=======
         {
           name: "Inactive Partners",
           path: "/admin/vendors/inactive-vendors",
@@ -172,6 +174,7 @@ export const allNavigation = {
           name: "Suspended Partners",
           path: "/admin/vendors/suspended-vendors",
         },
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         // { name: "Partner Payments", path: "/admin/vendors/payments" },
         // {
         //   name: "Partner Reviews & Ratings",
@@ -347,5 +350,9 @@ export const allNavigation = {
     //     },
     //   ],
     // },
+<<<<<<< HEAD
+  ]
+=======
   ],
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 };

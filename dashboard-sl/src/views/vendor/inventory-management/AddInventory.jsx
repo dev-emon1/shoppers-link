@@ -57,9 +57,20 @@ const AllProductsVariantStockPage = () => {
     }
   };
 
+<<<<<<< HEAD
+        } catch (err) {
+            // console.error("API Error:", err);
+            toast.error("Failed to load products. Please try again.");
+            setError("Failed to load products. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+=======
   useEffect(() => {
     if (user?.id) fetchProducts(currentPage);
   }, [currentPage, user?.id]);
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
   // Success Message
   useEffect(() => {
@@ -86,6 +97,45 @@ const AllProductsVariantStockPage = () => {
       return;
     }
 
+<<<<<<< HEAD
+    const saveStock = async () => {
+        if (!editingVariantId || editStockValue === "" || isNaN(editStockValue) || editStockValue < 0) {
+            // alert("Please enter a valid stock number");
+            toast.error("Please enter a valid stock number");
+            return;
+        }
+
+        try {
+            const res = await API.post("/inventory/increase", {
+                variant_id: editingVariantId,
+                qty: parseInt(editStockValue),
+            });
+            toast.success("Stock updated successfully");
+            if (res.data.success || res.data.new_stock !== undefined) {
+                setProducts(prev =>
+                    prev.map(p => ({
+                        ...p,
+                        variants: p.variants?.map(v =>
+                            Number(v.id) === Number(editingVariantId)
+                                ? { ...v, stock: res.data.new_stock || parseInt(editStockValue) }
+                                : v
+                        ),
+                    }))
+                );
+
+                setEditingVariantId(null);
+                setEditStockValue("");
+                setShowSuccess(true);
+            }
+        } catch (err) {
+            // alert("Failed to update stock");
+            // console.error(err);
+            toast.error("Failed to update stock");
+        }
+    };
+
+    const cancelEdit = () => {
+=======
     try {
       const res = await API.post("/inventory/increase", {
         variant_id: editingVariantId,
@@ -107,6 +157,7 @@ const AllProductsVariantStockPage = () => {
           })),
         );
 
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         setEditingVariantId(null);
         setEditStockValue("");
         setShowSuccess(true);
@@ -132,6 +183,50 @@ const AllProductsVariantStockPage = () => {
 
   if (loading) {
     return (
+<<<<<<< HEAD
+        <div className="px-6 bg-gray-50 min-h-screen">
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-800">All Products & Variant Stock</h1>
+                    </div>
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-4 top-3 text-gray-400" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Search product name, SKU..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:border-main transition"
+                        />
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gradient-to-r from-main to-mainHover text-white">
+                                <tr>
+                                    <th className="px-8 py-2 text-left font-bold text-sm">Product Name</th>
+                                    <th className="px-8 py-2 text-left font-bold text-sm">Variants (Stock)</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {filteredProducts.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="2" className="text-center py-20 text-gray-500 text-md">
+                                            No products found for your store.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredProducts.map((product) => (
+                                        <tr key={product.id} className="hover:bg-gray-50 transition">
+                                            <td className="px-4 py-4">
+                                                <div className="flex items-center gap-4">
+                                                    {/* <img
+=======
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <RefreshCw className="animate-spin text-main" size={48} />
       </div>
@@ -201,6 +296,7 @@ const AllProductsVariantStockPage = () => {
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-4">
                           {/* <img
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                                                         src={
                                                             product?.primary_image
                                                                 ? `${import.meta.env.VITE_IMAGE_URL}/${product.primary_image}`

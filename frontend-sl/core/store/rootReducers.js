@@ -12,7 +12,10 @@ import orderReducer from "@/modules/user/store/orderReducer";
 import searchReducer from "@/modules/search/store/searchReducer";
 import homeReducer from "@/modules/home/store/homeReducer";
 import checkoutBillingReducer from "@/modules/checkout/store/billingReducer";
+<<<<<<< HEAD
+=======
 import shippingReducer from "@/modules/checkout/store/shippingReducer";
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -27,7 +30,10 @@ const rootReducer = combineReducers({
   home: homeReducer,
   checkoutBilling: checkoutBillingReducer,
   address: addressReducer,
+<<<<<<< HEAD
+=======
   checkoutShipping: shippingReducer,
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 });
 
 export default rootReducer;

@@ -11,6 +11,9 @@ import "swiper/css";
 const ProductImageSlider = ({ images = [], isHovered = false }) => {
   const swiperRef = useRef(null);
 
+<<<<<<< HEAD
+  // single image → no slider
+=======
   useEffect(() => {
     if (!swiperRef.current) return;
 
@@ -22,6 +25,7 @@ const ProductImageSlider = ({ images = [], isHovered = false }) => {
     }
   }, [isHovered]);
 
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   if (!images || images.length <= 1) {
     return (
       <div className="relative w-full h-full">
@@ -35,12 +39,30 @@ const ProductImageSlider = ({ images = [], isHovered = false }) => {
     );
   }
 
+<<<<<<< HEAD
+  useEffect(() => {
+    if (!swiperRef.current) return;
+
+    if (isHovered) {
+      swiperRef.current.autoplay.start();
+    } else {
+      swiperRef.current.autoplay.stop();
+      swiperRef.current.slideTo(0);
+    }
+  }, [isHovered]);
+
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   return (
     <Swiper
       modules={[Autoplay]}
       onSwiper={(swiper) => {
         swiperRef.current = swiper;
+<<<<<<< HEAD
+        swiper.autoplay.stop(); // IMPORTANT
+=======
         swiper.autoplay.stop();
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       }}
       slidesPerView={1}
       loop

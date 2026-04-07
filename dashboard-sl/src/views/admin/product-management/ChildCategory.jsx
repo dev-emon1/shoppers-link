@@ -60,8 +60,12 @@ const ChildCategory = () => {
   // ===== Add / Update Child Category =====
   const handleSubmit = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
+    if (!selectedSubcategory) return toast.error("⚠️ Please select a subcategory!");
+=======
     if (!selectedSubcategory)
       return toast.error("⚠️ Please select a subcategory!");
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     if (!childCategoryName.trim())
       return toast.error("⚠️ Child category name is required!");
 

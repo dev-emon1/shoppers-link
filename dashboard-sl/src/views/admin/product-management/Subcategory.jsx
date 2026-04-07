@@ -60,8 +60,12 @@ const Subcategory = () => {
     e.preventDefault();
 
     if (!selectedCategory) return toast.error("⚠️ Please select a category!");
+<<<<<<< HEAD
+    if (!subCategoryName.trim()) return toast.error("⚠️ Subcategory name is required!");
+=======
     if (!subCategoryName.trim())
       return toast.error("⚠️ Subcategory name is required!");
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
     try {
       const formData = new FormData();

@@ -86,12 +86,60 @@ export default function CheckoutSuccessPage() {
 
         {order && <p className="mt-2">Order ID: {order.unid}</p>}
 
+<<<<<<< HEAD
+        <p className="text-sm text-gray-600 mb-4">
+          Thank you for shopping with{" "}
+          <span className="font-medium">ShoppersLink</span>. Your order has been
+          received and is being processed.
+        </p>
+
+        {ref && (
+          <div className="bg-gray-100 rounded-lg py-3 px-4 mb-5">
+            <p className="text-xs text-gray-500">Checkout Reference</p>
+            <p className="text-lg font-semibold tracking-wide text-gray-800">
+              {ref}
+            </p>
+          </div>
+        )}
+
+        {/* Vendor Count (if available) */}
+        {orders && (
+          <p className="text-sm text-gray-700 mb-4">
+            This checkout contains{" "}
+            <span className="font-semibold">{orders?.length}</span> vendor order
+            {orders?.length > 1 ? "s" : ""}.
+          </p>
+        )}
+
+        {loading && (
+          <p className="text-xs text-gray-500 mb-4">Loading order details...</p>
+        )}
+
+        <div className="flex flex-col gap-3 mt-6">
+          <Link
+            href="/user/dashboard/orders"
+            className="bg-main text-white py-2 rounded-lg hover:bg-main/90 transition"
+            prefetch
+          >
+            View Orders
+          </Link>
+
+          <Link
+            href="/"
+            className="text-main underline text-sm hover:text-main/80 transition"
+            prefetch
+          >
+            Continue Shopping →
+          </Link>
+        </div>
+=======
         <button
           onClick={() => router.push("/user/dashboard/orders")}
           className="mt-4 px-4 py-2 bg-main text-white rounded"
         >
           View Orders
         </button>
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       </div>
     </div>
   );

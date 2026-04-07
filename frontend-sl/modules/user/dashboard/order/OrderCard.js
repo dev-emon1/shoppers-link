@@ -157,6 +157,12 @@ export default function OrderCard({ order, isNew }) {
 
   return (
     <article
+<<<<<<< HEAD
+      className={`rounded-xl border bg-white transition-all duration-200 ${
+        isCancelled ? "opacity-70 bg-gray-50" : ""
+      }`}
+    >
+=======
       id={`order-${order.unid}`}
       className={`relative rounded-xl border bg-white transition-all duration-500 ${
         isNew ? "ring-2 ring-green-400 shadow-xl animate-pulse" : ""
@@ -167,6 +173,7 @@ export default function OrderCard({ order, isNew }) {
           NEW
         </span>
       )}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       <div className="p-4">
         {/* Header */}
         <div className="flex gap-4">

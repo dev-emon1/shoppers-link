@@ -27,6 +27,23 @@ export default function useNewArrivalsProducts({ mode = "home" } = {}) {
      Initial fetch logic
   --------------------------- */
   useEffect(() => {
+<<<<<<< HEAD
+    // HOME MODE → cache based, page=1 only
+    if (mode === "home") {
+      if (loading) return;
+
+      if (!isCacheValid(lastFetched, ttl)) {
+        dispatch(fetchNewArrivals({ page: 1 }));
+      }
+      return;
+    }
+
+    // LISTING MODE → first load only if empty
+    if (mode === "listing") {
+      if (data.length === 0) {
+        dispatch(fetchNewArrivals({ page: 1 }));
+      }
+=======
     if (mode === "home") {
       if (!isCacheValid(lastFetched, ttl)) {
         dispatch(fetchNewArrivals({ page: 1 }));
@@ -35,6 +52,7 @@ export default function useNewArrivalsProducts({ mode = "home" } = {}) {
 
     if (mode === "listing" && data.length === 0) {
       dispatch(fetchNewArrivals({ page: 1 }));
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     }
   }, [dispatch, mode, lastFetched]);
 

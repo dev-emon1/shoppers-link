@@ -96,7 +96,11 @@ export default function ReviewSection({ billing, paymentId, cart, totals }) {
             <span>Shipping</span>
             <span className="flex items-center gap-1">
               <TbCurrencyTaka size={13} />
+<<<<<<< HEAD
+              {formatAmount(totals.shipping_charge)}
+=======
               {formatAmount(shippingFee)}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             </span>
           </div>
 

@@ -11,7 +11,11 @@ import {
 } from "lucide-react";
 import API, { IMAGE_URL } from "../../../utils/api";
 import { format } from "date-fns";
+<<<<<<< HEAD
+import { toast } from 'react-toastify';
+=======
 import { toast } from "react-toastify";
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
 const BannersPage = () => {
   const [banners, setBanners] = useState([]);
@@ -161,6 +165,185 @@ const BannersPage = () => {
         </button>
       </div>
 
+<<<<<<< HEAD
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const data = new FormData();
+        // console.log(data);
+        // Validation: Only require file if creating a NEW banner
+        if (!selectedFile && !editingId) {
+            toast.error("Please select an image first.");
+            return;
+        }
+        // 2. Map data to match database column names
+        data.append("title", formData.title);
+        data.append("subtitle", formData.subtitle || "");
+        data.append("description", formData.description || "");
+        data.append("button_text", formData.button_text || "");
+        data.append("button_link", formData.button_link || "");
+        data.append("position", formData.position);
+        data.append("is_active", formData.is_active ? 1 : 0);
+
+        if (selectedFile) {
+            data.append("image_path", selectedFile); // Matched migration
+        }
+
+        try {
+            if (editingId) {
+                data.append("_method", "PUT");
+                // 3. Fixed endpoint to match Route: /probanner/{banner}
+                await API.post(`/probanner/${editingId}`, data);
+            } else {
+                await API.post("/probanners", data);
+            }
+
+            toast.success(editingId ? "Banner updated!" : "Banner created!");
+            closeModal();
+            fetchBanners();
+        } catch (err) {
+            toast.error("Error: " + (err.response?.data?.message || "Operation failed"));
+        }
+    };
+
+    const handleEdit = (banner) => {
+        setFormData({
+            title: banner.title || "",
+            subtitle: banner.subtitle || "",
+            description: banner.description || "",
+            button_text: banner.button_text || "",
+            button_link: banner.button_link || "",
+            position: banner.position || "homepage",
+            is_active: !!banner.is_active,
+        });
+        // If banner.image_path exists, show the existing image from server
+        if (banner.image_path) {
+            setImagePreview(`${IMAGE_URL}${banner.image_path}`);
+        } else {
+            setImagePreview("");
+        }
+
+        setEditingId(banner.id);
+        setShowForm(true);
+    };
+
+    const toggleActive = async (banner) => {
+        try {
+            // This matches your Route: /probanner/{id}/status
+            const res = await API.patch(`/probanner/${banner.id}/status`);
+            toast.success("Status updated");
+            // Update local state instead of refetching everything for better performance
+            setBanners(prevBanners =>
+                prevBanners.map(b => b.id === banner.id ? res.data.data : b)
+            );
+        } catch (err) {
+            toast.error("Status update failed");
+        }
+    };
+    const closeModal = () => {
+        setShowForm(false);
+        setEditingId(null);
+        setSelectedFile(null);
+        setImagePreview("");
+        setFormData({
+            title: "", subtitle: "", description: "",
+            button_text: "", button_link: "", position: "homepage", is_active: true,
+        });
+    };
+
+    return (
+        <div className="px-6 max-w-7xl mx-auto py-6">
+            <div className="sm:flex justify-between items-center mb-6">
+                <h1 className="text-xl font-bold text-gray-800 mb-2 sm:mb-0">Promotion Banners</h1>
+                <button onClick={() => setShowForm(true)} className="flex items-center gap-2 bg-main text-white px-2 py-1 rounded-lg hover:bg-mainHover transition">
+                    <Plus size={18} /> Add Banner
+                </button>
+            </div>
+
+            {showForm && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
+                    <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-2 relative overflow-auto max-h-[90vh]">
+                        <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
+                            <h2 className="text-xl font-bold">{editingId ? "Edit Banner" : "New Banner"}</h2>
+                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-600"><X /></button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="p-2 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Title</label>
+                                    <input required type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Subtitle</label>
+                                    <input type="text" value={formData.subtitle} onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Description</label>
+                                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Position</label>
+                                <select value={formData.position} onChange={(e) => setFormData({ ...formData, position: e.target.value })} className="w-full border rounded-lg px-3 py-2">
+                                    <option value="homepage">Homepage Main</option>
+                                    <option value="sidebar">Sidebar</option>
+                                    <option value="popup">Popup</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Image Upload</label>
+                                <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
+                                    {imagePreview ? (
+                                        <div className="relative inline-block">
+                                            <img
+                                                src={imagePreview}
+                                                className="mx-auto max-h-40 rounded shadow object-cover"
+                                                alt="Preview"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setImagePreview("");
+                                                    setSelectedFile(null);
+                                                }}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                            {/* Allow clicking the image to change it */}
+                                            <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity rounded">
+                                                <span className="text-white text-xs font-bold bg-black/40 px-2 py-1 rounded">Change</span>
+                                                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                                            </label>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer block py-4">
+                                            <Upload className="mx-auto text-gray-400 mb-2" />
+                                            <span className="text-sm text-gray-500">Click to upload banner</span>
+                                            <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Button Text</label>
+                                    <input type="text" value={formData.button_text} onChange={(e) => setFormData({ ...formData, button_text: e.target.value })} className="w-full border rounded-lg px-3 py-2" placeholder="e.g. Shop Now" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Button Link</label>
+                                    <input type="text" value={formData.button_link} onChange={(e) => setFormData({ ...formData, button_link: e.target.value })} className="w-full border rounded-lg px-3 py-2" placeholder="/products" />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-center gap-3 pt-4">
+                                <button type="button" onClick={closeModal} className="px-4 py-2 border rounded-lg text-gray-600">Cancel</button>
+                                <button type="submit" className="px-4 py-2 bg-main text-white rounded-lg hover:bg-mainHover">Save Banner</button>
+                            </div>
+                        </form>
+                    </div>
+=======
       {showForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
           <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-2 relative overflow-auto max-h-[90vh]">
@@ -191,6 +374,7 @@ const BannersPage = () => {
                     }
                     className="w-full border rounded-lg px-3 py-2"
                   />
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">

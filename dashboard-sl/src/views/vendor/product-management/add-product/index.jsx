@@ -250,6 +250,10 @@ const AddProduct = () => {
       const response = await API.post("/products", submitData);
 
       if (response.data.success) {
+<<<<<<< HEAD
+        // console.log(response.data);
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         // alert("Product created successfully!");
         toast.success("Product created successfully!");
         navigate("/vendor/products/all-products");
@@ -357,13 +361,20 @@ const AddProduct = () => {
               <div key={s.id} className="flex-1 relative">
                 {i < steps.length - 1 && (
                   <div
-                    className={`absolute top-3 left-1/2 w-full h-[2px] ${
-                      i + 1 < step ? "bg-green" : "bg-gray-300"
-                    }`}
+                    className={`absolute top-3 left-1/2 w-full h-[2px] ${i + 1 < step ? "bg-green" : "bg-gray-300"
+                      }`}
                   />
                 )}
                 <div className="flex flex-col items-center">
                   <div
+<<<<<<< HEAD
+                    className={`w-7 h-7 flex items-center justify-center rounded-full text-white text-sm font-semibold transition-all ${s.id === step
+                      ? "bg-main z-10"
+                      : s.id < step
+                        ? "bg-green z-10"
+                        : "bg-gray-300 z-10"
+                      }`}
+=======
                     className={`w-7 h-7 flex items-center justify-center rounded-full text-white text-sm font-semibold transition-all ${
                       s.id === step
                         ? "bg-main z-10"
@@ -371,13 +382,13 @@ const AddProduct = () => {
                           ? "bg-green z-10"
                           : "bg-gray-300 z-10"
                     }`}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                   >
                     {s.id}
                   </div>
                   <p
-                    className={`text-[11px] mt-1 font-medium ${
-                      s.id === step ? "text-main" : "text-gray-500"
-                    }`}
+                    className={`text-[11px] mt-1 font-medium ${s.id === step ? "text-main" : "text-gray-500"
+                      }`}
                   >
                     {s.title}
                   </p>
@@ -404,11 +415,10 @@ const AddProduct = () => {
                 type="button"
                 onClick={handleBack}
                 disabled={step === 1}
-                className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${
-                  step === 1
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                }`}
+                className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${step === 1
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  }`}
               >
                 ← Back
               </button>

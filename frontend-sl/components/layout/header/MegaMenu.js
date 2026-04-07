@@ -117,7 +117,11 @@ const MegaMenu = ({
       style={{ overflow: "visible" }}
     >
       <div className="container">
+<<<<<<< HEAD
+        <ul className="flex justify-center gap-5 xl:gap-8 text-[11px] xl:text-sm font-medium text-textPrimary relative">
+=======
         <ul className="flex justify-center gap-5 xl:gap-8 text-[11px] xl:text-[12px] font-medium text-textPrimary relative">
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
           {cats.map((category, index) => {
             const subcategories = Array.isArray(category?.subcategories)
               ? category.subcategories
@@ -150,8 +154,12 @@ const MegaMenu = ({
                       fixed left-1/2 -translate-x-1/2 w-full
                       bg-white border-t border-border
                       shadow-[0_12px_24px_rgba(0,0,0,0.08)]
+<<<<<<< HEAD
+                      py-10 px-6 z-[900]
+=======
                       py-6 px-4 z-[900]
                       mt-2
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                     "
                     style={{
                       top: showTopBar ? "140px" : "108px",

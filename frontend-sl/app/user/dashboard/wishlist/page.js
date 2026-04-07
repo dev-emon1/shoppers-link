@@ -30,12 +30,20 @@ export default function WishlistPage() {
       quantity: 1,
       variantId: product?.variants?.[0]?.id || null,
     };
+<<<<<<< HEAD
+    // console.log(payload);
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
     // 3. Execute actions
     add(payload);
     remove(product.id); // Uncommented so it actually "moves" the item
     toast.success(`🛒 ${product.name} moved to cart`);
   };
+<<<<<<< HEAD
+  console.log(wishlist);
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   const buildHref = (p) =>
     `/${[p.category?.slug, p.sub_category?.slug, p.child_category?.slug, p.slug]
       .filter(Boolean)

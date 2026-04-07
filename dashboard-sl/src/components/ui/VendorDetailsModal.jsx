@@ -30,6 +30,16 @@ const VendorDetailsModal = ({
 
   if (!isOpen || !vendor) return null;
 
+<<<<<<< HEAD
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-[90] flex items-center justify-center p-4 overflow-y-auto ">
+            <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-5 relative overflow-auto max-h-[90vh]">
+                <div className="p-6 border-b flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-800">Partner Information</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                        <X size={28} />
+                    </button>
+=======
   const statusInfo = getStatusDisplay
     ? getStatusDisplay(vendor.user?.status)
     : { text: "Unknown", color: "bg-gray-100 text-gray-800", icon: null };
@@ -84,6 +94,7 @@ const VendorDetailsModal = ({
                     <p className="font-semibold">{vendor.shop_name}</p>
                     <p className="text-xs text-textLight">ID: {vendor.id}</p>
                   </div>
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                 </div>
 
                 <div className="flex gap-3">

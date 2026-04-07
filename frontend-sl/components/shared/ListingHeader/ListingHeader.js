@@ -56,7 +56,18 @@ export default function ListingHeader({
         <div className=" py-4">
           {/* Breadcrumb */}
           {cleanBreadcrumb.length > 0 && (
+<<<<<<< HEAD
+            <nav
+              className="flex flex-wrap items-center gap-2 text-sm text-textLight mb-2
+            "
+            >
+              <Link href="/" prefetch className="hover:text-main font-medium">
+                <Home size={20} />
+              </Link>
+
+=======
             <nav className="flex items-center gap-1 text-[13px] md:text-sm text-gray-500 mb-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
               {cleanBreadcrumb.map((item, index) => {
                 const isLast = index === cleanBreadcrumb.length - 1;
                 const isFirst = index === 0;
@@ -82,7 +93,11 @@ export default function ListingHeader({
                       <Link
                         href={item.href}
                         prefetch
+<<<<<<< HEAD
+                        className="hover:text-main font-medium capitalize"
+=======
                         className="text-gray-600 hover:text-main transition font-medium capitalize"
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                       >
                         {item.label}
                       </Link>

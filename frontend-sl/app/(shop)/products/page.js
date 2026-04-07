@@ -62,6 +62,72 @@ export default function ProductsPage() {
   const [filterOpen, setFilterOpen] = useState(false);
 
   /* -----------------------------
+<<<<<<< HEAD
+     Resolve product source
+     (LOGIC FIXED HERE)
+  ----------------------------- */
+  const hookResult = useMemo(() => {
+    switch (type) {
+      case "featured":
+        return {
+          title: "Featured Products",
+          hook: () => useFeaturedProducts({ mode: "listing" }),
+        };
+
+      case "new-arrivals":
+        return {
+          title: "New Arrivals",
+          hook: () => useNewArrivalsProducts({ mode: "listing" }),
+        };
+
+      case "top-selling":
+        return {
+          title: "Top Selling Products",
+          hook: () => useTopSellingProducts({ mode: "listing" }),
+        };
+
+      case "top-rating":
+        return {
+          title: "Top Rated Products",
+          hook: () => useTopRatingProducts({ mode: "listing" }),
+        };
+
+      default:
+        return null;
+    }
+  }, [type]);
+
+  const dataHook =
+    hookResult?.hook ??
+    (() => ({
+      products: [],
+      loading: false,
+      error: false,
+      hasMore: false,
+      loadMore: undefined,
+    }));
+
+  /**
+   * 🔑 IMPORTANT FIX
+   * Handle paginated + non-paginated hooks safely
+   */
+  const {
+    products = [],
+    loading,
+    error,
+    hasMore = false,
+    loadMore,
+  } = dataHook();
+
+  /* -----------------------------
+     URL -> filters (PAGE LEVEL)
+  ----------------------------- */
+  const initialFilters = useMemo(() => parseFilters(sp), [sp.toString()]);
+
+  /* -----------------------------
+     Filters hook (PURE)
+  ----------------------------- */
+=======
      🔑 Call all hooks at top level
   ----------------------------- */
   const featured = useFeaturedProducts({ mode: "listing" });
@@ -117,6 +183,7 @@ export default function ProductsPage() {
   ----------------------------- */
   const initialFilters = useMemo(() => parseFilters(sp), [sp]);
 
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   const { selected, setSelected, filteredProducts, clearFilters, activeCount } =
     useProductFilters({
       products,

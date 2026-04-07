@@ -149,9 +149,13 @@ const AddFeaturedProducts = () => {
                       <h3 className="font-bold text-sm line-clamp-2 min-h-10">
                         {p.name}
                       </h3>
+<<<<<<< HEAD
+                      <p className="text-xs text-gray-500 mt-1 min-h-4">SKU: {p.sku}</p>
+=======
                       <p className="text-xs text-gray-500 mt-1 min-h-4">
                         SKU: {p.sku}
                       </p>
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                     </div>
                   </div>
                 </motion.div>

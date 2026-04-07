@@ -38,6 +38,7 @@ export default function CheckoutPage() {
 
   /* CART */
   const { cart, totalItems, totalPrice, clear: clearCart } = useCart();
+  // console.log(cart);
 
   /* USER */
   const user = useSelector((state) => state.auth.user);

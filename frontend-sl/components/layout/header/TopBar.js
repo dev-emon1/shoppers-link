@@ -59,7 +59,11 @@ const TopBar = () => {
         <div className="flex gap-6 font-medium text-xs">
           {/* Partner Access */}
           <Link
+<<<<<<< HEAD
+            href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}/login`}
+=======
             href={`${process.env.NEXT_PUBLIC_PARTNER_PORTAL_URL || "#"}`}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             target="_blank"
             prefetch={false}
             className="text-white flex items-center gap-2 hover:text-secondary"
@@ -67,6 +71,155 @@ const TopBar = () => {
             <Handshake size={14} />
             Partner Access
           </Link>
+<<<<<<< HEAD
+
+          {/* HELP */}
+          {/* <div
+            className="relative"
+            onMouseEnter={openHelp}
+            onMouseLeave={() => setIsHelpOpen(false)}
+          >
+            <div
+              ref={helpRef}
+              className="text-white flex items-center gap-1 cursor-pointer hover:text-secondary"
+            >
+              Help <ChevronDown size={15} />
+            </div>
+
+            {isHelpOpen &&
+              getPortal() &&
+              createPortal(
+                <div
+                  className="fixed w-48 bg-bgPage shadow-md text-secondary animate-fadeIn z-[999999]"
+                  style={{
+                    top: helpPos.top,
+                    right: helpPos.right,
+                  }}
+                >
+                  <ul className="flex flex-col py-2">
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Customer services
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Track your order
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Returns and refunds
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Delivery and collection
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Product support
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Contact us
+                      </Link>
+                    </li>
+                  </ul>
+                </div>,
+                getPortal()
+              )}
+          </div> */}
+
+          {/* WAYS TO SHOP */}
+          {/* <div
+            className="relative"
+            onMouseEnter={openWays}
+            onMouseLeave={() => setIsWayStoreOpen(false)}
+          >
+            <div
+              ref={waysRef}
+              className="text-white flex items-center gap-1 cursor-pointer hover:text-secondary"
+            >
+              Ways to shop <ChevronDown size={15} />
+            </div>
+
+            {isWayStoreOpen &&
+              getPortal() &&
+              createPortal(
+                <div
+                  className="fixed w-48 bg-bgPage shadow-md text-secondary animate-fadeIn z-[999999]"
+                  style={{
+                    top: waysPos.top,
+                    right: waysPos.right,
+                  }}
+                >
+                  <ul className="flex flex-col py-2">
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Service & experiences
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Gift cards
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Our app
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="block px-4 py-2 hover:underline"
+                      >
+                        Brand A-Z
+                      </Link>
+                    </li>
+                  </ul>
+                </div>,
+                getPortal()
+              )}
+          </div> */}
+
+          {/* Our Store */}
+          {/* <div className="text-white flex items-center gap-2 cursor-pointer hover:text-secondary">
+            <House size={14} />
+            Our store
+          </div> */}
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         </div>
       </div>
     </div>

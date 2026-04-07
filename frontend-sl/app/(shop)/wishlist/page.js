@@ -7,6 +7,7 @@ import Image from "next/image";
 
 const WishlistPage = () => {
   const { wishlist, clearWishlist } = useWishlistSession();
+  // console.log(wishlist);
 
   return (
     <section className="container py-12 min-h-screen">

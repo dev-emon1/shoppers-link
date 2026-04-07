@@ -55,11 +55,16 @@ const InactiveVendors = lazy(
 const SuspendedVendors = lazy(
   () => import("../../views/admin/vendor-management/SuspendedVendors"),
 );
+<<<<<<< HEAD
+const SalesReport = lazy(() =>
+  import("../../views/admin/report-management/SalesReport")
+=======
 const PaymentGetway = lazy(
   () => import("../../views/admin/payment-management/PaymentGetway"),
 );
 const Invoices = lazy(
   () => import("../../views/admin/payment-management/Invoices"),
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 );
 const SalesReport = lazy(
   () => import("../../views/admin/report-management/SalesReport"),
@@ -73,6 +78,31 @@ const VendorPerform = lazy(
 const CustomerReport = lazy(
   () => import("../../views/admin/report-management/CustomerReport"),
 );
+<<<<<<< HEAD
+const InventoryReport = lazy(() =>
+  import("../../views/admin/report-management/InventoryReport")
+);
+const RevenueReport = lazy(() =>
+  import("../../views/admin/report-management/RevenueReport")
+);
+const ShippingMethod = lazy(() =>
+  import("../../views/admin/shipping-management/ShippingMethod")
+);
+const ShippingZone = lazy(() =>
+  import("../../views/admin/shipping-management/ShippingZone")
+);
+const ShippingCharge = lazy(() =>
+  import("../../views/admin/shipping-management/ShippingCharge")
+);
+const AddShippingCharge = lazy(() =>
+  import("../../views/admin/shipping-management/AddShippingCharge")
+);
+const EditShippingCharge = lazy(() =>
+  import("../../views/admin/shipping-management/EditShippingCharge")
+);
+const Transaction = lazy(() =>
+  import("../../views/admin/payment-management/Transaction")
+=======
 const AllInventory = lazy(
   () => import("../../views/admin/inventory-management/AllInventory"),
 );
@@ -81,6 +111,7 @@ const InventoryReport = lazy(
 );
 const RevenueReport = lazy(
   () => import("../../views/admin/report-management/RevenueReport"),
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 );
 const ShippingMethod = lazy(
   () => import("../../views/admin/shipping-management/ShippingMethod"),
@@ -111,6 +142,12 @@ const AllCoupon = lazy(
 );
 const AddCoupon = lazy(
   () => import("../../views/admin/offer-management/AddCoupon"),
+);
+const AllCoupon = lazy(() =>
+  import("../../views/admin/offer-management/AllCoupon")
+);
+const AddCoupon = lazy(() =>
+  import("../../views/admin/offer-management/AddCoupon")
 );
 const Brand = lazy(() => import("../../views/admin/product-management/Brand"));
 const Profile = lazy(() => import("../../views/auth/Profile"));
@@ -182,6 +219,10 @@ export const adminRoutes = [
   { path: "/admin/shipping/methods", element: protectAdmin(ShippingMethod) },
   { path: "/admin/shipping/zones", element: protectAdmin(ShippingZone) },
   { path: "/admin/shipping/charges", element: protectAdmin(ShippingCharge) },
+<<<<<<< HEAD
+  { path: "/admin/shipping/charges/add", element: protectAdmin(AddShippingCharge) },
+  { path: "/admin/shipping-charges/edit/:id", element: protectAdmin(EditShippingCharge) },
+=======
   {
     path: "/admin/shipping/charges/add",
     element: protectAdmin(AddShippingCharge),
@@ -190,6 +231,7 @@ export const adminRoutes = [
     path: "/admin/shipping-charges/edit/:id",
     element: protectAdmin(EditShippingCharge),
   },
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   { path: "/admin/reports/sales", element: protectAdmin(SalesReport) },
   {
     path: "/admin/reports/product-performance",

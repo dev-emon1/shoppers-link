@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Edit2, Save, X, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useAuth } from '../../../utils/AuthContext';
+import API from '../../../utils/api';
+import { toast } from 'react-toastify';
+=======
 import React, { useState, useEffect, useMemo } from "react";
 import { Search, Edit2, Save, X, AlertTriangle, RefreshCw } from "lucide-react";
 import { useAuth } from "../../../utils/AuthContext";
 import API from "../../../utils/api";
 import { toast } from "react-toastify";
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
 const AllProductsVariantStockPage = () => {
   const { user } = useAuth();
@@ -83,6 +91,55 @@ const AllProductsVariantStockPage = () => {
         const updatedStock = res.data.new_stock;
         const updatedId = res.data.variant_id;
 
+<<<<<<< HEAD
+    const saveStock = async () => {
+        if (!editingVariantId || editStockValue === '' || isNaN(editStockValue)) {
+            toast.error("Please enter a valid stock quantity");
+            return;
+        }
+
+        const newStock = parseInt(editStockValue);
+
+        try {
+            const res = await API.post("/inventory/increase", {
+                variant_id: editingVariantId,
+                qty: newStock,
+            });
+            toast.success("Stock updated successfully!");
+            if (res.data.success || res.data.message === "Stock increased") {
+
+                const updatedStock = res.data.new_stock;
+                const updatedId = res.data.variant_id;
+
+                setProducts(prev =>
+                    prev.map(product => ({
+                        ...product,
+                        variants: product.variants?.map(variant =>
+                            Number(variant.id) === Number(updatedId)
+                                ? { ...variant, stock: updatedStock }
+                                : variant
+                        )
+                    }))
+                );
+
+                setEditingVariantId(null);
+                setEditStockValue('');
+                setShowSuccessMessage(true);
+            }
+            else {
+                // alert("Failed: " + (res.data.message || "Unknown error"));
+                toast.error("Failed to update stock: " + (res.data.message || "Unknown error"));
+            }
+        } catch (err) {
+            // console.error("Error updating stock:", err);
+            // alert("Failed to update stock. Please try again.");
+            toast.error("Failed to update stock. Please try again.");
+        }
+    };
+
+
+    const cancelEdit = () => {
+=======
         setProducts((prev) =>
           prev.map((product) => ({
             ...product,
@@ -94,6 +151,7 @@ const AllProductsVariantStockPage = () => {
           })),
         );
 
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         setEditingVariantId(null);
         setEditStockValue("");
         setShowSuccessMessage(true);

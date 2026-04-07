@@ -354,10 +354,14 @@ const AllProducts = () => {
       </div>
 
       {viewProduct && (
+<<<<<<< HEAD
+        <ProductQuickView product={viewProduct} onClose={() => setViewProduct(null)} />
+=======
         <ProductQuickView
           product={viewProduct}
           onClose={() => setViewProduct(null)}
         />
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       )}
     </div>
   );

@@ -2,16 +2,38 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+<<<<<<< HEAD
+import { updateOrderLocally } from "@/modules/user/store/orderReducer";
+import { connectSocket, disconnectSocket } from "@/lib/realtime/socket";
+=======
 import {
   updateOrderLocally,
   addNewOrder,
 } from "@/modules/user/store/orderReducer";
 import { connectSocket, disconnectSocket } from "@/lib/realtime/socket";
 import useOrders from "@/modules/user/hooks/useOrders";
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
 export default function useOrderRealtime() {
   const dispatch = useDispatch();
   const [connected, setConnected] = useState(false);
+<<<<<<< HEAD
+
+  useEffect(() => {
+    connectSocket(
+      (event) => {
+        if (event?.type !== "order.updated") return;
+
+        const order = event.order;
+        if (!order?.unid) return;
+
+        dispatch(
+          updateOrderLocally({
+            orderUnidOrId: order.unid,
+            patch: order,
+          }),
+        );
+=======
   const { fetchOrders } = useOrders();
 
   const ENABLE_SOCKET = process.env.NEXT_PUBLIC_ENABLE_SOCKET === "true";
@@ -51,6 +73,7 @@ export default function useOrderRealtime() {
             silent: true,
           });
         }
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       },
       (status) => {
         setConnected(status);
@@ -60,7 +83,11 @@ export default function useOrderRealtime() {
     return () => {
       disconnectSocket();
     };
+<<<<<<< HEAD
+  }, [dispatch]);
+=======
   }, [dispatch, fetchOrders, ENABLE_SOCKET]);
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
   return {
     isSocketConnected: connected,

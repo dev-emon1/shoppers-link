@@ -80,9 +80,32 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+<<<<<<< HEAD
+        try {
+            await API.patch(`/products/${product.id}`, formData);
+            // alert("Product updated successfully!");
+            // 2. Use toast.success instead of alert
+            toast.success("Product updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+            });
+            onSuccess?.();
+            onClose();
+        } catch (err) {
+            console.error(err);
+            // alert(err.response?.data?.message || "Failed to update product");
+            // 3. Use toast.error for failures
+            const errorMsg = err.response?.data?.message || "Failed to update product";
+            toast.error(errorMsg);
+        } finally {
+            setLoading(false);
+        }
+    };
+=======
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
     try {
       await API.patch(`/products/${product.id}`, formData);
@@ -106,7 +129,20 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
     }
   };
 
+<<<<<<< HEAD
+    return (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
+            <div className="bg-white rounded-lg shadow-xl max-w-3xl w-[95%] p-3 relative overflow-auto max-h-[90vh] mx-auto">
+                <div className="px-2">
+                    <div className="flex justify-between items-center mb-2">
+                        <h2 className="text-xl font-bold">Edit Product</h2>
+                        <button onClick={onClose} className="text-main hover:text-mainHover fixed left-auto right-4 top-8">
+                            <RiCloseLine size={28} />
+                        </button>
+                    </div>
+=======
   if (!product) return null;
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[90] animate-fadeIn">
@@ -273,6 +309,92 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
                   Ideal length: 120–160 characters for better SEO visibility.
                 </p>
 
+<<<<<<< HEAD
+                                <span className={`text-xs ${formData.meta_title.length > MAX_TITLE ? "text-red-600" : "text-gray-500"}`}>
+                                    {formData.meta_title.length}/{MAX_TITLE}
+                                </span>
+                            </div>
+
+                            {/* Meta Keywords */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                    Meta Keywords
+                                </label>
+                                <input
+                                    type="text"
+                                    className={`border border-border rounded-md p-2 text-sm outline-none "focus:ring-red" : "focus:ring-main"
+                                        }`}
+                                    placeholder="Enter keywords (comma separated)"
+                                    name="meta_keywords"
+                                    value={formData.meta_keywords}
+                                    onChange={handleChange}
+                                />
+                                <p className="text-xs text-gray-500">
+                                    e.g. shoes, running, sportswear
+                                </p>
+                            </div>
+                        </div>
+                        {/* ===== Meta Description ===== */}
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-gray-700 flex justify-between items-center">
+                                <span>Meta Description</span>
+                            </label>
+                            <textarea
+                                className={`border border-border rounded-md p-2 text-sm outline-none focus:ring-1 focus:ring-main`}
+                                placeholder="Write a concise SEO description (max 160 chars)"
+                                name="meta_description"
+                                value={formData.meta_description}
+                                onChange={handleChange}
+                                rows={4}
+                                maxLength={MAX_DESC}
+                            />
+                            <div className="flex justify-between">
+                                <p className="text-xs text-gray-500">
+                                    Ideal length: 120–160 characters for better SEO visibility.
+                                </p>
+
+                                <span className={`text-sm ${formData.meta_description.length > MAX_DESC ? "text-red-600" : "text-gray-500"}`}>
+                                    {formData.meta_description.length}/{MAX_DESC}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="sm:flex justify-between items-center">
+                            <div className="flex gap-2">
+                                <input type="checkbox"
+                                    id="status-checkbox"
+                                    // Checkbox is checked if status is 'active'
+                                    checked={formData.status === 1}
+                                    onChange={(e) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            status: e.target.checked ? 1 : 0
+                                        }));
+                                    }} />
+                                <label htmlFor="">Is Active</label>
+                            </div>
+                            <div className="flex justify-end gap-2 border-t">
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="px-3 py-1 border rounded-md hover:bg-gray-50 bg-red text-white"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="px-3 py-1 bg-main text-white rounded-md hover:bg-mainHover disabled:opacity-70"
+                                >
+                                    {loading ? "Saving..." : "Save Changes"}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div >
+        </div >
+    );
+=======
                 <span
                   className={`text-sm ${formData.meta_description.length > MAX_DESC ? "text-red-600" : "text-gray-500"}`}
                 >
@@ -318,6 +440,7 @@ const ProductEditModal = ({ product, onClose, onSuccess }) => {
       </div>
     </div>
   );
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 };
 
 export default ProductEditModal;

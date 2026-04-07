@@ -44,8 +44,12 @@ const Attributes = React.memo(() => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
+<<<<<<< HEAD
+      if (!attributeName.trim()) return toast.error("⚠️ Attribute name is required!");
+=======
       if (!attributeName.trim())
         return toast.error("⚠️ Attribute name is required!");
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
       try {
         const payload = { name: attributeName.trim(), status };
@@ -78,9 +82,13 @@ const Attributes = React.memo(() => {
         setShow(false);
       } catch (error) {
         // console.error("❌ Failed:", error.response?.data || error.message);
+<<<<<<< HEAD
+        toast.error("⚠️ " + (error.response?.data?.message || "Validation failed!"));
+=======
         toast.error(
           "⚠️ " + (error.response?.data?.message || "Validation failed!"),
         );
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       }
     },
     [attributeName, status, editingAttribute],

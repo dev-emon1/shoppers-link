@@ -7,7 +7,11 @@ import useShipping from "../hooks/useShipping";
 
 export default function OrderSummary({ totals }) {
   const { cart, totalItems, totalPrice } = useCart();
+<<<<<<< HEAD
+  console.log(totals);
+=======
   const { shippingFee, grandTotal } = useShipping();
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
   const flatCartItems = [];
   Object.values(cart || {}).forEach((vendor) => {
@@ -74,7 +78,11 @@ export default function OrderSummary({ totals }) {
             <span>Shipping</span>
             <span className="flex items-center gap-1">
               <TbCurrencyTaka size={13} />
+<<<<<<< HEAD
+              {formatAmount(totals.shipping_charge)}
+=======
               {formatAmount(shippingFee)}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             </span>
           </div>
 

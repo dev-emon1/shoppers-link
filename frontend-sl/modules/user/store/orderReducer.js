@@ -202,12 +202,20 @@ const slice = createSlice({
         const page = params?.page ?? 1;
 
         if (page > 1) {
+<<<<<<< HEAD
+          const existingUnids = new Set(
+=======
           const existingIds = new Set(
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
             (s.list.data || []).map((x) => x.unid ?? x.id),
           );
 
           const newItems = (list || []).filter(
+<<<<<<< HEAD
+            (it) => !existingUnids.has(it.unid ?? it.id),
+=======
             (it) => !existingIds.has(it.unid ?? it.id),
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
           );
 
           s.list.data = [...s.list.data, ...newItems];
@@ -223,7 +231,11 @@ const slice = createSlice({
         }
 
         s.list.meta = meta ?? s.list.meta;
+<<<<<<< HEAD
+        s.list.lastFetchedAt = nowTS();
+=======
         s.list.lastFetchedAt = Math.floor(Date.now() / 1000);
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         s.list.hasFetched = true;
         s.list.params = params ?? s.list.params;
 

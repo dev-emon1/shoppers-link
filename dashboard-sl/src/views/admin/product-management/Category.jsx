@@ -114,9 +114,13 @@ const Category = React.memo(() => {
             : "Validation failed!";
           toast.error("⚠️ " + firstError);
         } else {
+<<<<<<< HEAD
+          toast.error("⚠️ " + (error.response?.data?.message || "Server error!"));
+=======
           toast.error(
             "⚠️ " + (error.response?.data?.message || "Server error!"),
           );
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         }
       }
     },

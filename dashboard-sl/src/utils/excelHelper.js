@@ -30,6 +30,11 @@ export const exportToExcel = (
     } else {
       XLSX.writeFile(wb, `${fileName}.xlsx`, { bookType: "xlsx" });
     }
+<<<<<<< HEAD
+
+    // console.log(`✅ Exported ${data.length} rows successfully.`);
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     toast.success(`Exported ${data.length} rows successfully.`);
   } catch (err) {
     console.error("❌ Export failed:", err);

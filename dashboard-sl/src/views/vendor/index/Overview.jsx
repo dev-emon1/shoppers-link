@@ -17,7 +17,7 @@ const Overview = () => {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  // console.log(data);
   useEffect(() => {
     const fetchOverview = async () => {
       try {
@@ -199,9 +199,13 @@ const Overview = () => {
                         ).toLocaleString()}
                       </td>
                       <td className="py-3 px-4 text-center">
+<<<<<<< HEAD
+                        <span className={`text-sm font-bold ${prod.stock_quantity < 10 ? 'text-main' : 'text-main'}`}>
+=======
                         <span
                           className={`text-sm font-bold ${prod.stock_quantity < 10 ? "text-main" : "text-main"}`}
                         >
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
                           {prod.sold_count}
                         </span>
                         <span className="ml-1 text-xs capitalize">Item</span>

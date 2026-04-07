@@ -8,6 +8,10 @@ import Pagination from "../../../components/Pagination";
 import FilterBar from "../../../components/common/FilterBar";
 import API from "../../../utils/api";
 import { toast } from "react-toastify";
+<<<<<<< HEAD
+
+=======
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
 
 const AttributeValue = () => {
   // ==== States ====
@@ -71,8 +75,12 @@ const AttributeValue = () => {
   // ==== Add / Update ====
   const handleSubmit = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
+    if (!selectedAttribute) return toast.error("⚠️ Please select an attribute!");
+=======
     if (!selectedAttribute)
       return toast.error("⚠️ Please select an attribute!");
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     if (!valueName.trim()) return toast.error("⚠️ Enter attribute value!");
 
     const payload = {
@@ -101,9 +109,13 @@ const AttributeValue = () => {
       fetchValues();
     } catch (error) {
       // console.error("❌ Failed to save:", error.response?.data || error.message);
+<<<<<<< HEAD
+      toast.error("⚠️ " + (error.response?.data?.message || "Operation failed!"));
+=======
       toast.error(
         "⚠️ " + (error.response?.data?.message || "Operation failed!"),
       );
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
     }
   };
 

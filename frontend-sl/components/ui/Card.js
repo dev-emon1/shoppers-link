@@ -4,6 +4,15 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Star, Flame } from "lucide-react";
 import { TbCurrencyTaka } from "react-icons/tb";
+<<<<<<< HEAD
+
+import ProductImageSlider from "../product/ProductImageSlider";
+import ProductActions from "../product/ProductActions";
+
+const Card = ({ data, href, showSoldCount = false }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+=======
 
 import ProductImageSlider from "../product/ProductImageSlider";
 // ❌ ProductActions removed
@@ -11,6 +20,7 @@ import ProductImageSlider from "../product/ProductImageSlider";
 const Card = ({ data, href, showSoldCount = false }) => {
   const [isHovered, setIsHovered] = useState(false);
 
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
   const variant = data?.variants?.[0] || {};
   const price = Number(variant.price) || 0;
   const discountAmount = Number(variant.discount) || 0;
@@ -29,10 +39,14 @@ const Card = ({ data, href, showSoldCount = false }) => {
 
   return (
     <Link
+<<<<<<< HEAD
+      href={href || `/product/${data.slug}`}
+=======
       href={
         href ||
         `/${data?.category?.slug}/${data?.sub_category?.slug}/${data?.child_category?.slug}/${data?.slug}`
       }
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       prefetch
       className="block bg-bgSurface border border-border overflow-hidden
                  hover:shadow-md transition-shadow duration-300"
@@ -42,7 +56,11 @@ const Card = ({ data, href, showSoldCount = false }) => {
       {/* Image */}
       <div className="relative w-full aspect-square bg-white">
         <ProductImageSlider images={data?.images || []} isHovered={isHovered} />
+<<<<<<< HEAD
+        <ProductActions product={data} isHovered={isHovered} />
+=======
         {/* ❌ Removed hover actions */}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
       </div>
 
       {/* Content */}
@@ -52,7 +70,11 @@ const Card = ({ data, href, showSoldCount = false }) => {
           {data.name}
         </h3>
 
+<<<<<<< HEAD
+        {/* Rating (always reserved) */}
+=======
         {/* Rating */}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
         <div className="mt-1 min-h-[18px]">
           {rating > 0 && !isITProduct && (
             <div className="flex items-center gap-1 text-xs">
@@ -72,9 +94,15 @@ const Card = ({ data, href, showSoldCount = false }) => {
           )}
         </div>
 
+<<<<<<< HEAD
+        {/* Bottom section */}
+        <div className="mt-auto space-y-1">
+          {/* Price slot (always reserved) */}
+=======
         {/* Bottom */}
         <div className="mt-auto space-y-1">
           {/* Price */}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
           <div className="min-h-[24px] flex items-center">
             {isITProduct ? (
               <span className="text-sm font-semibold text-main">
@@ -96,7 +124,11 @@ const Card = ({ data, href, showSoldCount = false }) => {
             )}
           </div>
 
+<<<<<<< HEAD
+          {/* Sold slot (always reserved) */}
+=======
           {/* Sold */}
+>>>>>>> 5f23822ac1c2cace21dbeea32a72bacb037ca79b
           <div className="min-h-[22px]">
             {!isITProduct && showSoldCount && soldCount && (
               <div
