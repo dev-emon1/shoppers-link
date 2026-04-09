@@ -17,6 +17,7 @@ import SearchDropdown from "@/modules/search/components/SearchDropdown";
 
 import banglalinkLogo from "@/public/svg/banglalink.svg";
 import fingertipsLogo from "@/public/svg/fingertips.svg";
+import meghnabank from "@/public/svg/bank.png";
 
 import { useOutsideClick } from "@/lib/utils/useOutSideClick";
 import { makeImageUrl } from "@/lib/utils/image";
@@ -26,6 +27,7 @@ import useLogout from "@/modules/user/hooks/useLogout";
 const BRAND_SEQUENCE = [
   { text: "A concern of", logo: fingertipsLogo, alt: "Fingertips" },
   { text: "Powered by", logo: banglalinkLogo, alt: "Banglalink" },
+  { text: "Supported by", logo: meghnabank, alt: "Meghna Bank PLC" },
 ];
 
 const MainNav = ({
