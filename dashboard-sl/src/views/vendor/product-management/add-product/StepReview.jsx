@@ -133,6 +133,7 @@ const StepReview = ({ formData, onEdit, onBack, onSubmit }) => {
                   )}
                   <th className="px-3 py-2 text-left">SKU</th>
                   <th className="px-3 py-2 text-left">Price</th>
+                  <th className="px-3 py-2 text-left">Weight</th>
                   {/* <th className="px-3 py-2 text-left">Discount</th> */}
                   <th className="px-3 py-2 text-left">Stock</th>
                 </tr>
@@ -147,6 +148,7 @@ const StepReview = ({ formData, onEdit, onBack, onSubmit }) => {
                     ))}
                     <td className="px-3 py-2">{v.sku}</td>
                     <td className="px-3 py-2">৳{v.price}</td>
+                    <td className="px-3 py-2">{v.weight}</td>
                     {/* <td className="px-3 py-2">{v.discount || 0}%</td> */}
                     <td className="px-3 py-2">{v.stock}</td>
                   </tr>

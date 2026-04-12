@@ -2,7 +2,12 @@
 
 import React from "react";
 
-const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
+const OrderInvoiceTemplate = ({
+  order,
+  billing,
+  activeVendorOrders = [],
+  vendorLogosBase64 = [], // ← নতুন prop যোগ করো
+}) => {
   const invoiceDate = new Date().toLocaleDateString("en-US", {
     month: "numeric",
     day: "numeric",
@@ -90,7 +95,7 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
         }}
       />
 
-      {/* Header */}
+      {/* ==================== HEADER ==================== */}
       <div
         style={{
           display: "flex",
@@ -99,6 +104,7 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
           marginBottom: "32px",
         }}
       >
+        {/* Left: INVOICE Title */}
         <div>
           <div
             style={{
@@ -121,16 +127,43 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
           </div>
         </div>
 
-        <img
-          src="/images/logo.png"
-          alt="shopzywork"
-          style={{ width: "130px", height: "auto" }}
-        />
+        {/* Right: Vendor Logos + ShoppersLink Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          {/* Vendor Logos (baam pashe) */}
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            {activeVendorOrders.map((vo, index) => {
+              const base64Logo = vendorLogosBase64[index]; // ← base64 ব্যবহার করছি
+              if (!base64Logo) return null;
+
+              return (
+                <img
+                  key={vo.id}
+                  src={base64Logo} // ← এখানে logoUrl এর বদলে base64Logo
+                  alt={vo.vendor?.shop_name || "Vendor"}
+                  style={{
+                    width: "58px",
+                    height: "58px",
+                    objectFit: "contain",
+                    borderRadius: "6px",
+                    border: "1px solid #e5e7eb",
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* ShoppersLink Logo (daan pashe) */}
+          <img
+            src="/images/logo.png"
+            alt="shopperslink"
+            style={{ width: "118px", height: "auto", objectFit: "contain" }}
+          />
+        </div>
       </div>
 
+      {/* বাকি সব কোড একদম আগের মতোই রাখো (Address + Summary + Vendor Sections + Grand Total + Footer) */}
       {/* Address + Summary */}
       <div style={{ display: "flex", gap: "32px", marginBottom: "32px" }}>
-        {/* Shipping / Billing Address */}
         <div style={{ flex: 1 }}>
           <div
             style={{
@@ -158,7 +191,6 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
           />
         </div>
 
-        {/* Order Summary */}
         <div style={{ flex: 1 }}>
           <div
             style={{
@@ -239,18 +271,17 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
         </div>
       </div>
 
-      {/* Vendor Sections - Tighter Spacing */}
+      {/* Vendor Sections */}
       {activeVendorOrders.map((vo) => (
         <div
           key={vo.id}
           style={{
-            marginBottom: "20px", // Reduced gap
+            marginBottom: "20px",
             border: "1px solid #e2e8f0",
             borderRadius: "12px",
             overflow: "hidden",
           }}
         >
-          {/* Vendor Shop Name - Much tighter */}
           <div
             style={{
               background: "#f8fafc",
@@ -352,10 +383,9 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
             </tbody>
           </table>
 
-          {/* Shipping & Subtotal - Tighter */}
           <div
             style={{
-              padding: "12px 24px", // Reduced padding
+              padding: "12px 24px",
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-end",
@@ -364,9 +394,6 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
             }}
           >
             <div>Shipping: {formatPrice(vo.shipping_charge)}</div>
-            {/* <div style={{ fontWeight: "700", fontSize: "15px" }}>
-              Subtotal: {formatPrice(vo.subtotal)}
-            </div> */}
           </div>
         </div>
       ))}
@@ -404,7 +431,6 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
           <span style={{ color: "#64748b" }}>Total Shipping</span>
           <span>{formatPrice(calculatedShipping)}</span>
         </div>
-
         <div
           style={{
             borderTop: "2px solid #111827",
@@ -430,7 +456,7 @@ const OrderInvoiceTemplate = ({ order, billing, activeVendorOrders = [] }) => {
           color: "#64748b",
         }}
       >
-        Thank you for shopping with us 💙
+        Thank you for shopping with us!
       </div>
     </div>
   );

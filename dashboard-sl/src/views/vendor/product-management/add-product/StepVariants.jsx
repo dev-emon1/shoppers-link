@@ -33,7 +33,12 @@ const StepVariants = ({ formData, onChange }) => {
   const [rows, setRows] = useState([]);
   const [searchMap, setSearchMap] = useState({});
   const [newValueMap, setNewValueMap] = useState({});
-  const [bulk, setBulk] = useState({ price: "", discount: "", stock: "" });
+  const [bulk, setBulk] = useState({
+    price: "",
+    discount: "",
+    stock: "",
+    weight: "",
+  });
 
   // Fetch attributes from API
   useEffect(() => {
@@ -177,6 +182,7 @@ const StepVariants = ({ formData, onChange }) => {
           price: "",
           discount: "",
           stock: "",
+          weight: "",
         }
       );
     });
@@ -223,10 +229,12 @@ const StepVariants = ({ formData, onChange }) => {
         price: bulk.price !== "" ? bulk.price : r.price,
         discount: bulk.discount !== "" ? bulk.discount : r.discount,
         stock: bulk.stock !== "" ? bulk.stock : r.stock,
+        weight: bulk.weight !== "" ? bulk.weight : r.weight,
       })),
     );
   };
-  const resetBulk = () => setBulk({ price: "", discount: "", stock: "" });
+  const resetBulk = () =>
+    setBulk({ price: "", discount: "", stock: "", weight: "" });
 
   // ===== SKU generator =====
   const slug = (s) =>
@@ -481,6 +489,19 @@ const StepVariants = ({ formData, onChange }) => {
               />
             </div> */}
 
+            <div className="flex flex-col">
+              <label className="text-xs text-gray-500">Weight</label>
+              <input
+                type="number"
+                value={bulk.weight}
+                onChange={(e) =>
+                  setBulk((p) => ({ ...p, weight: e.target.value }))
+                }
+                className="border border-border rounded px-2 py-1 w-32"
+                placeholder="e.g. 1.5"
+              />
+            </div>
+
             <button
               type="button"
               onClick={applyBulk}
@@ -496,7 +517,7 @@ const StepVariants = ({ formData, onChange }) => {
               Reset
             </button>
 
-            <div className="ml-auto flex items-center gap-2">
+            <div className="mr-auto flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => generateAllSkus(false)}
@@ -527,6 +548,7 @@ const StepVariants = ({ formData, onChange }) => {
                     ))}
                     <th>SKU</th>
                     <th>Price</th>
+                    <th>Weight</th>
                     {/* <th>Discount</th> */}
                     {!isDigitalCategory && <th>Stock</th>}
                     <th>Action</th>
@@ -565,6 +587,18 @@ const StepVariants = ({ formData, onChange }) => {
                               updateRow(row.id, "price", e.target.value)
                             }
                             className={inputClass(vErr?.price)}
+                          />
+                        </td>
+
+                        {/* Weight */}
+                        <td className="py-2 px-3">
+                          <input
+                            type="number"
+                            value={row.weight}
+                            onChange={(e) =>
+                              updateRow(row.id, "weight", e.target.value)
+                            }
+                            className={inputClass(vErr?.weight)}
                           />
                         </td>
 

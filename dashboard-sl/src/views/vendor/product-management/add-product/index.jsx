@@ -201,6 +201,7 @@ const AddProduct = () => {
         if (v.discount)
           submitData.append(`variants[${i}][discount]`, v.discount);
         submitData.append(`variants[${i}][stock]`, v.stock);
+        submitData.append(`variants[${i}][weight]`, v.weight);
       });
 
       // variantMeta
