@@ -127,9 +127,7 @@ export default function ShopProfile({ data }) {
     const preview =
       edited[name] instanceof File
         ? URL.createObjectURL(edited[name])
-        : oldSrc
-          ? `${IMAGE_URL}/${oldSrc}`
-          : null;
+        : oldSrc || null;
 
     return (
       <div>

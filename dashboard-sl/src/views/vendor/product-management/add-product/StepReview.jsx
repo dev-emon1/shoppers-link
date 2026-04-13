@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Heading from "../../../../components/common/Heading";
 
-const StepReview = ({ formData, onEdit, onBack, onSubmit }) => {
+const StepReview = ({ formData, onEdit, onBack, onSubmit, isSubmitting }) => {
   const [openSection, setOpenSection] = useState([
     "basic",
     "variants",
@@ -274,10 +274,40 @@ const StepReview = ({ formData, onEdit, onBack, onSubmit }) => {
 
         <button
           onClick={onSubmit}
-          className="flex items-center gap-2 bg-main hover:bg-mainHover text-white px-6 py-2 rounded-md text-sm font-medium transition-all"
+          disabled={isSubmitting}
+          className={`flex items-center gap-2 px-6 py-2 rounded-md text-sm font-medium transition-all
+    ${
+      isSubmitting
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-main hover:bg-mainHover text-white"
+    }`}
         >
-          <CheckCircle2 size={18} />
-          Publish Product
+          {isSubmitting ? (
+            <>
+              {/* Spinner */}
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="white"
+                  strokeWidth="3"
+                  opacity="0.3"
+                />
+                <path
+                  d="M22 12a10 10 0 00-10-10"
+                  stroke="white"
+                  strokeWidth="3"
+                />
+              </svg>
+              Publishing...
+            </>
+          ) : (
+            <>
+              <CheckCircle2 size={18} />
+              Publish Product
+            </>
+          )}
         </button>
       </div>
     </div>

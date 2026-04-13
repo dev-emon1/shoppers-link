@@ -16,11 +16,13 @@ import { makeAddProductSchema } from "./validation/addProduct.validation";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../utils/AuthContext";
 import API from "../../../../utils/api";
+import { ref } from "yup";
 
 const AddProduct = () => {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [attributes, setAttributes] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const DEFAULT_VALUES = {
     basicInfo: {
       vendor: user.id,
@@ -168,101 +170,110 @@ const AddProduct = () => {
     if (step > 1) setStep(step - 1);
   }, [step]);
   const navigate = useNavigate();
-  const handlePublish = useCallback(async (formData) => {
-    try {
-      const submitData = new FormData();
+  const handlePublish = useCallback(
+    async (formData) => {
+      if (isSubmitting) return;
+      try {
+        setIsSubmitting(true);
+        const submitData = new FormData();
 
-      submitData.append("vendor_id", user.id);
-      submitData.append("name", formData.basicInfo.name);
-      submitData.append("sku", formData.basicInfo.sku);
-      submitData.append("brand", formData.basicInfo.brand || "");
-      submitData.append("category", formData.basicInfo.category);
-      if (formData.basicInfo.subcategory)
-        submitData.append("subcategory", formData.basicInfo.subcategory);
-      if (formData.basicInfo.childCategory)
-        submitData.append("childcategory", formData.basicInfo.childCategory);
-      submitData.append("status", formData.basicInfo.status);
-      submitData.append("short_description", formData.shortDesc);
-      submitData.append("long_description", formData.longDesc);
-      if (formData.metaTitle)
-        submitData.append("meta_title", formData.metaTitle);
-      if (formData.metaDescription)
-        submitData.append("meta_description", formData.metaDescription);
-      if (formData.metaKeywords)
-        submitData.append("meta_keywords", formData.metaKeywords);
+        submitData.append("vendor_id", user.id);
+        submitData.append("name", formData.basicInfo.name);
+        submitData.append("sku", formData.basicInfo.sku);
+        submitData.append("brand", formData.basicInfo.brand || "");
+        submitData.append("category", formData.basicInfo.category);
+        if (formData.basicInfo.subcategory)
+          submitData.append("subcategory", formData.basicInfo.subcategory);
+        if (formData.basicInfo.childCategory)
+          submitData.append("childcategory", formData.basicInfo.childCategory);
+        submitData.append("status", formData.basicInfo.status);
+        submitData.append("short_description", formData.shortDesc);
+        submitData.append("long_description", formData.longDesc);
+        if (formData.metaTitle)
+          submitData.append("meta_title", formData.metaTitle);
+        if (formData.metaDescription)
+          submitData.append("meta_description", formData.metaDescription);
+        if (formData.metaKeywords)
+          submitData.append("meta_keywords", formData.metaKeywords);
 
-      // variants
-      formData.variants.forEach((v, i) => {
-        Object.entries(v.attributes).forEach(([attr, val]) => {
-          submitData.append(`variants[${i}][attributes][${attr}]`, val);
-        });
-        submitData.append(`variants[${i}][sku]`, v.sku);
-        submitData.append(`variants[${i}][price]`, v.price);
-        if (v.discount)
-          submitData.append(`variants[${i}][discount]`, v.discount);
-        submitData.append(`variants[${i}][stock]`, v.stock);
-        submitData.append(`variants[${i}][weight]`, v.weight);
-      });
-
-      // variantMeta
-      (formData.variantMeta.selectedAttributes || []).forEach((id, i) => {
-        submitData.append(`variantMeta[selectedAttributes][${i}]`, id);
-      });
-      Object.entries(formData.variantMeta.selectedValues || {}).forEach(
-        ([attrId, vals]) => {
-          vals.forEach((val, j) => {
-            submitData.append(
-              `variantMeta[selectedValues][${attrId}][${j}]`,
-              val,
-            );
+        // variants
+        formData.variants.forEach((v, i) => {
+          Object.entries(v.attributes).forEach(([attr, val]) => {
+            submitData.append(`variants[${i}][attributes][${attr}]`, val);
           });
-        },
-      );
+          submitData.append(`variants[${i}][sku]`, v.sku);
+          submitData.append(`variants[${i}][price]`, v.price);
+          if (v.discount)
+            submitData.append(`variants[${i}][discount]`, v.discount);
+          submitData.append(`variants[${i}][stock]`, v.stock);
+          submitData.append(`variants[${i}][weight]`, v.weight);
+        });
 
-      // images
-      formData.images.forEach((img) => {
-        submitData.append("images[]", img.file);
-      });
+        // variantMeta
+        (formData.variantMeta.selectedAttributes || []).forEach((id, i) => {
+          submitData.append(`variantMeta[selectedAttributes][${i}]`, id);
+        });
+        Object.entries(formData.variantMeta.selectedValues || {}).forEach(
+          ([attrId, vals]) => {
+            vals.forEach((val, j) => {
+              submitData.append(
+                `variantMeta[selectedValues][${attrId}][${j}]`,
+                val,
+              );
+            });
+          },
+        );
 
-      // colorImages
-      Object.entries(formData.colorImages || {}).forEach(([color, imgs]) => {
-        if (imgs.length)
-          submitData.append(`color_images[${color}]`, imgs[0].file);
-      });
+        // images
+        formData.images.forEach((img) => {
+          submitData.append("images[]", img.file);
+        });
 
-      // featured
-      let featuredStr = null;
-      const imgIndex = formData.images.findIndex(
-        (img) => img.id === formData.featured,
-      );
-      if (imgIndex !== -1) {
-        featuredStr = `general-${imgIndex}`;
-      } else {
-        for (const [color, imgs] of Object.entries(formData.colorImages)) {
-          if (imgs.length && imgs[0].id === formData.featured) {
-            featuredStr = `color-${color}`;
-            break;
+        // colorImages
+        Object.entries(formData.colorImages || {}).forEach(([color, imgs]) => {
+          if (imgs.length)
+            submitData.append(`color_images[${color}]`, imgs[0].file);
+        });
+
+        // featured
+        let featuredStr = null;
+        const imgIndex = formData.images.findIndex(
+          (img) => img.id === formData.featured,
+        );
+        if (imgIndex !== -1) {
+          featuredStr = `general-${imgIndex}`;
+        } else {
+          for (const [color, imgs] of Object.entries(formData.colorImages)) {
+            if (imgs.length && imgs[0].id === formData.featured) {
+              featuredStr = `color-${color}`;
+              break;
+            }
           }
         }
-      }
-      if (featuredStr) submitData.append("featured", featuredStr);
+        if (featuredStr) submitData.append("featured", featuredStr);
 
-      // ✅ Send request
-      const response = await API.post("/products", submitData);
+        // ✅ Send request
+        const response = await API.post("/products", submitData);
 
-      if (response.data.success) {
-        // alert("Product created successfully!");
-        toast.success("Product created successfully!");
-        navigate("/vendor/products/all-products");
-      } else {
-        // alert("Error: " + response.data.message);
-        toast.error(response.data.message);
+        if (response.data.success) {
+          // alert("Product created successfully!");
+          toast.success("Product created successfully!");
+          navigate("/vendor/products/all-products", {
+            state: { refresh: true },
+          });
+        } else {
+          // alert("Error: " + response.data.message);
+          toast.error(response.data.message);
+        }
+      } catch (err) {
+        // alert("Error: " + (err.response?.data?.message || err.message));
+        toast.error(err.response?.data?.message || err.message);
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (err) {
-      // alert("Error: " + (err.response?.data?.message || err.message));
-      toast.error(err.response?.data?.message || err.message);
-    }
-  }, []);
+    },
+    [isSubmitting],
+  );
 
   // === RENDER STEP ===
   const renderStep = () => {
@@ -332,6 +343,7 @@ const AddProduct = () => {
             onEdit={(step) => setStep(step)}
             onBack={handleBack}
             onSubmit={methods.handleSubmit(handlePublish)}
+            isSubmitting={isSubmitting}
           />
         );
 

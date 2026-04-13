@@ -50,9 +50,7 @@ const Header = ({ showSidebar, setShowSidebar }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const logo = user?.vendor?.logo
-    ? `${IMAGE_URL}${user.vendor.logo}`
-    : "/images/user.jpg";
+  const logo = user?.vendor?.logo ? `${user.vendor.logo}` : "/images/user.jpg";
 
   return (
     <div className="fixed top-0 left-0 w-full z-[80] bg-bgSurface dark:bg-bgDark shadow-sm h-[70px]">

@@ -15,10 +15,12 @@ import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { useAuth } from "../../../utils/AuthContext";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
 
 const AllProducts = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -41,7 +43,7 @@ const AllProducts = () => {
 
   const IMAGE_URL = import.meta.env.VITE_IMAGE_URL;
 
-  // Fetch products - এটাই এখন ১০০% সঠিক
+  // Fetch products -
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
@@ -76,14 +78,16 @@ const AllProducts = () => {
   }, [searchTerm, filterCategory, filterVendor, filterStatus, page, perPage]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    if (location.state?.refresh) {
+      fetchProducts();
+    }
+  }, [location.state]);
 
   useEffect(() => {
     setPage(1);
   }, [searchTerm, filterCategory, filterVendor, filterStatus]);
 
-  // Export functions (এগুলো ঠিক আছে)
+  // Export functions
   const handleExport = () => {
     if (!products.length) return toast.error("No data to export!");
 
@@ -99,7 +103,7 @@ const AllProducts = () => {
         .join("\n");
 
       return {
-        SN: (meta.current_page - 1) * meta.per_page + index + 1, // পেজিনেশন সহ সিরিয়াল
+        SN: (meta.current_page - 1) * meta.per_page + index + 1,
         Name: p.name,
         SKU: p.sku,
         Category: p.category?.name || "",
