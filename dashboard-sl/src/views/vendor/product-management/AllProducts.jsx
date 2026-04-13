@@ -45,6 +45,7 @@ const AllProducts = () => {
 
   // Fetch products -
   const fetchProducts = useCallback(async () => {
+    if (!user) return;
     try {
       setLoading(true);
 
@@ -75,13 +76,37 @@ const AllProducts = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, filterCategory, filterVendor, filterStatus, page, perPage]);
+  }, [
+    searchTerm,
+    filterCategory,
+    filterVendor,
+    filterStatus,
+    page,
+    perPage,
+    user,
+  ]);
 
   useEffect(() => {
+    if (!user) return;
+
+    fetchProducts();
+  }, [
+    user,
+    page,
+    perPage,
+    searchTerm,
+    filterCategory,
+    filterVendor,
+    filterStatus,
+  ]);
+
+  useEffect(() => {
+    if (!user) return;
+
     if (location.state?.refresh) {
       fetchProducts();
     }
-  }, [location.state]);
+  }, [location.state, user]);
 
   useEffect(() => {
     setPage(1);
@@ -230,7 +255,7 @@ const AllProducts = () => {
     toast.success("Products exported to PDF successfully!");
   };
 
-  // Table Columns - No কলামে label যোগ করা হয়েছে
+  // Table Columns -
   const columns = [
     {
       key: "no",
