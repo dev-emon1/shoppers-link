@@ -34,7 +34,7 @@ export async function getProductBySlug(slug) {
 }
 
 export async function fetchVendorProducts(params = {}) {
-  const res = await api.get("/v1/vendor-products", { params });
+  const res = await api.get("/vendor-products", { params });
 
   const payload = Array.isArray(res?.data?.data) ? res.data.data : [];
 
