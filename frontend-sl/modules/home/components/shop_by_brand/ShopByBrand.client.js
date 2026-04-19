@@ -72,8 +72,8 @@ export default function ShopByBrandClient() {
               <SwiperSlide key={brand.id}>
                 <div className="flex justify-center">
                   <Link
-                    href={brand.link || "#"}
-                    target="_blank"
+                    href={`/products?vendor=${brand.id}`}
+                    // target="_blank"
                     rel="noopener noreferrer"
                     className="group relative w-28 h-28 rounded-full border border-border bg-bgPage flex items-center justify-center overflow-hidden hover:shadow-md transition"
                   >

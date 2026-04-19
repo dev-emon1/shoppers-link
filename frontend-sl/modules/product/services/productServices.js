@@ -15,8 +15,8 @@ export async function fetchProductsFromApi(params = {}) {
   const payload = Array.isArray(res?.data?.data)
     ? res.data.data
     : Array.isArray(res?.data)
-    ? res.data
-    : [];
+      ? res.data
+      : [];
 
   const meta = res?.data?.meta || null;
   return { data: payload, meta };
@@ -31,4 +31,14 @@ export async function getProductBySlug(slug) {
   } catch (e) {}
   const all = await fetchProductsFromApi();
   return (all.data || []).find((p) => p.slug === slug) || null;
+}
+
+export async function fetchVendorProducts(params = {}) {
+  const res = await api.get("/v1/vendor-products", { params });
+
+  const payload = Array.isArray(res?.data?.data) ? res.data.data : [];
+
+  const meta = res?.data?.meta || null;
+
+  return { data: payload, meta };
 }
