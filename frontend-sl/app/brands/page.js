@@ -58,8 +58,8 @@ export default function BrandsPage() {
             return brand.link ? (
               <Link
                 key={`${brand.id}-${index}`}
-                href={`/products?vendor=${brand.id}`}
-                target="_blank"
+                href={`/vendor/${brand.id}`}
+                // target="_blank"
                 rel="noopener noreferrer"
                 className={commonClass + " hover:shadow-md"}
               >

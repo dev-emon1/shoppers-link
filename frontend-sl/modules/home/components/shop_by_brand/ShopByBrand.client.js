@@ -10,7 +10,6 @@ import useShopByBrands from "@/modules/home/hooks/useShopByBrands";
 import { makeImageUrl } from "@/lib/utils/image";
 
 export default function ShopByBrandClient() {
-  // ✅ FIX: limit 15
   const { brands, loading, error, showAll } = useShopByBrands({
     mode: "home",
     limit: 15,
@@ -72,15 +71,13 @@ export default function ShopByBrandClient() {
               <SwiperSlide key={brand.id}>
                 <div className="flex justify-center">
                   <Link
-                    href={`/products?vendor=${brand.id}`}
-                    // target="_blank"
-                    rel="noopener noreferrer"
+                    href={`/vendor/${brand.id}`}
                     className="group relative w-28 h-28 rounded-full border border-border bg-bgPage flex items-center justify-center overflow-hidden hover:shadow-md transition"
                   >
                     {hasLogo ? (
                       <Image
                         src={makeImageUrl(brand.logo)}
-                        alt={brand.shop_name}
+                        alt={brand.shop_name || "Brand"}
                         width={130}
                         height={130}
                         className="object-cover opacity-80 group-hover:opacity-100 transition"
@@ -89,7 +86,7 @@ export default function ShopByBrandClient() {
                       <div className="flex flex-col items-center justify-center text-textSecondary group-hover:text-main transition px-2">
                         <Store size={32} strokeWidth={1.5} />
                         <span className="mt-1 text-[11px] font-medium text-center line-clamp-2">
-                          {brand.shop_name}
+                          {brand.shop_name || "Brand"}
                         </span>
                       </div>
                     )}
