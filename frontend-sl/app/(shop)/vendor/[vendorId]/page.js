@@ -19,7 +19,6 @@ export default function VendorProductsPage() {
   const { vendorId } = useParams();
   const dispatch = useDispatch();
 
-  // ✅ FIX: use vendor state
   const { vendorList, vendorItemsById, loading, error } = useSelector(
     (state) => state.products,
   );
@@ -34,7 +33,9 @@ export default function VendorProductsPage() {
     }
   }, [vendorId, dispatch]);
 
-  // ✅ normalize
+  /* ----------------------------------
+     🔥 Normalize products
+  ---------------------------------- */
   const products = useMemo(() => {
     return (vendorList || [])
       .map((id) => {
@@ -49,6 +50,17 @@ export default function VendorProductsPage() {
       })
       .filter(Boolean);
   }, [vendorList, vendorItemsById]);
+
+  /* ----------------------------------
+     🔥 NEW: Dynamic vendor name
+  ---------------------------------- */
+  const vendorName = useMemo(() => {
+    if (!products.length) return "Vendor";
+
+    return (
+      products[0]?.vendor?.shop_name || products[0]?.vendor?.name || "Vendor"
+    );
+  }, [products]);
 
   return (
     <ProductsLayout
@@ -69,8 +81,8 @@ export default function VendorProductsPage() {
       }
       topbar={
         <ListingHeader
-          title="Vendor Products"
-          breadcrumb={[{ label: "Home", href: "/" }, { label: "Vendor" }]}
+          title={vendorName}
+          breadcrumb={[{ label: "Home", href: "/" }, { label: vendorName }]}
           total={products.length}
           view={view}
           sort={sort}
